@@ -1,0 +1,342 @@
+\chapter{アルゴリズムを工夫する}
+\label{chap:algorithm-improvement}
+
+この章では、同じ結果を得るプログラムでも、処理の進め方を工夫すると速くできることを学びます。題材として、セルが生まれたり消えたりするLife Gameを使います。Life Gameは見た目には単純ですが、盤面が大きくなると「どのセルを調べるか」がとても大切になります。
+
+\section{この章の概要}
+
+これまでの章では、配列、クラス、ゲーム、画像、音声などを扱ってきました。この章では、それらを支える考え方として、アルゴリズムに注目します。アルゴリズムとは、問題を解くための手順のことです。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item Life Gameの基本ルールを理解する
+    \item 2次元配列でセルの状態を表す
+    \item すべてのセルを調べて次の世代を作る
+    \item 変化したセルを記録する
+    \item 変化したセルの周囲だけを調べる
+    \item 調べたセル数を表示して、処理の違いを見る
+\end{itemize}
+
+\begin{pointbox}{この章で見てほしいこと}
+速いプログラムは、必ずしも短いプログラムではありません。何を調べ、何を調べなくてよいかを考えることで、同じ結果をより少ない処理で求められる場合があります。
+\end{pointbox}
+
+\section{Life Gameとは}
+
+Life Gameは、格子状に並んだセルが、一定のルールにしたがって生き残ったり、死んだり、生まれたりするシミュレーションです。1つ1つのセルは、生きている状態と死んでいる状態のどちらかを持ちます。
+
+次の世代の状態は、そのセルの周囲8マスにある生きているセルの数で決まります。
+
+\begin{itemize}
+    \item 生きているセルの周囲に生きているセルが2個または3個あると、生き残る
+    \item 死んでいるセルの周囲に生きているセルが3個あると、新しく生まれる
+    \item それ以外の場合、そのセルは死んだ状態になる
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=0.9]
+        \foreach \x in {0,1,2} {
+            \foreach \y in {0,1,2} {
+                \draw[gray] (\x,\y) rectangle +(1,1);
+            }
+        }
+        \fill[black!75] (1,1) rectangle +(1,1);
+        \node at (1.5,1.5) {\textcolor{white}{中心}};
+        \foreach \x/\y in {0/0,1/0,2/0,0/1,2/1,0/2,1/2,2/2} {
+            \node at (\x+0.5,\y+0.5) {\small 周囲};
+        }
+    \end{tikzpicture}
+    \caption{Life Gameで調べる周囲8マス}
+    \label{fig:chapter18-neighbors}
+\end{figure}
+
+\section{2次元配列で盤面を表す}
+
+Life Gameの盤面は、第13章で学んだ2次元配列で表せます。この章では、セルが生きているかどうかを\texttt{boolean}で表します。\texttt{true}なら生きているセル、\texttt{false}なら死んでいるセルです。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=38]{ts}{listings/chapter18/basic-life-game.ts}
+\caption{Life Gameの盤面を2次元配列で作る}
+\label{lst:chapter18-basic-board}
+\end{listing}
+
+\texttt{boolean[][]}は、\texttt{boolean}の配列をさらに配列にした型です。外側の配列を行、内側の配列を列として使うと、格子状のデータを表せます。現在の世代と次の世代の盤面を\texttt{boolean[][]}で表すと、生きているセルが\texttt{true}、死んでいるセルが\texttt{false}であることを型から読み取りやすくなります。
+
+\begin{notebox}{行と列の順番}
+この章のサンプルでは、\texttt{board[y][x]}の順でセルを取り出します。画面の座標が\texttt{x}、\texttt{y}の順なので少し迷いやすいですが、2次元配列では「何行目か」を先に指定すると考えると整理しやすくなります。
+\end{notebox}
+
+\section{単純な方法で次の世代を作る}
+
+最初は、すべてのセルを順番に調べる方法で次の世代を作ります。この方法は素直で分かりやすく、Life Gameのルールを確認するには最適です。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter18/life-game-rules.ts}
+\caption{周囲の生きているセルを数え、次の状態を決める}
+\label{lst:chapter18-life-rules}
+\end{listing}
+
+\texttt{countLivingNeighbors}は、指定したセルの周囲8マスを調べます。盤面の外側にはセルがないため、\texttt{neighborX}や\texttt{neighborY}が範囲内かどうかを確認しています。
+
+\texttt{getNextCellState}は、Life Gameのルールをそのまま関数にしたものです。今のセルが生きている場合と死んでいる場合で、次の状態の決まり方が少し変わります。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=35]{ts}{listings/chapter18/life-game-full-scan.ts}
+\caption{全探索版のスケッチ}
+\label{lst:chapter18-full-scan-sketch}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=38,lastline=61]{ts}{listings/chapter18/life-game-full-scan.ts}
+\caption{すべてのセルを調べて次の世代を作る}
+\label{lst:chapter18-full-scan-update}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=63,lastline=111]{ts}{listings/chapter18/life-game-full-scan.ts}
+\caption{全探索版で使う近傍判定}
+\label{lst:chapter18-full-scan-rules}
+\end{listing}
+
+この方法では、盤面の幅が60、高さが40なら、1世代進めるたびに2400個のセルを調べます。盤面が大きくなるほど、調べるセルの数は急に増えていきます。
+
+\section{全探索版の弱点}
+
+すべてのセルを調べる方法は、正しく動き、理解もしやすい方法です。ただし、盤面のほとんどが変化しない場合でも、毎回すべてのセルを調べます。
+
+Life Gameでは、あるセルの次の状態は、そのセル自身と周囲8マスの状態だけで決まります。つまり、前の世代で遠く離れた場所だけが変化した場合、その影響はこのセルには届きません。この性質を使うと、次に調べる候補を減らせます。
+
+\begin{pointbox}{変化の近くを見る}
+あるセルが変化したとき、次の世代で影響を受ける可能性があるのは、そのセル自身と周囲8マスです。変化した場所から遠いセルは、前の世代と同じ近傍を見ているため、次の状態も変わりません。
+\end{pointbox}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[font=\small]
+        \node[font=\bfseries] at (1.65,0.7) {全探索};
+        \foreach \row in {0,1,2,3,4} {
+            \foreach \column in {0,1,2,3,4,5} {
+                \fill[blue!13] (\column*0.55,-\row*0.55)
+                    rectangle +(0.55,-0.55);
+                \draw[gray] (\column*0.55,-\row*0.55)
+                    rectangle +(0.55,-0.55);
+            }
+        }
+        \fill[black!75] (2*0.55,-2*0.55)
+            rectangle +(0.55,-0.55);
+        \node[align=center] at (1.65,-3.35)
+            {盤面の全30マスを調べる\\
+             （実際のサンプルでは60×40マス）};
+
+        \begin{scope}[xshift=7.3cm]
+            \node[font=\bfseries] at (1.65,0.7) {変化した周囲だけを調べる};
+            \foreach \row in {0,1,2,3,4} {
+                \foreach \column in {0,1,2,3,4,5} {
+                    \fill[gray!5] (\column*0.55,-\row*0.55)
+                        rectangle +(0.55,-0.55);
+                    \draw[gray] (\column*0.55,-\row*0.55)
+                        rectangle +(0.55,-0.55);
+                }
+            }
+            \foreach \row in {1,2,3} {
+                \foreach \column in {1,2,3} {
+                    \fill[green!18] (\column*0.55,-\row*0.55)
+                        rectangle +(0.55,-0.55);
+                    \draw[green!45!black] (\column*0.55,-\row*0.55)
+                        rectangle +(0.55,-0.55);
+                }
+            }
+            \fill[orange!80] (2*0.55,-2*0.55)
+                rectangle +(0.55,-0.55);
+            \node[white, font=\bfseries] at (2*0.55+0.275,-2*0.55-0.275)
+                {変};
+            \node[align=center] at (1.65,-3.35)
+                {変化したセルと周囲8マスだけを候補にする\\
+                 この例では9マス};
+        \end{scope}
+    \end{tikzpicture}
+    \caption{全探索と変化した周囲だけを調べる方法の違い}
+    \label{fig:chapter19-full-scan-and-candidates}
+\end{figure}
+
+図\ref{fig:chapter19-full-scan-and-candidates}の右側では、オレンジ色のセルが前の世代で変化した場所です。次の世代では、そのセルと緑色で示した周囲だけを候補にします。盤面の変化が一部に限られていれば、左側の全探索よりも調べるセルを大きく減らせます。
+
+\section{変化した場所をリストに保存する}
+
+次に、変化した場所をリストとして保存します。ここでは\texttt{CellPosition}という小さなクラスを作り、セルの\texttt{x}座標と\texttt{y}座標をまとめて扱います。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=46]{ts}{listings/chapter18/life-game-changed-cells.ts}
+\caption{変化したセルの位置を記録する}
+\label{lst:chapter18-changed-cells-position}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=60,lastline=103]{ts}{listings/chapter18/life-game-changed-cells.ts}
+\caption{変化したセルとその周囲を候補に入れる}
+\label{lst:chapter18-changed-cells-candidates}
+\end{listing}
+
+\texttt{changedCells}には、前の世代から状態が変わったセルの位置を入れます。次の世代を作るときは、そのセル自身と周囲8マスを候補として調べます。
+
+\texttt{addPositionIfNeeded}は、同じ位置を何度もリストに入れないための関数です。ここでは、初学者が追いやすいように、配列を順番に見て同じ座標があるかどうかを調べています。
+
+\section{変化した周囲だけで次の世代を作る}
+
+変化した場所のリストを使うと、すべてのセルを調べなくても次の世代を作れます。ただし、注意点があります。新しい世代の盤面を作るとき、調べなかったセルは前の世代と同じ状態として残す必要があります。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=36]{ts}{listings/chapter18/life-game-optimized.ts}
+\caption{差分更新版で使う位置と結果のクラス}
+\label{lst:chapter18-optimized-classes}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=38,lastline=83]{ts}{listings/chapter18/life-game-optimized.ts}
+\caption{差分更新版で使う候補リストの補助関数}
+\label{lst:chapter18-optimized-candidates}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=85,lastline=119]{ts}{listings/chapter18/life-game-optimized.ts}
+\caption{変化した周囲だけを調べて次の世代を作る}
+\label{lst:chapter18-optimized-update}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=121,lastline=141]{ts}{listings/chapter18/life-game-optimized.ts}
+\caption{変化したセルの周囲を候補に加える}
+\label{lst:chapter18-optimized-around-cells}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=251,lastline=289]{ts}{listings/chapter18/life-game-optimized.ts}
+\caption{差分更新版のLife Gameを動かす}
+\label{lst:chapter18-optimized-sketch}
+\end{listing}
+
+\texttt{copyBoard}で現在の盤面をコピーしてから、候補になったセルだけを更新しています。これにより、調べなかったセルはそのまま残ります。
+
+この方法は、変化する場所が少ないときに効果を発揮します。一方で、盤面全体が激しく変化している場合は、候補が多くなり、全探索版との差が小さくなります。
+
+\section{調べたセル数を比べる}
+
+アルゴリズムの違いは、見た目だけでは分かりにくいことがあります。そこで、1世代を作るために調べたセル数を画面に表示します。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=36]{ts}{listings/chapter18/life-game-comparison.ts}
+\caption{比較用サンプルで使う位置と結果のクラス}
+\label{lst:chapter18-comparison-classes}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=38,lastline=59]{ts}{listings/chapter18/life-game-comparison.ts}
+\caption{比較用サンプルの全探索版}
+\label{lst:chapter18-comparison-full-scan}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=61,lastline=95]{ts}{listings/chapter18/life-game-comparison.ts}
+\caption{比較用サンプルの差分更新版}
+\label{lst:chapter18-comparison-changed-cells}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=261,lastline=293]{ts}{listings/chapter18/life-game-comparison.ts}
+\caption{比較用サンプルの準備}
+\label{lst:chapter18-comparison-setup}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=315,lastline=327]{ts}{listings/chapter18/life-game-comparison.ts}
+\caption{比較結果を画面に表示して世代を進める}
+\label{lst:chapter18-comparison-sketch}
+\end{listing}
+
+このサンプルでは、同じ盤面に対して、全探索版なら何個のセルを調べるか、差分更新版なら何個の候補を調べるかを表示します。最初のうちは差が小さくても、動きが落ち着いてくると、差分更新版の調べる数が少なくなることがあります。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[x=1.15cm, y=0.85cm, font=\small]
+        \draw[->, thick] (0,0) -- (8.6,0)
+            node[right]{世代};
+        \draw[->, thick] (0,0) -- (0,5.3)
+            node[above, align=center]{調べた\\セル数};
+
+        \draw[blue!70!black, very thick]
+            (0.4,4.45) -- (8.0,4.45);
+        \node[blue!70!black, anchor=west] at (5.0,4.78)
+            {全探索：盤面全体なので一定};
+        \node[blue!70!black, anchor=east] at (8.0,4.15)
+            {2400セル（60×40）};
+
+        \draw[orange!85!black, very thick]
+            plot[smooth] coordinates {
+                (0.4,3.9) (1.6,3.55) (2.8,2.85)
+                (4.0,2.05) (5.2,1.45) (6.4,1.15) (7.8,1.35)
+            };
+        \foreach \x/\y in {
+            0.4/3.9,1.6/3.55,2.8/2.85,4.0/2.05,
+            5.2/1.45,6.4/1.15,7.8/1.35
+        } {
+            \fill[orange!85!black] (\x,\y) circle (1.8pt);
+        }
+        \node[orange!85!black, anchor=west, align=left]
+            at (4.3,2.65)
+            {差分更新：変化が減ると\\候補も少なくなる};
+    \end{tikzpicture}
+    \caption{変化が少なくなる場合に調べるセル数が変わる概念図}
+    \label{fig:chapter19-checked-cell-counts}
+\end{figure}
+
+図\ref{fig:chapter19-checked-cell-counts}は、変化が次第に少なくなる場合の傾向を表した概念図です。差分更新版の線は実測値ではなく、実際に調べるセル数は初期状態や世代ごとの変化によって異なります。全探索版は、変化の量にかかわらず毎回2400セルを調べます。
+
+\begin{notebox}{速さの比較は条件によって変わる}
+差分更新版はいつでも必ず速いわけではありません。候補を作る処理や、重複を取り除く処理にも時間がかかります。大切なのは、「どのようなデータのときに有利か」を考えることです。
+\end{notebox}
+
+\section{よくある間違い}
+
+Life Gameは、ルールは短いものの、配列のコピーや座標の扱いで間違えやすい題材です。思った通りに動かないときは、次の点を確認します。
+
+\begin{mistakebox}{現在の盤面を直接書き換えてしまう}
+次の世代を作る途中で現在の盤面を書き換えると、まだ調べていないセルの判定に影響してしまいます。現在の盤面を読みながら、別の配列に次の世代を書き込むようにします。
+\end{mistakebox}
+
+\begin{mistakebox}{盤面の外側を読もうとしてしまう}
+端のセルでは、周囲8マスの一部が盤面の外になります。\texttt{x}や\texttt{y}が範囲内かどうかを確認してから配列を読む必要があります。
+\end{mistakebox}
+
+\begin{mistakebox}{同じ候補を何度も追加してしまう}
+変化したセルが近くにあると、同じ候補が何度も出てきます。同じセルを何度も調べると、差分更新の効果が小さくなります。
+\end{mistakebox}
+
+\begin{mistakebox}{最初から難しい高速化を目指してしまう}
+まずは全探索版を正しく作ることが大切です。正しい結果が分かってから、同じ結果になるように差分更新版へ変えていきます。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、Life Gameを題材にして、アルゴリズムを工夫する考え方を学びました。最初にすべてのセルを調べる分かりやすい方法を作り、その後、変化した場所を記録して調べる候補を減らす方法へ進みました。
+
+重要なのは、速くする前に正しく動く方法を作ることです。そのうえで、どこに無駄があるのか、どの情報を保存しておくと次の処理で役立つのかを考えると、プログラムを改善しやすくなります。
+
+\section{演習問題}
+
+この章の演習では、Life Gameのルールを確認しながら、少しずつアルゴリズムの工夫に挑戦します。
+
+\begin{enumerate}
+    \item Life Gameで、死んでいるセルが次の世代で生まれる条件を説明しなさい。
+    \item \texttt{board[y][x]}の\texttt{x}と\texttt{y}が何を表しているか説明しなさい。
+    \item セルの大きさを変えて、同じ盤面を大きく表示しなさい。
+    \item 初期状態で生きているセルの割合を変え、動きがどう変わるか観察しなさい。
+    \item 生きているセルの色と死んでいるセルの色を変更しなさい。
+    \item 全探索版で、1世代ごとに調べたセル数を画面に表示しなさい。
+    \item 変化したセルの位置を画面上で別の色で表示しなさい。
+    \item 差分更新版と全探索版が同じ結果になるか、同じ初期状態で比べなさい。
+    \item マウスでクリックした場所のセルを生きている状態に変えられるようにしなさい。
+    \item Life Gameの有名な形を調べ、グライダーなどの初期状態を作りなさい。
+    \item 調べたセル数の変化を折れ線グラフのように表示する方法を考えなさい。
+\end{enumerate}

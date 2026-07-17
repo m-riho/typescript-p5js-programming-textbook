@@ -1,0 +1,346 @@
+\chapter{条件分岐とインタラクション}
+\label{chap:conditions-and-interaction}
+
+この章では、条件によって処理を変える方法と、マウスやキーボードからの入力を使ってプログラムを操作する方法を学びます。第5章では、変数の値を毎回少しずつ変えることでアニメーションを作りました。この章では、そこに「もし〜なら」という判断を加え、画面の状態やユーザーの操作に反応するプログラムを作ります。
+
+\section{この章の概要}
+
+条件分岐は、プログラムに判断をさせるための仕組みです。たとえば、「マウスボタンが押されているなら円を黒くする」「円が画面の端に着いたら向きを変える」のように、ある条件が成り立つかどうかで実行する処理を変えます。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item 条件式と\texttt{boolean}型
+    \item \texttt{if}文と\texttt{if}〜\texttt{else}文
+    \item \texttt{if}〜\texttt{else if}〜\texttt{else}文
+    \item 比較演算子の使い方
+    \item \texttt{p.mouseX}、\texttt{p.mouseY}、\texttt{p.mouseIsPressed}
+    \item 壁で跳ね返るアニメーション
+    \item \texttt{p.mousePressed}と\texttt{p.keyPressed}
+\end{itemize}
+
+\section{条件式とboolean型}
+
+条件分岐では、「正しい」か「正しくない」かを判定する式を使います。このような式を条件式と呼びます。TypeScriptでは、条件式の結果は\texttt{boolean}型の値になります。\texttt{boolean}型の値は、\texttt{true}または\texttt{false}のどちらかです。
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+条件式 & 意味 \\
+\midrule
+\texttt{p.mouseX < 200} & マウスの $x$ 座標が200より小さい \\
+\texttt{circleX >= p.width} & 円の $x$ 座標がキャンバスの幅以上 \\
+\texttt{p.mouseIsPressed} & マウスボタンが押されている \\
+\texttt{p.key === "a"} & 押されたキーが\texttt{a}である \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pointbox}{boolean型}
+\texttt{boolean}型は、\texttt{true}または\texttt{false}を入れるための型です。条件式も、最終的には\texttt{true}か\texttt{false}のどちらかとして扱われます。
+\end{pointbox}
+
+\section{if文で処理を選ぶ}
+
+\texttt{if}文は、条件が成り立つときだけ処理を実行するための書き方です。まずは、マウスボタンが押されているときだけ円の色を変える例を見てみましょう。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        font=\small,
+        box/.style={draw, rounded corners=2pt, minimum width=35mm, minimum height=8mm, align=center},
+        decision/.style={
+            draw,
+            diamond,
+            aspect=2.2,
+            minimum width=34mm,
+            minimum height=18mm,
+            align=center
+        }
+    ]
+        \node[box] (start) at (0, 0) {処理を始める};
+        \node[decision] (condition) at (0, -1.8) {\texttt{p.mouseIsPressed}\\は\texttt{true}?};
+        \node[box] (then) at (0, -3.7) {\texttt{p.fill(40);}\\を実行する};
+        \node[box] (end) at (0, -5.4) {次の処理へ進む};
+
+        \draw[->] (start) -- (condition);
+        \draw[->] (condition) -- node[right]{true} (then);
+        \draw[->] (then) -- (end);
+        \draw[->] (condition.east) -- ++(1.8, 0) node[right]{false} |- (end.east);
+    \end{tikzpicture}
+    \caption{if文の処理の流れ}
+    \label{fig:chapter06-if-flowchart}
+\end{figure}
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/mouse-pressed-fill.ts}
+\caption{マウスボタンが押されているときだけ色を変える}
+\label{lst:chapter06-mouse-pressed-fill}
+\end{listing}
+
+\texttt{p.mouseIsPressed}は、マウスボタンが押されているときに\texttt{true}、押されていないときに\texttt{false}になる\texttt{boolean}型の値です。このサンプルでは、まず灰色で塗るように指定し、\texttt{true}のときだけ\texttt{p.fill(40);}で黒に近い色へ上書きします。
+
+\begin{notebox}{何もしない場合もある}
+\texttt{if}文だけを書くと、条件が成り立たないときは、その中の処理が実行されません。このサンプルでは、マウスを押していないときには\texttt{p.fill(40);}が実行されないため、その直前に指定した灰色で円が描かれます。
+\end{notebox}
+
+\section{ifとelseを使う}
+
+条件が成り立つときと、成り立たないときの両方に処理を書きたい場合は、\texttt{if}〜\texttt{else}文を使います。\texttt{else}は「そうでなければ」という意味で読むと理解しやすくなります。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        font=\small,
+        box/.style={draw, rounded corners=2pt, minimum width=34mm, minimum height=8mm, align=center},
+        decision/.style={
+            draw,
+            diamond,
+            aspect=2.2,
+            minimum width=34mm,
+            minimum height=18mm,
+            align=center
+        }
+    ]
+        \node[box] (start) at (0, 0) {処理を始める};
+        \node[decision] (condition) at (0, -1.8) {\texttt{p.mouseIsPressed}\\は\texttt{true}?};
+        \node[box] (then) at (-2.8, -3.7) {\texttt{p.fill(40);}\\を実行する};
+        \node[box] (else) at (2.8, -3.7) {\texttt{p.fill(180);}\\を実行する};
+        \node[box] (end) at (0, -5.5) {次の処理へ進む};
+
+        \draw[->] (start) -- (condition);
+        \draw[->] (condition) -| node[pos=.25, above]{true} (then);
+        \draw[->] (condition) -| node[pos=.25, above]{false} (else);
+        \draw[->] (then) |- (end);
+        \draw[->] (else) |- (end);
+    \end{tikzpicture}
+    \caption{if〜else文の処理の流れ}
+    \label{fig:chapter06-if-else-flowchart}
+\end{figure}
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/mouse-pressed-if-else.ts}
+\caption{ifとelseで円の色を切り替える}
+\label{lst:chapter06-mouse-pressed-if-else}
+\end{listing}
+
+このサンプルでは、マウスボタンが押されているときは黒に近い色、押されていないときは灰色で円を描きます。どちらの場合にも必ず\texttt{p.fill}が実行されるため、状態の違いがはっきりします。
+
+\section{if、else if、elseを使う}
+
+選びたい処理が3つ以上ある場合は、\texttt{if}、\texttt{else if}、\texttt{else}を組み合わせます。最初の条件から順番に調べ、成り立ったところの処理だけを実行します。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        font=\small,
+        box/.style={draw, rounded corners=2pt, minimum width=32mm, minimum height=8mm, align=center},
+        decision/.style={
+            draw,
+            diamond,
+            aspect=2.2,
+            minimum width=34mm,
+            minimum height=18mm,
+            align=center
+        }
+    ]
+        \node[box] (start) at (0, 0) {処理を始める};
+        \node[decision] (conditionA) at (0, -1.9) {条件1は\\\texttt{true}?};
+        \node[box] (thenA) at (-4.3, -1.9) {処理1を\\実行する};
+        \node[decision] (conditionB) at (0, -4.5) {条件2は\\\texttt{true}?};
+        \node[box] (thenB) at (4.3, -4.5) {処理2を\\実行する};
+        \node[box] (else) at (0, -6.9) {それ以外の\\処理を実行する};
+        \node[box] (end) at (0, -8.7) {次の処理へ進む};
+
+        \draw[->] (start) -- (conditionA);
+        \draw[->] (conditionA) -- node[above]{true} (thenA);
+        \draw[->] (conditionA) -- node[right]{false} (conditionB);
+        \draw[->] (conditionB) -- node[above]{true} (thenB);
+        \draw[->] (conditionB) -- node[right]{false} (else);
+        \draw[->] (thenA) |- (end);
+        \draw[->] (thenB) |- (end);
+        \draw[->] (else) -- (end);
+    \end{tikzpicture}
+    \caption{if〜else if〜else文の処理の流れ}
+    \label{fig:chapter06-if-else-if-flowchart}
+\end{figure}
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/mouse-third-rect.ts}
+\caption{if〜else if〜elseで3つの領域を塗り分ける}
+\label{lst:chapter06-mouse-third-rect}
+\end{listing}
+
+このサンプル（リスト\ref{lst:chapter06-mouse-third-rect}）では、キャンバスを左、中央、右の3つの領域に分けています。マウスが左の領域にあれば最初の\texttt{if}の処理を実行します。左ではなく中央にあれば\texttt{else if}の処理を実行します。どちらでもなければ、右の領域にあると考えて\texttt{else}の処理を実行します。
+
+\begin{pointbox}{上から順番に調べる}
+\texttt{else if}は、前の条件が成り立たなかったときだけ調べられます。複数の条件を並べるときは、どの順番で調べると分かりやすいかを考えます。
+\end{pointbox}
+
+\section{マウスの位置で処理を変える}
+
+マウスの位置を使うと、画面のどこにカーソルがあるかによって表示を変えられます。p5.jsでは、マウスカーソルの $x$ 座標をシステム変数\texttt{mouseX}、$y$ 座標を\texttt{mouseY}として読み取ります。
+\footnote{\texttt{frameCount}と同じように、プログラム内では、\texttt{p.mouseX}、\texttt{p.mouseY}のように、スケッチを表す変数を通して使います。}
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/mouse-half-rect.ts}
+\caption{マウスの位置で左右の領域を塗り分ける}
+\label{lst:chapter06-mouse-half-rect}
+\end{listing}
+
+\texttt{p.mouseX < p.width / 2}は、「マウスがキャンバスの左半分にあるか」を調べる条件式です。左半分にあるときは左側を青く塗り、そうでないときは右側をオレンジ色に塗ります。
+
+\begin{pointbox}{比較演算子}
+\texttt{<}、\texttt{>}、\texttt{<=}、\texttt{>=}は数値を比べるための演算子です。\texttt{=}は代入に使うため、「等しい」を調べるときは\texttt{===}を使います。
+\end{pointbox}
+
+\section{端に着いたら向きを変える}
+
+条件分岐は、アニメーションにも使えます。第5章では円が右へ動き続けるだけでした。この章では、円が画面の端に着いたときに移動方向を変え、左右の壁で跳ね返るようにします。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/bouncing-circle.ts}
+\caption{画面の端で円を跳ね返す}
+\label{lst:chapter06-bouncing-circle}
+\end{listing}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[x=0.9cm, y=0.9cm, font=\small]
+        \tikzset{
+            guide/.style={draw=black!35, dashed},
+            measure/.style={<->, line width=0.7pt},
+            arrow/.style={->, line width=0.7pt},
+            labelbox/.style={
+                draw=black!35,
+                fill=white,
+                rounded corners=2pt,
+                inner xsep=5pt,
+                inner ysep=3pt,
+                align=center
+            }
+        }
+
+        \draw[fill=blue!4, draw=black!60] (0, 0) rectangle (8, 3);
+        \node[anchor=north west] at (0, 3) {キャンバス};
+
+        \coordinate (center) at (6.8, 1.5);
+        \coordinate (rightEdge) at (8, 1.5);
+        \draw[fill=orange!35, draw=orange!80!black, line width=1pt]
+            (center) circle (1.2);
+        \fill (center) circle (2pt);
+        \draw[guide] (center) -- (6.8, -0.35);
+        \draw[guide, red!70!black] (8, 0) -- (8, 3);
+
+        \draw[measure] (center) -- node[above] {\texttt{circleRadius}} (rightEdge);
+        \draw[measure] (0, -0.45) -- node[below] {\texttt{p.width}} (8, -0.45);
+        \draw[arrow] (6.8, -0.25) -- (6.8, 0);
+        \node[labelbox, anchor=south] at (6.8, -0.35) {\texttt{circleX}};
+        \node[labelbox, anchor=west] at (8.15, 1.5) {キャンバスの右端};
+
+        \node[labelbox, anchor=north] at (4, -1.0)
+            {\texttt{circleX + circleRadius >= p.width}\\なら右端に届いている};
+    \end{tikzpicture}
+    \caption{円の右端がキャンバスの右端に届く条件}
+    \label{fig:chapter06-right-edge-condition}
+\end{figure}
+
+\texttt{circleX + circleRadius >= p.width}は、円の右端がキャンバスの右端に届いたかを調べています。右端に届いたら\texttt{circleSpeed}を負の値にして、左向きに動くようにします。反対に、\texttt{circleX - circleRadius <= 0}は、円の左端がキャンバスの左端に届いたかを調べています。
+
+\begin{notebox}{中心ではなく端を見る}
+円の中心だけで判定すると、円が半分画面の外へ出てから向きが変わります。半径を使って円の右端と左端を調べると、壁に触れたところで向きを変えられます。
+\end{notebox}
+
+\section{マウスに追従させる}
+
+インタラクションでは、マウスカーソルの位置そのものを図形の位置として使うこともできます。
+次の例では、円がマウスカーソルを追いかけるように見えます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/mouse-follow.ts}
+\caption{マウスの位置に円を描く}
+\label{lst:chapter06-mouse-follow}
+\end{listing}
+
+\texttt{p.mouseX}と\texttt{p.mouseY}は、\texttt{draw}関数が実行されるたびに現在のマウスカーソル位置として読み取られます。
+そのため、円の中心座標にそのまま使うと、円がマウスに合わせて動きます。
+
+\section{クリックで状態を切り替える}
+
+\texttt{p.mouseIsPressed}は、今マウスが押されているかを調べる値でした。一方、\texttt{p.mousePressed = (): void => \{ ... \};}は、マウスを押した瞬間に1回呼ばれるイベント関数です。クリックするたびに状態を切り替えたい場合に便利です。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/mouse-click-toggle.ts}
+\caption{クリックするたびに円の色を切り替える}
+\label{lst:chapter06-mouse-click-toggle}
+\end{listing}
+
+\texttt{isCircleRed}は、円を赤く塗るかどうかを表す\texttt{boolean}型の変数です。\texttt{isCircleRed = !isCircleRed;}は、\texttt{true}なら\texttt{false}に、\texttt{false}なら\texttt{true}に切り替える書き方です。
+
+\begin{pointbox}{状態を変数で覚える}
+クリックされたことを画面に残したい場合は、状態を変数に保存します。\texttt{draw}ではその変数を見て描き方を決め、\texttt{p.mousePressed}のイベント関数ではその変数の値を変更します。
+\end{pointbox}
+
+\section{キー入力を使う}
+
+キーボード入力も、マウス入力と同じようにインタラクションに使えます。次の例では、\texttt{a}キーで四角形を左へ、\texttt{d}キーで右へ動かします。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter06/key-pressed-move.ts}
+\caption{キー入力で四角形を動かす}
+\label{lst:chapter06-key-pressed-move}
+\end{listing}
+
+\texttt{p.keyPressed = (): void => \{ ... \};}は、キーが押された瞬間に実行したい処理を登録するイベント関数です。\texttt{p.key === "a"}は、押されたキーが\texttt{a}かどうかを調べる条件式です。文字を比べるときも、等しいかどうかの判定には\texttt{===}を使います。
+
+\begin{notebox}{大文字と小文字}
+\texttt{p.key === "a"}は小文字の\texttt{a}を調べています。環境や入力状態によっては、大文字の\texttt{A}とは別の文字として扱われます。最初は小文字で試しましょう。
+\end{notebox}
+
+\section{よくある間違い}
+
+条件分岐と入力処理では、記号の違いや、どのタイミングで処理が実行されるかを混同しやすくなります。エラーが出ない場合でも、条件が思った通りに成り立っていないことがあります。
+
+\begin{mistakebox}{等しいか調べるときに=を書く}
+\texttt{=}は代入です。条件式で等しいかどうかを調べるときは、\texttt{p.key === "a"}のように\texttt{===}を使います。
+\end{mistakebox}
+
+\begin{mistakebox}{p.を付け忘れる}
+instance modeでは、\texttt{mouseX}ではなく\texttt{p.mouseX}、\texttt{mouseIsPressed}ではなく\texttt{p.mouseIsPressed}と書きます。
+\end{mistakebox}
+
+\begin{mistakebox}{条件の中で毎回変数を作ってしまう}
+クリック後も覚えておきたい値は、\texttt{draw}関数や\texttt{mousePressed}関数の外側に用意します。
+関数の中で毎回\texttt{let isCircleRed: boolean = false;}と書くと、
+この関数の外側では、変数\texttt{isCircleRed}にアクセスすることができません。
+この例のように、外側で\texttt{let isCircleRed: boolean = false;}と宣言しておき、\texttt{mousePressed}関数の中では
+\texttt{isCircleRed = !isCircleRed;}のように値を切り替えるだけにします。
+\end{mistakebox}
+
+\begin{mistakebox}{境界判定で半径を忘れる}
+円が壁に当たったかを調べるときは、中心座標だけでなく半径も使います。\texttt{circleX + circleRadius}と\texttt{circleX - circleRadius}を見ると、円の端で判定できます。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、条件式、\texttt{boolean}型、\texttt{if}文、\texttt{if}〜\texttt{else}文を使って、処理を選ぶ方法を学びました。条件式は\texttt{true}または\texttt{false}になり、その結果によって実行される処理が変わります。
+
+また、\texttt{p.mouseX}、\texttt{p.mouseY}、\texttt{p.mouseIsPressed}、\texttt{p.mousePressed}、\texttt{p.keyPressed}を使い、ユーザーの操作に反応するプログラムを作りました。条件分岐と入力を組み合わせると、アニメーションは単に動くだけでなく、操作できるものになります。
+
+\section{演習問題}
+
+この章の演習では、条件分岐と入力を使って、画面の変化を自分で制御します。まずは条件式の数値や色を変えるところから始め、最後は小さな操作できる作品に挑戦しましょう。
+
+\begin{enumerate}
+    \item \texttt{mouse-pressed-if-else.ts}の色を変えて、押しているときと押していないときの違いを分かりやすくしてください。
+    \item \texttt{p.mouseX < p.width / 2}の条件を、\texttt{p.mouseY < p.height / 2}に変えると何が起こるか確認してください。
+    \item \texttt{mouse-half-rect.ts}で、左右ではなく上下の領域を塗り分けてください。
+    \item \texttt{mouse-third-rect.ts}で、3つの領域の色や幅を変えてください。
+    \item \texttt{bouncing-circle.ts}の\texttt{circleSpeed}を変えて、跳ね返る速さを調整してください。
+    \item 円が左右ではなく上下に跳ね返るように、\texttt{circleY}と縦方向の速度を使ったプログラムを作ってください。
+    \item \texttt{mouse-follow.ts}で、マウスについてくる図形を円から四角形に変えてください。
+    \item \texttt{mouse-click-toggle.ts}で、クリックするたびに円の大きさが切り替わるようにしてください。
+    \item \texttt{key-pressed-move.ts}に\texttt{w}キーと\texttt{s}キーを追加し、四角形を上下にも動かせるようにしてください。
+    \item 四角形が画面の外へ出ないように、端に着いたらそれ以上動かない条件を追加してください。
+    \item 挑戦問題として、マウスまたはキーボードで操作できる小さなキャラクターを作り、押すキーやクリックによって色や位置が変わる作品にしてください。
+\end{enumerate}

@@ -1,0 +1,342 @@
+\chapter{座標変換と図形の部品化}
+\label{chap:coordinate-transform-parts}
+
+この章では、座標変換を使って図形を描きやすくする方法を学びます。これまで、図形の位置はキャンバス左上を原点とする座標で考えてきました。座標変換を使うと、「いま描く図形にとって都合のよい原点」を作り、その原点を基準に部品を描けます。
+
+\section{この章の概要}
+
+座標変換は、初学者にとってかなり難しい内容です。理由は、画面上の図形そのものを動かしているように見えて、実際には「これから描くときの座標軸」を動かしているからです。この章では、座標軸がどのように移動し、回転し、保存され、元に戻るのかを図で確認しながら進めます。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item 現在の原点と現在の座標軸
+    \item \texttt{p.translate}による原点の移動
+    \item \texttt{p.rotate}による座標軸の回転
+    \item \texttt{p.push}と\texttt{p.pop}による座標軸の保存と復元
+    \item ローカル座標で図形の部品を描く考え方
+    \item 関数と座標変換を組み合わせる方法
+    \item 座標変換と描画設定を保存して戻す方法
+\end{itemize}
+
+\section{現在の座標軸を考える}
+
+p5.jsで図形を描くとき、通常はキャンバスの左上が原点です。x座標は右へ進むほど大きくなり、y座標は下へ進むほど大きくなります。この座標軸を基準に、\texttt{p.rect(100, 80, 50, 30)}のような命令が解釈されます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        axis/.style={->, thick},
+        point/.style={circle, fill=black, inner sep=1.5pt}
+    ]
+        \draw[step=0.5cm, gray!25, very thin] (0, 0) grid (6, 4);
+        \draw[axis] (0, 0) -- (6.4, 0) node[right] {\texttt{x}};
+        \draw[axis] (0, 0) -- (0, 4.4) node[below] {\texttt{y}};
+        \node[point] at (0, 0) {};
+        \node[above left] at (0, 0) {原点};
+        \draw[fill=blue!20, draw=blue!60!black, thick] (2, 1.2) rectangle (3.2, 2.1);
+        \node[align=center] at (4.5, 2.9) {通常は\\左上が原点};
+    \end{tikzpicture}
+    \caption{通常のキャンバスの座標軸}
+    \label{fig:chapter09-normal-axis}
+\end{figure}
+
+座標変換では、この基準を変えます。たとえば、原点をキャンバスの中央へ移動すると、\texttt{p.rect(0, 0, 50, 30)}は左上ではなく、移動後の原点を基準に描かれます。
+
+\begin{pointbox}{座標変換で動くもの}
+座標変換は、すでに描いた図形を後から動かす命令ではありません。座標変換を実行した後に描く図形について、「どこを原点と考えるか」「x軸とy軸をどちらに向けるか」を変える命令です。
+\end{pointbox}
+
+\section{translateで原点を移動する}
+
+\texttt{p.translate(x, y)}は、現在の原点を移動します。ここで大切なのは、移動した後の位置が新しい原点になることです。座標軸の向きは変わりません。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        axis/.style={->, thick},
+        movedaxis/.style={->, thick, blue!70!black},
+        arrow/.style={->, very thick, red!70!black}
+    ]
+        \draw[step=0.5cm, gray!20, very thin] (0, 0) grid (7, 4.5);
+        \draw[axis] (0, 0) -- (2.7, 0) node[right] {x};
+        \draw[axis] (0, 0) -- (0, 2.2) node[below] {y};
+        \node[above left] at (0, 0) {変換前};
+
+        \draw[arrow] (0.4, 0.4) -- node[above]{\texttt{translate(3, 2)}} (3, 2);
+
+        \draw[movedaxis] (3, 2) -- (6.4, 2) node[right] {x};
+        \draw[movedaxis] (3, 2) -- (3, 4.2) node[below] {y};
+        \fill[blue!70!black] (3, 2) circle (2pt);
+        \node[below right] at (3, 2) {新しい原点};
+        \draw[fill=blue!15, draw=blue!60!black, thick] (3, 2) rectangle (4.1, 2.8);
+        \node[below] at (3.55, 1.65) {\texttt{rect(0, 0, ...)}};
+    \end{tikzpicture}
+    \caption{\texttt{translate}による原点の移動}
+    \label{fig:chapter09-translate-axis}
+\end{figure}
+
+次のサンプルでは、同じ\texttt{p.rect(0, 0, 48, 48)}を繰り返しています。それでも正方形が右下へ並ぶのは、正方形を描いた後に\texttt{p.translate(58, 32)}で現在の原点を移動しているためです。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter09/translated-squares.ts}
+\caption{\texttt{translate}で原点を移動しながら正方形を描く}
+\label{lst:chapter09-translated-squares}
+\end{listing}
+
+\texttt{p.rect(0, 0, 48, 48)}だけを見ると、毎回同じ場所に描いているように見えます。しかし、座標軸の側が変わっているため、\texttt{(0, 0)}が指す画面上の位置は少しずつ変わります。座標変換を読むときは、「この命令の時点で、現在の原点はどこにあるか」と考えることが大切です。
+
+\begin{notebox}{drawの先頭では基本状態に戻る}
+\texttt{p.draw}が次に呼び出されるとき、座標変換は基本状態から始まります。そのため、毎フレームの先頭で前回の\texttt{translate}が残り続けるわけではありません。ただし、同じ\texttt{draw}の中では、後続の描画に影響します。
+\end{notebox}
+
+\section{rotateで座標軸を回転する}
+
+\texttt{p.rotate(angle)}は、現在の原点を中心に座標軸を回転します。図形だけが回るのではなく、x軸とy軸の向きが変わります。p5.jsでは、角度はラジアンで指定します。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        axis/.style={->, thick},
+        movedaxis/.style={->, thick, blue!70!black},
+        arcstyle/.style={->, red!70!black, thick}
+    ]
+        \draw[step=0.5cm, gray!20, very thin] (-2, -2) grid (5, 3);
+        \draw[axis] (0, 0) -- (3.2, 0) node[right] {x};
+        \draw[axis] (0, 0) -- (0, 2.3) node[above] {y};
+        \draw[movedaxis] (0, 0) -- (2.35, 1.35) node[right] {回転後のx};
+        \draw[movedaxis] (0, 0) -- (-1.15, 1.95) node[above] {回転後のy};
+        \draw[arcstyle] (1.05, 0) arc (0:30:1.05);
+        \node[red!70!black] at (1.45, 0.35) {\texttt{angle}};
+        \draw[fill=blue!15, draw=blue!60!black, rotate around={30:(0,0)}, thick] (1, -0.35) rectangle (2.2, 0.35);
+        \fill (0, 0) circle (2pt);
+        \node[below left] at (0, 0) {現在の原点};
+    \end{tikzpicture}
+    \caption{\texttt{rotate}による座標軸の回転}
+    \label{fig:chapter09-rotate-axis}
+\end{figure}
+
+次のサンプルでは、まず原点をマウス位置に移動し、その後に座標軸を回転しています。長方形は\texttt{p.rect(0, 0, 120, 50)}で描いていますが、原点がマウス位置にあり、座標軸が回転しているため、マウス位置を中心に回転して見えます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter09/rotating-rectangle-at-mouse.ts}
+\caption{マウス位置を中心に長方形を回転させる}
+\label{lst:chapter09-rotating-rectangle-at-mouse}
+\end{listing}
+
+\texttt{p.translate(p.mouseX, p.mouseY)}と\texttt{p.rotate(angle)}の順番も重要です。先に原点をマウス位置へ移動するからこそ、その場所を中心に回転できます。もし先に\texttt{p.rotate(angle)}を書いた場合、移動方向そのものが回転後の座標軸を基準に解釈されるため、動き方が変わります。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw, rounded corners, align=center, minimum width=38mm, minimum height=9mm},
+        arrow/.style={->, thick}
+    ]
+        \node[box] (a1) at (0, 0) {\texttt{translate}\\原点を移動};
+        \node[box] (a2) at (4.4, 0) {\texttt{rotate}\\移動先で回転};
+        \node[box] (a3) at (8.8, 0) {\texttt{rect(0, 0, ...)}\\移動先を基準に描く};
+        \draw[arrow] (a1) -- (a2);
+        \draw[arrow] (a2) -- (a3);
+
+        \node[box] (b1) at (0, -1.8) {\texttt{rotate}\\左上を中心に回転};
+        \node[box] (b2) at (4.4, -1.8) {\texttt{translate}\\回転後のx,yで移動};
+        \node[box] (b3) at (8.8, -1.8) {結果が変わる};
+        \draw[arrow] (b1) -- (b2);
+        \draw[arrow] (b2) -- (b3);
+    \end{tikzpicture}
+    \caption{座標変換は順番によって結果が変わる}
+    \label{fig:chapter09-transform-order}
+\end{figure}
+
+\section{pushとpopで座標軸を戻す}
+
+座標変換を使うと、現在の座標軸はどんどん変わっていきます。1つの部品を描いた後、次の部品を別の場所に描きたい場合には、座標軸を元に戻せると便利です。そのために使うのが\texttt{p.push()}と\texttt{p.pop()}です。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        state/.style={rectangle, draw, rounded corners, align=center, minimum width=34mm, minimum height=10mm},
+        stack/.style={rectangle, draw, align=center, minimum width=32mm, minimum height=8mm},
+        arrow/.style={->, thick}
+    ]
+        \node[state] (current1) at (0, 0) {現在の座標軸};
+        \node[stack] (saved) at (4.3, 0) {保存された座標軸};
+        \node[state] (current2) at (8.6, 0) {変換後の座標軸};
+        \node[state] (current3) at (8.6, -2.0) {保存した状態に戻る};
+
+        \draw[arrow] (current1) -- node[above]{\texttt{push}} (saved);
+        \draw[arrow] (saved) -- node[above]{\texttt{translate}, \texttt{rotate}} (current2);
+        \draw[arrow] (current2) -- node[right]{\texttt{pop}} (current3);
+        \draw[arrow] (current3.west) -- ++(-4.3, 0) -- ++(0, 1.5);
+    \end{tikzpicture}
+    \caption{\texttt{push}と\texttt{pop}による保存と復元}
+    \label{fig:chapter09-push-pop}
+\end{figure}
+
+\texttt{p.push()}は、座標変換、塗り、線、\texttt{rectMode}などの現在の状態を保存します。\texttt{p.pop()}は、直前に保存した状態へ戻します。そのため、部品を描く間だけ座標変換や描画設定を変え、描き終えたら元の状態に戻せます。
+
+\begin{pointbox}{pushとpopはペアで使う}
+\texttt{p.push()}を書いたら、対応する\texttt{p.pop()}を書きます。部品を描く関数の中で\texttt{push}して\texttt{pop}まで済ませると、その関数を呼び出した側に座標変換の影響を残しにくくなります。
+\end{pointbox}
+
+\section{ローカル座標で部品を描く}
+
+図形を部品として作るときは、部品の中心や基準点を原点にして考えると楽になります。たとえば車を描くなら、車の中心を\texttt{(0, 0)}として、車体やタイヤをその周りに配置します。この考え方を、この章ではローカル座標と呼ぶことにします。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        axis/.style={->, thick, blue!70!black}
+    ]
+        \draw[axis] (-2.6, 0) -- (2.8, 0) node[right] {部品のx};
+        \draw[axis] (0, -1.8) -- (0, 1.8) node[above] {部品のy};
+        \draw[fill=gray!30, draw=black, thick] (-1.8, -0.55) rectangle (1.8, 0.55);
+        \draw[fill=black] (-1.0, -0.8) rectangle (-0.45, -0.55);
+        \draw[fill=black] (0.45, -0.8) rectangle (1.0, -0.55);
+        \draw[fill=black] (-1.0, 0.55) rectangle (-0.45, 0.8);
+        \draw[fill=black] (0.45, 0.55) rectangle (1.0, 0.8);
+        \fill[blue!70!black] (0, 0) circle (2pt);
+        \node[below right] at (0, 0) {車の中心};
+        \node[align=center] at (0, -2.35) {部品の中では\\中心を\texttt{(0, 0)}として考える};
+    \end{tikzpicture}
+    \caption{車をローカル座標で考える}
+    \label{fig:chapter09-local-car}
+\end{figure}
+
+次のサンプルでは、\texttt{drawCar}関数の中で\texttt{p.push()}、\texttt{p.translate(carX, carY)}、\texttt{p.rotate(angle)}を使っています。その後の車体やタイヤは、すべて車の中心を原点とする座標で描いています。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter09/local-car-function.ts}
+\caption{ローカル座標で車を部品として描く}
+\label{lst:chapter09-local-car-function}
+\end{listing}
+
+この書き方にすると、\texttt{drawCar(p, x, y, angle)}と呼び出すだけで、車を好きな位置と向きに描けます。車の中のタイヤの位置は、画面全体の座標ではなく、車の中心から見た位置で決められます。そのため、部品の中身を考えるときの計算が単純になります。
+
+\begin{notebox}{部品の中では小さな世界を作る}
+\texttt{drawCar}の中では、まず車の中心へ原点を移動します。その後は、車だけの小さな座標世界で考えます。最後に\texttt{p.pop()}で、呼び出し前の世界に戻ります。
+\end{notebox}
+
+\section{時計の目盛りを並べる}
+
+座標変換は、円周上に同じ部品を並べるときにも便利です。時計の目盛りを考えると、12個の目盛りはすべて同じ形です。違うのは角度だけです。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        axis/.style={->, thick, blue!65!black},
+        tickmark/.style={fill=black}
+    ]
+        \draw[gray!35] (0, 0) circle (2.2);
+        \foreach \angle in {0,30,...,330} {
+            \begin{scope}[rotate=\angle]
+                \draw[axis] (0, 0) -- (0, -1.55);
+                \draw[tickmark] (-0.08, -2.05) rectangle (0.08, -1.65);
+            \end{scope}
+        }
+        \fill[blue!65!black] (0, 0) circle (2pt);
+        \node[below] at (0, -2.55) {回転してから上方向へ移動し、同じ目盛りを描く};
+    \end{tikzpicture}
+    \caption{回転を使って同じ部品を円周上に並べる}
+    \label{fig:chapter09-clock-marks}
+\end{figure}
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter09/clock-marks.ts}
+\caption{座標変換で時計の目盛りを描く}
+\label{lst:chapter09-clock-marks}
+\end{listing}
+
+このサンプルでは、最初に\texttt{p.translate(p.width / 2, p.height / 2)}で原点をキャンバス中央へ移動しています。その後、繰り返しの中で\texttt{p.push()}し、角度を変えてから上方向へ移動し、目盛りを描いて\texttt{p.pop()}で戻します。
+
+ここで\texttt{p.translate(0, -145)}としているのは、p5.jsの通常のy軸が下向きだからです。中央から上方向へ進みたい場合、y座標を小さくします。座標軸を回転した後なので、この「上方向」も回転後の座標軸を基準にした方向になります。
+
+\section{階層構造を持つ図形}
+
+座標変換を使うと、部品の先にさらに別の部品をつなげることもできます。ロボットアームのように、第1の腕の先に第2の腕があり、その先に第3の腕がある場合、それぞれの部品は直前の部品の座標軸を基準に描けます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        joint/.style={circle, draw, fill=white, minimum size=7mm},
+        arm/.style={line width=8pt, line cap=round},
+        axis/.style={->, thick, blue!60!black}
+    ]
+        \coordinate (a) at (0, 0);
+        \coordinate (b) at (2.5, 0.8);
+        \coordinate (c) at (4.1, -0.2);
+        \coordinate (d) at (5.3, 0.7);
+        \draw[arm, red!55] (a) -- (b);
+        \draw[arm, green!55!black] (b) -- (c);
+        \draw[arm, blue!55] (c) -- (d);
+        \node[joint] at (a) {};
+        \node[joint] at (b) {};
+        \node[joint] at (c) {};
+        \draw[axis] (a) -- ++(1.0, 0) node[right] {第1の座標軸};
+        \draw[axis] (b) -- ++(0.9, 0.3) node[right] {第2};
+        \draw[axis] (c) -- ++(0.8, -0.5) node[right] {第3};
+        \node[align=center] at (2.7, -1.55) {親の座標軸を基準に\\次の部品の原点を作る};
+    \end{tikzpicture}
+    \caption{部品が親子関係を持つ図形}
+    \label{fig:chapter09-hierarchical-parts}
+\end{figure}
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter09/robot-arm.ts}
+\caption{座標変換を重ねてロボットアームを描く}
+\label{lst:chapter09-robot-arm}
+\end{listing}
+
+このプログラムでは、第1の腕を描いた後、\texttt{p.translate(110, 0)}で腕の先端へ原点を移動しています。次に、その先端を基準に回転し、第2の腕を描きます。さらに第2の腕の先端へ移動して、第3の腕を描きます。
+
+ここでは\texttt{p.push()}と\texttt{p.pop()}を使っていません。これは、腕全体が親子関係を持ち、前の変換を次の変換に引き継ぐ必要があるからです。部品を独立して描きたいときは\texttt{push/pop}を使い、親の先端に子をつなげたいときは変換を引き継ぐ、と考えるとよいでしょう。
+
+\section{よくある間違い}
+
+座標変換の間違いは、文法エラーではなく「思った場所に描かれない」という形で現れることが多くあります。エラーが出ないため、どこを直せばよいのか分かりにくいところが難しさです。
+
+\begin{mistakebox}{translateは図形を動かす命令だと思ってしまう}
+\texttt{p.translate}は、すでに描いた図形を動かしません。これから描く図形の基準となる原点を移動します。命令の順番を上から追い、「この時点の原点はどこか」を確認しましょう。
+\end{mistakebox}
+
+\begin{mistakebox}{pushとpopの対応を忘れる}
+\texttt{p.push()}だけを書いて\texttt{p.pop()}を忘れると、保存した状態に戻れません。部品を描く関数では、関数の中で\texttt{push}から\texttt{pop}まで完結させると読みやすくなります。
+\end{mistakebox}
+
+\begin{mistakebox}{変換の順番を入れ替えてしまう}
+\texttt{translate}してから\texttt{rotate}する場合と、\texttt{rotate}してから\texttt{translate}する場合では結果が変わります。座標変換は足し算のように自由に順番を入れ替えられるものではありません。
+\end{mistakebox}
+
+\begin{mistakebox}{角度の単位を間違える}
+\texttt{p.rotate}の角度はラジアンです。度で考えたい場合は\texttt{p.radians(30)}のように変換します。1度ずつ回したい場合は、\texttt{p.PI / 180}を加える書き方もできます。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、座標変換と図形の部品化を学びました。座標変換を使うと、画面全体の座標を毎回計算するのではなく、部品にとって都合のよい原点と座標軸を作れます。
+
+\begin{itemize}
+    \item \texttt{p.translate}は現在の原点を移動する
+    \item \texttt{p.rotate}は現在の原点を中心に座標軸を回転する
+    \item 座標変換は後から描く図形に影響する
+    \item \texttt{p.push}と\texttt{p.pop}で座標軸や描画設定を保存・復元できる
+    \item 部品の中では、ローカル座標で考えると計算が楽になる
+    \item 関数と座標変換を組み合わせると、再利用しやすい図形部品を作れる
+\end{itemize}
+
+\section{演習問題}
+
+この章の演習では、座標変換の順番を意識しながら、少しずつ複雑な部品を作っていきます。最初はサンプルの数値を変えるだけで構いません。慣れてきたら、自分で部品の基準点を決めてみましょう。
+
+\begin{enumerate}
+    \item \textbf{確認問題}：\texttt{p.translate(100, 50)}の後に\texttt{p.circle(0, 0, 30)}を書くと、円の中心は画面上のどこになりますか。
+    \item \textbf{確認問題}：\texttt{p.rotate}の回転の中心はどこですか。「現在の原点」という言葉を使って説明しましょう。
+    \item \textbf{少し変更する問題}：リスト\ref{lst:chapter09-translated-squares}を変更し、正方形が右上方向に並ぶようにしてください。
+    \item \textbf{少し変更する問題}：リスト\ref{lst:chapter09-rotating-rectangle-at-mouse}の長方形の大きさと回転速度を変更し、動きの違いを観察してください。
+    \item \textbf{応用問題}：リスト\ref{lst:chapter09-local-car-function}の\texttt{drawCar}に車体の色を表す引数を追加し、2台の車を別々の色で描いてください。
+    \item \textbf{応用問題}：時計の目盛りを、12個ではなく60個にしてください。5分ごとの目盛りだけ長くする工夫も考えてみましょう。
+    \item \textbf{応用問題}：\texttt{p.push()}と\texttt{p.pop()}を使い、マウス位置の周りに4つの小さな図形を十字形に配置してください。
+    \item \textbf{自由制作}：ローカル座標で「顔」「乗り物」「花」などの部品を1つ作り、関数として定義してください。
+    \item \textbf{自由制作}：複数の部品関数を組み合わせて、1つのキャラクターや機械を描いてください。
+    \item \textbf{挑戦問題}：リスト\ref{lst:chapter09-robot-arm}を改造し、先端に小さな手やライトを付けてください。どの位置で\texttt{translate}すれば先端に描けるかを説明しましょう。
+\end{enumerate}

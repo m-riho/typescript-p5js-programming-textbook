@@ -1,0 +1,352 @@
+\chapter{配列と複数のものを動かす}
+\label{chap:arrays-and-many-objects}
+
+この章では、配列を使って複数のものをまとめて扱う方法を学びます。これまでの章では、1つの円や1つの車を動かすプログラムを作ってきました。ゲームやインタラクティブな作品では、敵、弾、星、粒子のように、同じ種類のものをたくさん動かしたい場面がよくあります。
+
+\section{この章の概要}
+
+配列は、同じ種類のデータを1つの名前でまとめる仕組みです。1つの円なら\texttt{circleX}や\texttt{circleY}という変数で十分ですが、10個、30個、100個の円を動かすには、変数を1つずつ増やす方法では大変です。この章では、配列と繰り返し処理を組み合わせて、複数の円を動かす考え方を丁寧に扱います。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item 1つのものを動かすプログラム
+    \item 変数を増やす方法の限界
+    \item 配列の宣言と要素
+    \item 0から始まる配列の番号
+    \item \texttt{length}を使った繰り返し
+    \item 複数の配列で1つのものを表す方法
+    \item 配列を関数の引数として渡す方法
+    \item TypeScriptで配列の型を書く方法
+\end{itemize}
+
+\section{1つの円を動かす}
+
+まず、1つの円が上から下へ落ちるプログラムを考えます。円の中心座標、落ちる速さ、半径を変数で持ち、画面の下まで到達したら上に戻します。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter10/single-falling-circle.ts}
+\caption{1つの円を上から下へ動かす}
+\label{lst:chapter10-single-falling-circle}
+\end{listing}
+
+このサンプルでは、\texttt{circleX}、\texttt{circleY}、\texttt{circleSpeed}が1つの円の状態を表しています。\texttt{p.draw}の中で\texttt{circleY}を増やすと、円は下へ動きます。
+
+\begin{pointbox}{状態を変数に保存する}
+アニメーションでは、「いまどこにあるか」「どれくらいの速さで動くか」のような状態を変数に保存します。毎回の\texttt{draw}で状態を少し変えることで、動いて見えるようになります。
+\end{pointbox}
+
+\section{変数を増やす方法の限界}
+
+円を2つに増やすだけなら、変数名の最後に番号を付ける方法でも書けます。たとえば、1つ目を\texttt{circleX0}、2つ目を\texttt{circleX1}のように分けます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter10/two-circles-without-array.ts}
+\caption{配列を使わずに2つの円を動かす}
+\label{lst:chapter10-two-circles-without-array}
+\end{listing}
+
+この方法は、2つ程度ならまだ読めます。しかし、10個の円を動かすなら、\texttt{circleX0}から\texttt{circleX9}までの変数が必要になります。さらに、移動、画面外判定、再配置、描画の処理もそれぞれの円に対して書かなければなりません。
+
+\begin{notebox}{変数名の数字は計算に使えない}
+\texttt{circleX0}、\texttt{circleX1}、\texttt{circleX2}のような名前を付けても、プログラムはそれらを「番号付きのまとまり」として扱ってくれません。繰り返し処理で番号を変えながら扱うには、配列が必要です。
+\end{notebox}
+
+\section{配列とは何か}
+
+配列は、同じ種類のデータを順番に並べて保存する入れ物です。TypeScriptでは、数値の配列を\texttt{number[]}、文字列の配列を\texttt{string[]}、色の配列を\texttt{p5.Color[]}のように書きます。
+
+\texttt{const circleX: number[] = [];}の右側にある\texttt{[]}は、空の配列を作る式です。
+
+配列の中の1つ1つのデータを要素と呼びます。要素を取り出したり書き換えたりするときは、\texttt{circleX[0]}、\texttt{circleX[1]}のように、角括弧の中に番号を書きます。この番号を添え字、またはインデックスと呼びます。\texttt{circleX[0] = 100;}のように添え字を指定して代入すると、空の配列にも要素を増やせます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        cell/.style={rectangle, draw, minimum width=18mm, minimum height=10mm, align=center},
+        label/.style={align=center}
+    ]
+        \foreach \i/\v in {0/120,1/80,2/200,3/150,4/60} {
+            \node[cell] (c\i) at (\i*1.8, 0) {\texttt{\v}};
+            \node[label] at (\i*1.8, 0.9) {添え字\\\texttt{\i}};
+        }
+        \node[align=center] at (3.6, -1.05) {\texttt{barWidths}という1つの名前で、複数の\texttt{number}を保存する};
+    \end{tikzpicture}
+    \caption{配列と添え字番号のイメージ}
+    \label{fig:chapter10-array-index}
+\end{figure}
+
+{\footnotesize
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+TypeScriptの書き方 & 意味 & 例 \\
+\midrule
+\texttt{number[]} & 数値の配列 & \texttt{const circleX: number[] = [];} \\
+\texttt{string[]} & 文字列の配列 & \texttt{const names: string[] = [];} \\
+\texttt{p5.Color[]} & p5.jsの色の配列 & \texttt{const colors: p5.Color[] = [];} \\
+\texttt{circleX[0]} & 0番目の要素 & \texttt{circleX[0] = 100;} \\
+\texttt{circleX.length} & 要素数 & \texttt{index < circleX.length} \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+\begin{pointbox}{空の配列から始める}
+本章では、最初に空の配列を作り、必要な要素を\texttt{for}文で順番に設定します。こうすると、扱う個数を変えても同じ形の処理を使えます。
+\end{pointbox}
+
+\begin{pointbox}{添え字は0から始まる}
+配列の最初の要素は\texttt{[1]}ではなく\texttt{[0]}です。要素数が10の配列なら、使える添え字は0から9までです。最後の添え字は\texttt{配列.length - 1}になります。
+\end{pointbox}
+
+\section{配列とfor文で複数の円を動かす}
+
+配列は、繰り返し処理と組み合わせると力を発揮します。カウンタ変数\texttt{index}を使うと、\texttt{circleX[index]}、\texttt{circleY[index]}、\texttt{circleSpeed[index]}のように、同じ番号のデータをまとめて扱えます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter10/falling-circles-arrays.ts}
+\caption{配列とfor文で複数の円を動かす}
+\label{lst:chapter10-falling-circles-arrays}
+\end{listing}
+
+このサンプルでは、\texttt{circleX}、\texttt{circleY}、\texttt{circleSpeed}という3つの配列を使っています。同じ添え字番号の値が、同じ円の情報です。たとえば、\texttt{circleX[3]}、\texttt{circleY[3]}、\texttt{circleSpeed[3]}は、3番目の円のx座標、y座標、速さを表します。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        cell/.style={
+            rectangle,
+            draw,
+            minimum width=18mm,
+            minimum height=9mm,
+            align=center
+        },
+        arrayname/.style={anchor=east, align=right},
+        indexlabel/.style={align=center},
+        arrow/.style={->, thick}
+    ]
+        \foreach \index in {0,1,2,3} {
+            \pgfmathsetmacro{\xPosition}{2.0 + \index*1.8}
+            \node[indexlabel] at (\xPosition, 1.1)
+                {添え字\\\texttt{\index}};
+        }
+
+        \node[arrayname] at (0.9, 0) {\texttt{circleX}};
+        \node[arrayname] at (0.9, -1.0) {\texttt{circleY}};
+        \node[arrayname] at (0.9, -2.0) {\texttt{circleSpeed}};
+
+        \foreach \index/\value in {0/60,1/140,2/220,3/280} {
+            \pgfmathsetmacro{\xPosition}{2.0 + \index*1.8}
+            \node[cell] at (\xPosition, 0) {\texttt{\value}};
+        }
+        \foreach \index/\value in {0/40,1/120,2/80,3/160} {
+            \pgfmathsetmacro{\xPosition}{2.0 + \index*1.8}
+            \node[cell] at (\xPosition, -1.0) {\texttt{\value}};
+        }
+        \foreach \index/\value in {0/1,1/2,2/3,3/2} {
+            \pgfmathsetmacro{\xPosition}{2.0 + \index*1.8}
+            \node[cell] at (\xPosition, -2.0) {\texttt{\value}};
+        }
+
+        \draw[red, thick, rounded corners]
+            (4.62, 0.55) rectangle (6.58, -2.55);
+        \node[align=center, red!70!black] at (5.6, -3.35)
+            {添え字2の値が\\1つの円を表す};
+        \draw[arrow, red!70!black]
+            (5.6, -2.95) -- (5.6, -2.55);
+    \end{tikzpicture}
+    \caption{複数の配列で1つの円の情報を表す}
+    \label{fig:chapter10-parallel-arrays}
+\end{figure}
+
+\begin{notebox}{配列の長さを使う}
+\texttt{for (let index: number = 0; index < circleX.length; index++)}のように書くと、配列の要素数に合わせて繰り返せます。円の個数を増やしても、繰り返し条件を書き直す場所を減らせます。
+\end{notebox}
+
+\section{配列を関数に渡す}
+
+配列は、普通の数値や文字列と同じように、関数の引数として渡すこともできます。たとえば、後で扱う\texttt{findMaxIndex}関数では、\texttt{values: number[]}という仮引数で数値の配列を受け取ります。
+
+TypeScriptとJavaScriptでは、関数を呼び出すと、実引数の値が仮引数へコピーされます。ただし、数値と配列では、コピーされる値の意味が異なります。
+
+\texttt{number}、\texttt{string}、\texttt{boolean}では、数値、文字列、真偽値そのものがコピーされます。関数側で仮引数へ別の値を代入しても、呼び出し側の変数は変わりません。
+
+配列では、配列の要素が1つずつ複製されるのではなく、配列を指す参照を表す値がコピーされます。そのため、呼び出し側の配列名と関数側の仮引数は、同じ配列を見ることになります。
+
+関数に配列を渡すとき、仮引数の型にも\texttt{number[]}のように書きます。後で扱う\texttt{findMaxIndex(barWidths)}では、\texttt{barWidths}が実引数、\texttt{values: number[]}が仮引数です。関数の中では、\texttt{values[index]}と書いて、\texttt{barWidths}と同じ配列の要素を読めます。
+
+図\ref{fig:chapter10-basic-array-arguments}で、基本型の値と配列を関数へ渡したときの違いを比べてみましょう。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        namebox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=45mm,
+            minimum height=11mm
+        },
+        valuebox/.style={
+            rectangle,
+            draw,
+            align=center,
+            fill=gray!8,
+            minimum width=42mm,
+            minimum height=11mm
+        },
+        cell/.style={
+            rectangle,
+            draw,
+            minimum width=13mm,
+            minimum height=9mm
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[anchor=west, font=\bfseries] at (-5.8, 1.2)
+            {基本型の値};
+        \node[namebox] (score) at (-3.5, 0)
+            {呼び出し側\\\texttt{score: number = 10}};
+        \node[valuebox] (value) at (3.5, 0)
+            {関数側\\\texttt{value: number = 10}};
+        \draw[arrow] (score.east) --
+            node[midway, above, fill=white, inner sep=2pt]
+            {値10をコピー} (value.west);
+
+        \node[anchor=west, font=\bfseries] at (-5.8, -2.1)
+            {配列};
+        \node[namebox] (widths) at (-3.7, -3.2)
+            {呼び出し側\\\texttt{barWidths}};
+        \node[namebox] (values) at (3.7, -3.2)
+            {関数側\\\texttt{values: number[]}};
+
+        \foreach \index/\entry in {0/120,1/80,2/200,3/150} {
+            \pgfmathsetmacro{\xPosition}{-1.95 + \index*1.3}
+            \node[cell] (array\index) at (\xPosition, -5.2)
+                {\texttt{\entry}};
+        }
+        \node[align=center] at (0, -6.15) {同じ配列};
+        \draw[arrow] (widths.south) -- (array0.north);
+        \draw[arrow] (values.south) -- (array3.north);
+    \end{tikzpicture}
+    \caption{基本型の値と配列を関数へ渡したときの違い}
+    \label{fig:chapter10-basic-array-arguments}
+\end{figure}
+
+図\ref{fig:chapter10-basic-array-arguments}の上段では、数値の10が関数側へコピーされ、呼び出し側と関数側が別々の値を持っています。下段では、\texttt{barWidths}と\texttt{values}が同じ配列を見ています。
+
+関数の中で\texttt{values[index] = ...}のように要素を書き換えると、呼び出し側から見える配列の中身も変わります。一方、\texttt{values = [0, 0, 0];}のように、仮引数へ別の配列を代入しても、呼び出し側の\texttt{barWidths}が指す配列は変わりません。
+
+\begin{notebox}{配列そのものが複製されるわけではない}
+「配列は参照渡しされる」と覚えるよりも、「配列を指す値が仮引数へコピーされ、呼び出し側と関数側が同じ配列を見る」と考える方が正確です。この章では、同じ配列の要素を読み書きできることを押さえてください。
+\end{notebox}
+
+\section{色や半径も配列に入れる}
+
+円の数が増えると、位置だけでなく、色や大きさも円ごとに変えたくなります。その場合も、同じ添え字番号が同じ円を表すという考え方は変わりません。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter10/colored-circles-arrays.ts}
+\caption{色と半径も配列で管理する}
+\label{lst:chapter10-colored-circles-arrays}
+\end{listing}
+
+このサンプルでは、\texttt{circleRadius[index]}が円の半径を、\texttt{circleColor[index]}が円の色を表します。TypeScriptでは、p5.jsの色を保存する配列を\texttt{p5.Color[]}と書いています。
+
+配列が増えると、どの配列が何を表しているのかを見失いやすくなります。そのため、変数名は短すぎないものにし、配列の役割が分かる名前にします。
+
+\begin{pointbox}{同じ添え字番号をそろえる}
+\texttt{circleX[5]}、\texttt{circleY[5]}、\texttt{circleRadius[5]}、\texttt{circleColor[5]}は、すべて5番目の円の情報です。どれか1つだけ添え字を間違えると、別の円の情報を混ぜてしまいます。
+\end{pointbox}
+
+\section{配列から最大値を探す}
+
+配列は、図形をたくさん動かすだけでなく、たくさんの値を調べるときにも使います。ここでは、複数の棒の長さの中から一番大きいものを探し、その棒だけ色を変える例を見ます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter10/max-value-bars.ts}
+\caption{配列から最大値の位置を探す}
+\label{lst:chapter10-max-value-bars}
+\end{listing}
+
+\texttt{findMaxIndex}関数は、配列の中で一番大きい値が入っている添え字番号を返します。最初は0番目が一番大きいと仮に考え、1番目以降を順番に比べます。より大きい値が見つかったら、\texttt{maxIndex}をその添え字番号に更新します。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw, rounded corners, align=center, minimum width=35mm, minimum height=9mm},
+        arrow/.style={->, thick}
+    ]
+        \node[box] (start) at (0, 0)
+            {0番目を\\最大候補にする};
+        \node[box] (compare) at (4.8, 0)
+            {次の要素と\\比べる};
+        \node[box] (update) at (9.6, 0)
+            {大きければ\\候補を更新};
+        \node[box] (end) at (4.8, -2.2)
+            {最後まで調べたら\\添え字番号を返す};
+        \draw[arrow] (start.east) -- (compare.west);
+        \draw[arrow] (compare.east) -- (update.west);
+        \draw[arrow] (update.east) -- ++(0.8, 0) |- (end.east);
+        \draw[arrow] (compare.south) --
+            node[midway, left, fill=white, inner sep=2pt]
+            {最後まで調べる} (end.north);
+    \end{tikzpicture}
+    \caption{最大値の添え字番号を探す考え方}
+    \label{fig:chapter10-find-max-index}
+\end{figure}
+
+この考え方は、ゲームでも使えます。たとえば、一番近い敵を探す、一番得点の高いプレイヤーを探す、一番大きい円だけ色を変える、といった処理に応用できます。
+
+\section{よくある間違い}
+
+配列では、添え字番号の範囲を間違えるとプログラムの動きがおかしくなります。特に、0から始まることと、最後が\texttt{length - 1}であることに注意しましょう。
+
+\begin{mistakebox}{添え字を1から始めてしまう}
+要素数が10の配列では、使える添え字は0から9です。\texttt{for}文も\texttt{let index: number = 0}から始めるのが基本です。
+\end{mistakebox}
+
+\begin{mistakebox}{\texttt{index <= circleX.length}と書いてしまう}
+\texttt{circleX.length}は要素数です。最後の添え字番号ではありません。繰り返し条件は、多くの場合\texttt{index < circleX.length}と書きます。
+\end{mistakebox}
+
+\begin{mistakebox}{複数の配列の添え字をそろえ忘れる}
+\texttt{circleX[index]}と\texttt{circleY[index + 1]}のようにずれると、別々の円の情報を組み合わせてしまいます。同じものを表す情報は、同じ添え字番号でそろえましょう。
+\end{mistakebox}
+
+\begin{mistakebox}{配列に値を入れる前に使ってしまう}
+空の配列を作っただけでは、中に座標や速さは入っていません。この章のサンプルでは、\texttt{setup}の中の\texttt{for}文で初期値を入れてから、\texttt{draw}で使っています。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、配列を使って複数のものを動かす方法を学びました。配列を使うと、同じ種類のデータを1つの名前でまとめ、添え字番号で区別できます。
+
+\begin{itemize}
+    \item 配列は同じ種類のデータをまとめる仕組みである
+    \item TypeScriptでは数値の配列を\texttt{number[]}と書く
+    \item 添え字番号は0から始まる
+    \item \texttt{length}を使うと配列の要素数に合わせて繰り返せる
+    \item 複数の配列では、同じ添え字番号が同じものの情報を表す
+    \item 配列は関数の引数として渡せる
+    \item 配列を使うと、複数の円や棒をまとめて処理しやすくなる
+\end{itemize}
+
+\section{演習問題}
+
+この章の演習では、まず配列の添え字に慣れ、次に複数の円を自分で増やしていきます。添え字番号が0から始まることを意識しながら取り組みましょう。
+
+\begin{enumerate}
+    \item \textbf{確認問題}：要素数が5の配列で、使える添え字番号をすべて書いてください。
+    \item \textbf{確認問題}：\texttt{circleX.length}が10のとき、最後の要素は\texttt{circleX[何]}ですか。
+    \item \textbf{少し変更する問題}：リスト\ref{lst:chapter10-falling-circles-arrays}の円の個数を20個に変更してください。
+    \item \textbf{少し変更する問題}：落ちる速さの範囲を変更し、速い円と遅い円の違いが分かるようにしてください。
+    \item \textbf{応用問題}：リスト\ref{lst:chapter10-colored-circles-arrays}に、円ごとの透明度を表す配列を追加してください。
+    \item \textbf{応用問題}：画面下に到達した円だけでなく、画面右端から左端へ動く円も作ってください。
+    \item \textbf{応用問題}：配列の中で一番半径が大きい円だけ、線を太くして描いてください。
+    \item \textbf{自由制作}：配列を使って、星、雨、雪、泡など、同じ形のものがたくさん動く作品を作ってください。
+    \item \textbf{自由制作}：マウスを避ける円や、マウスに近づく円を複数作ってください。
+    \item \textbf{挑戦問題}：リスト\ref{lst:chapter10-max-value-bars}を参考に、マウスに一番近い円の添え字番号を探し、その円だけ色を変えてください。
+\end{enumerate}

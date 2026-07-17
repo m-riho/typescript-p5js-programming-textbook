@@ -1,0 +1,431 @@
+\chapter{Gitで変更履歴を管理する}
+\label{app:git-guide}
+
+この付録では、Gitを使ってファイルの変更履歴を記録する方法を学びます。Gitを初めて使う人が、この付録だけを読んで基本的な作業を試せるように、用語とコマンドを順番に説明します。Gitのインストールは完了しているものとし、VS Codeで練習用のフォルダとファイルを作りながら進めます。
+
+Gitは、現在のファイルを保存するだけではなく、「どのファイルを、どのような理由で変更したか」を作業の節目ごとに記録する道具です。記録を残しておけば、変更前後の差を確認したり、過去の作業をたどったりできます。
+
+\section{Gitで何ができるか}
+
+プログラムを書いていると、昨日まで動いていたコードが、今日の変更で動かなくなることがあります。ファイル名に「完成版」「完成版2」のような文字を付けてコピーを増やす方法では、どれが最新なのか分かりにくくなります。Gitを使うと、同じプロジェクトの中に作業の履歴を順番に残せます。
+
+Gitで記録を残すと、主に次のことができます。
+
+\begin{itemize}
+    \item どのファイルが変更されたかを確認する
+    \item 変更前と変更後の差を確認する
+    \item 作業の節目に、変更内容と説明をまとめて記録する
+    \item 別の作業用ブランチを作り、試した変更を本流から分ける
+    \item 過去の記録を調べ、必要に応じて変更を打ち消す
+\end{itemize}
+
+\begin{pointbox}{ファイル保存とコミットは別の操作}
+VS Codeでファイルを保存すると、現在の内容がディスクへ書き込まれます。Gitのコミットは、保存済みファイルの変更を、説明付きの履歴として記録する操作です。まずファイルを保存し、その後にGitで記録します。
+\end{pointbox}
+
+\subsection{GitとGitHubの違い}
+
+GitとGitHubは名前が似ていますが、同じものではありません。Gitは自分のコンピュータ上で履歴を管理するための道具です。GitHubは、Gitで管理しているリポジトリをインターネット上に保存・公開できるサービスの1つです。
+
+\begin{table}[htbp]
+    \centering
+    \caption{GitとGitHubの役割の違い}
+    \label{tab:appendix-git-vs-github}
+    \begin{tabular}{p{0.18\linewidth}p{0.34\linewidth}p{0.34\linewidth}}
+        \toprule
+        & Git & GitHub \\
+        \midrule
+        種類 & 変更履歴を管理するソフトウェア & Gitリポジトリを保存・共有するWebサービス \\
+        主な場所 & 自分のコンピュータ & インターネット上のサーバ \\
+        主な役割 & 差分、コミット、ブランチを管理する & リポジトリを公開・保管する \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+この付録では、自分のコンピュータ上でGitを使う方法を中心に説明します。GitHubを使った共同作業は扱いません。ただし、すでにGitHubなどに置かれているリポジトリは、\texttt{git clone URL}で自分のコンピュータへ複製できます。
+
+\section{リポジトリとコミット}
+
+Gitでは、1つのプロジェクトを履歴管理のまとまりとして扱います。このまとまりを\textbf{リポジトリ}と呼びます。リポジトリの中では、現在編集中のファイルだけでなく、過去に作った記録も管理されます。
+
+作業の節目に変更を記録する操作を\textbf{コミット}と呼びます。各コミットには、変更内容を説明するメッセージと、記録を識別するコミットIDが付きます。コミットIDは長い文字列ですが、履歴の表示では先頭の数文字だけが使われることがあります。
+
+ファイルを編集してからコミットするまでには、作業フォルダ、ステージング、コミット済みの履歴という3つの場所を意識します。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        area/.style={
+            rectangle,
+            draw,
+            rounded corners=2pt,
+            minimum width=3.6cm,
+            minimum height=2.2cm,
+            align=center,
+            fill=gray!5
+        },
+        action/.style={->, thick},
+        return/.style={->, thick, dashed}
+    ]
+        \node[area] (working) at (0,0)
+            {作業フォルダ\\保存済みの現在のファイル};
+        \node[area] (staging) at (5.2,0)
+            {ステージング\\次の記録へ含める変更};
+        \node[area] (history) at (10.4,0)
+            {コミット済みの履歴\\変更の記録};
+
+        \draw[action] (working.north east) --
+            node[above, font=\small]{\texttt{git add}}
+            (staging.north west);
+        \draw[action] (staging.north east) --
+            node[above, font=\small]{\texttt{git commit}}
+            (history.north west);
+        \draw[return] (staging.south west) --
+            node[below, font=\scriptsize]{\texttt{git restore}}
+            (working.south east);
+        \draw[return] (history.south west) --
+            node[below, font=\scriptsize, align=center]
+            {\texttt{git restore}\\[-1pt]\texttt{--staged}}
+            (staging.south east);
+    \end{tikzpicture}
+    \caption{作業フォルダ、ステージング、コミット済み履歴の関係}
+    \label{fig:appendix-git-three-areas}
+\end{figure}
+
+図\ref{fig:appendix-git-three-areas}の\textbf{ステージング}は、次のコミットに含める変更を選ぶ場所です。\texttt{git add}で変更をステージングへ登録し、\texttt{git commit}でステージ済みの変更を履歴へ記録します。\texttt{git restore ファイル名}は、作業フォルダの未ステージの変更を捨て、ファイルをステージングの内容へ戻します。ステージ済みの変更は残ります。\texttt{git restore --staged ファイル名}は、ステージングを現在選ばれているコミット（\texttt{HEAD}）の内容へ戻し、作業フォルダの変更は残します。すべての変更が自動的にコミットされるわけではありません。
+
+\section{Gitを使う前の確認}
+
+この付録では、Gitがインストール済みであることを前提にします。VS Codeで新しいターミナルを開き、次のコマンドでGitのバージョンと、コミットへ記録する名前・メールアドレスを設定します。名前とメールアドレスは、自分のものに置き換えてください。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git --version
+git config --global user.name "Taro Student"
+git config --global user.email "taro@example.com"
+git config --global init.defaultBranch main
+git config --global user.name
+git config --global user.email
+\end{minted}
+\caption{Gitの確認と初期設定を行うコマンド}
+\label{lst:appendix-git-check-config}
+\end{listing}
+
+\texttt{git --version}で\texttt{git version}に続く番号が表示されれば、Gitを実行できます。\texttt{--global}を付けた設定は、そのコンピュータで同じ利用者が作るほかのリポジトリでも使われます。\texttt{init.defaultBranch}には、新しく作るリポジトリの最初のブランチ名として\texttt{main}を指定しています。
+
+\begin{notebox}{Gitが見つからない場合}
+\texttt{git}がコマンドとして認識されない場合は、この付録の操作を続けず、Gitのインストールやターミナルの設定を確認してください。授業では、表示されたメッセージを添えて担当者へ相談しましょう。
+\end{notebox}
+
+\section{リポジトリを用意する}
+
+安全に操作を試すため、教材リポジトリとは別に練習用フォルダを使います。VS Codeで\texttt{git-practice}という新しいフォルダを作って開き、そのフォルダの中に\texttt{memo.txt}を作ります。最初は\texttt{memo.txt}へ「Gitの練習を始める」と1行書いて保存してください。
+
+VS Codeのターミナルが\texttt{git-practice}フォルダを開いていることを確認してから、次のコマンドを実行します。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git init
+git status
+\end{minted}
+\caption{現在のフォルダをGitリポジトリにするコマンド}
+\label{lst:appendix-git-init}
+\end{listing}
+
+\texttt{git init}は、現在のフォルダを新しいGitリポジトリにします。通常は最初に1回だけ実行します。\texttt{git status}には、まだコミットされていない\texttt{memo.txt}が未追跡ファイルとして表示されます。
+
+すでに別の場所にあるリポジトリを複製して始める場合は、\texttt{git init}ではなく\texttt{git clone URL}を使います。\texttt{git clone}はリポジトリのファイルと履歴をまとめて取得するため、複製後のフォルダでもすぐに\texttt{git status}や\texttt{git log}を使えます。
+
+\section{変更をコミットする}
+
+コミットは、作業の節目に変更をまとめて記録する操作です。最初のコミットでは、未追跡の\texttt{memo.txt}をステージングへ追加し、ステージ済みの内容を確認してから記録します。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git status
+git add memo.txt
+git diff --staged
+git commit -m "学習メモを追加"
+git status
+\end{minted}
+\caption{\texttt{memo.txt}を最初にコミットするコマンド}
+\label{lst:appendix-git-first-commit}
+\end{listing}
+
+最初の\texttt{git status}では\texttt{memo.txt}が未追跡と表示されます。\texttt{git add memo.txt}を実行すると、ファイルの内容が次のコミットへ含める変更としてステージングへ登録されます。\texttt{git diff --staged}は、次のコミットへ入る差分を表示します。
+
+\texttt{git commit -m}の\texttt{-m}に続く文字列はコミットメッセージです。「変更した」のような曖昧な文ではなく、「学習メモを追加」のように変更内容が分かる短い文にします。最後の\texttt{git status}で\texttt{working tree clean}と表示されれば、保存済みファイルと最新コミットの間に変更はありません。
+
+\begin{pointbox}{コミット前の確認}
+\texttt{git status}で対象ファイルを確認し、\texttt{git diff --staged}で記録する内容を確認してからコミットします。この2つを習慣にすると、関係のないファイルを誤って記録しにくくなります。
+\end{pointbox}
+
+\section{履歴と差分を確認する}
+
+最初のコミット後に\texttt{memo.txt}へ「コミットは変更の記録である」と追記し、ファイルを保存してください。追跡済みファイルを変更すると、\texttt{git diff}でステージング前の差分を確認できます。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git status
+git diff
+git add memo.txt
+git diff --staged
+git commit -m "Gitの用語を追記"
+\end{minted}
+\caption{変更内容を確認して2回目のコミットを作るコマンド}
+\label{lst:appendix-git-second-commit}
+\end{listing}
+
+\texttt{git diff}は、作業フォルダとステージングの差を表示します。行の先頭に付く\texttt{-}は削除された行、\texttt{+}は追加された行です。\texttt{git add}の後は同じ変更がステージングへ移るため、\texttt{git diff --staged}で確認します。
+
+作成したコミットは、次のコマンドで新しいものから順に確認できます。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git log --oneline
+\end{minted}
+\caption{コミット履歴を1行ずつ表示するコマンド}
+\label{lst:appendix-git-log}
+\end{listing}
+
+\texttt{git log --oneline}には、短縮されたコミットIDとコミットメッセージが表示されます。履歴の表示画面が開いたままの場合だけ、\texttt{q}キーを押して終了します。取り消しや履歴の確認では、ここに表示されるコミットIDを使います。
+
+\section{ファイルの状態を読み取る}
+
+\texttt{git status}を読むには、ファイルがどの段階にあるかを区別します。特に、未追跡、変更済み、ステージ済み、追跡済み・変更なしの違いを意識してください。
+
+\begin{table}[htbp]
+    \centering
+    \caption{Gitで表示される主なファイルの状態}
+    \label{tab:appendix-git-file-states}
+    \begin{tabular}{p{0.22\linewidth}p{0.58\linewidth}}
+        \toprule
+        状態 & 意味 \\
+        \midrule
+        未追跡 & 新しく作られ、まだ\texttt{git add}されたことがない \\
+        変更済み & 追跡対象のファイルが、最後の記録から変更されている \\
+        ステージ済み & 次のコミットへ含める変更として選ばれている \\
+        追跡済み・変更なし & Gitの管理対象だが、作業フォルダとステージングに未コミットの変更がない \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+同じファイルでも、編集、\texttt{git add}、\texttt{git commit}の順に操作すると状態が変わります。\texttt{git add}しただけではコミットは作られません。また、コミット後にもう一度編集すると、新しい変更済み状態になります。
+
+\section{追跡しないファイルを指定する}
+
+プログラムの実行時に自動生成されるファイルや、インストールし直せるライブラリは、履歴へ含めないことがあります。追跡しない名前や規則は、リポジトリ直下の\texttt{.gitignore}へ記述します。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+node_modules/
+dist/
+*.log
+\end{minted}
+\caption{\texttt{.gitignore}へ書く除外規則の例}
+\label{lst:appendix-git-ignore}
+\end{listing}
+
+末尾が\texttt{/}の行はフォルダを表します。\texttt{*.log}の\texttt{*}は任意の名前に対応し、拡張子が\texttt{.log}のファイルを除外します。\texttt{.gitignore}自体は、プロジェクトで共有する設定としてコミットします。
+
+\begin{notebox}{追跡済みファイルには後から効かない}
+すでにコミットされているファイル名を\texttt{.gitignore}へ追加しても、そのファイルは自動では追跡対象から外れません。最初に\texttt{git status}を確認し、生成物をコミットする前に除外規則を用意しましょう。
+\end{notebox}
+
+\section{ブランチで作業を分ける}
+
+新しい書き方を試すとき、現在の安定した履歴へすぐに変更を入れたくない場合があります。\textbf{ブランチ}は、作業の流れを分けるために使う名前です。フォルダ全体のコピーではなく、どのコミットを作業の先頭としているかを示します。
+
+ブランチを切り替える前に\texttt{git status}を実行し、意図していない未コミットの変更がないことを確認します。次のコマンドは、現在のコミットから\texttt{experiment}ブランチを作り、そのブランチへ切り替えます。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git status
+git switch -c experiment
+git branch
+\end{minted}
+\caption{作業用ブランチを作成して切り替えるコマンド}
+\label{lst:appendix-git-create-branch}
+\end{listing}
+
+\texttt{git switch -c}の\texttt{-c}は、新しいブランチを作る指定です。\texttt{git branch}では、現在選ばれているブランチ名の先頭に\texttt{*}が付きます。ここで\texttt{memo.txt}へ実験用の1行を追加し、保存してからコミットします。
+
+\section{ブランチをマージする}
+
+作業用ブランチの変更を\texttt{main}へ取り込む操作を\textbf{マージ}と呼びます。まず\texttt{experiment}で変更をコミットし、次に取り込み先の\texttt{main}へ切り替えてからマージします。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git add memo.txt
+git commit -m "実験用の説明を追加"
+git switch main
+git merge experiment
+git branch -d experiment
+\end{minted}
+\caption{作業用ブランチを\texttt{main}へマージするコマンド}
+\label{lst:appendix-git-merge}
+\end{listing}
+
+\texttt{git merge experiment}は、現在選ばれている\texttt{main}へ\texttt{experiment}の変更を取り込みます。マージの方向を間違えないため、実行前に\texttt{git branch}で現在のブランチを確認してください。統合後に不要になった作業用ブランチは、\texttt{git branch -d experiment}で削除できます。コミットされた変更は\texttt{main}に残ります。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        commit/.style={circle, draw, fill=white, minimum size=8mm},
+        history/.style={->, thick},
+        branchlabel/.style={rectangle, draw, rounded corners=2pt, fill=gray!8}
+    ]
+        \node[commit] (a) at (0,0) {A};
+        \node[commit] (b) at (2.3,0) {B};
+        \node[commit] (c) at (4.6,-1.4) {C};
+        \node[commit] (d) at (6.9,-1.4) {D};
+
+        \draw[history] (a) -- (b);
+        \draw[history] (b) -- (c);
+        \draw[history] (c) -- (d);
+
+        \node[branchlabel] at (2.3,1.0) {\texttt{main}（マージ前）};
+        \draw[->] (2.3,0.72) -- (b.north);
+        \node[branchlabel] at (6.9,-2.5) {\texttt{experiment}};
+        \draw[->] (6.9,-2.18) -- (d.south);
+        \node[branchlabel] at (8.9,0) {\texttt{main}（マージ後）};
+        \draw[->, dashed] (8.05,0) to[bend left=20] (d.east);
+    \end{tikzpicture}
+    \caption{作業用ブランチを\texttt{main}へマージする考え方}
+    \label{fig:appendix-git-branch-merge}
+\end{figure}
+
+図\ref{fig:appendix-git-branch-merge}では、\texttt{main}のコミットBから\texttt{experiment}の作業を始め、コミットCとDを作っています。\texttt{main}側に別の変更がなければ、マージ後の\texttt{main}はDまで進みます。ブランチは履歴を複製する箱ではなく、履歴上の位置を示す名前として考えます。
+
+\section{コンフリクトを解消する}
+
+2つのブランチで同じファイルの同じ部分を別々に変更すると、Gitだけではどちらを残すべきか判断できない場合があります。この状態を\textbf{コンフリクト}または\textbf{競合}と呼びます。Gitは処理を止め、競合したファイルへ次のような記号を入れます。
+
+\begin{listing}[htbp]
+\begin{minted}[escapeinside=||]{text}
+|\mbox{}|<<<<<<< HEAD
+mainで書いた内容
+|\mbox{}|=======
+experimentで書いた内容
+|\mbox{}|>>>>>>> experiment
+\end{minted}
+\caption{コンフリクトが起きたファイルに現れる記号}
+\label{lst:appendix-git-conflict-markers}
+\end{listing}
+
+\texttt{<<<<<<< HEAD}から\texttt{=======}までが現在のブランチ側、\texttt{=======}から\texttt{>>>>>>> experiment}までが取り込もうとしたブランチ側です。VS Codeで最終的に残したい内容へ編集し、3種類の競合記号をすべて削除して保存します。
+
+内容を確認した後、次のコマンドで解消済みとして登録し、マージを完了します。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git status
+git add memo.txt
+git commit -m "競合を解消"
+\end{minted}
+\caption{コンフリクトを解消してマージを完了するコマンド}
+\label{lst:appendix-git-resolve-conflict}
+\end{listing}
+
+\begin{mistakebox}{競合記号を残したままコミットする}
+\texttt{<<<<<<<}、\texttt{=======}、\texttt{>>>>>>>}はTypeScriptや文章の一部ではありません。どちらの内容を採用するか決め、必要なら両方を組み合わせてから、競合記号を削除します。
+\end{mistakebox}
+
+\section{変更を安全に取り消す}
+
+取り消し操作は、変更が作業フォルダにあるのか、ステージングにあるのか、すでにコミットされているのかによって異なります。操作前に\texttt{git status}と\texttt{git diff}を確認し、残したい変更がないか確かめます。
+
+\begin{table}[htbp]
+    \centering
+    \caption{変更の状態に応じた取り消し操作}
+    \label{tab:appendix-git-undo}
+    \begin{tabular}{p{0.27\linewidth}p{0.31\linewidth}p{0.27\linewidth}}
+        \toprule
+        状況 & コマンド & 結果 \\
+        \midrule
+        未ステージの作業フォルダの変更を捨てる & \texttt{git restore memo.txt} & ステージ済みの内容は残し、作業フォルダをステージングの内容へ戻す \\
+        ステージだけ取り消す & \texttt{git restore --staged memo.txt} & ファイルの変更は残す \\
+        コミットを打ち消す & \texttt{git revert COMMIT-ID} & 打ち消す新しいコミットを作る \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+作業フォルダの未ステージの変更が不要だと確認できた場合は、次のように戻せます。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git diff
+git restore memo.txt
+
+git restore --staged memo.txt
+git status
+\end{minted}
+\caption{作業フォルダまたはステージングの変更を戻すコマンド}
+\label{lst:appendix-git-restore}
+\end{listing}
+
+\texttt{git restore memo.txt}は、作業フォルダにある未ステージの変更を捨て、ファイルをステージングに登録されている内容へ戻します。ステージ済みの変更は残ります。実行後に未ステージの変更を元へ戻すのは難しいため、必ず先に\texttt{git diff}を読んでください。\texttt{git restore --staged memo.txt}はステージングへの登録だけを取り消し、作業フォルダの編集内容は残します。
+
+すでにコミットした変更を取り消す場合は、履歴を書き換えずに打ち消すコミットを作る\texttt{git revert}を使います。
+
+\begin{listing}[htbp]
+\begin{minted}{text}
+git log --oneline
+git revert COMMIT-ID
+\end{minted}
+\caption{過去のコミットを打ち消す新しいコミットを作るコマンド}
+\label{lst:appendix-git-revert}
+\end{listing}
+
+\texttt{COMMIT-ID}は、\texttt{git log --oneline}に表示された実際のIDへ置き換えます。\texttt{git revert}は過去の記録を消さず、「このコミットを打ち消した」という新しい記録を作ります。
+
+\begin{notebox}{\texttt{git reset --hard}を安易に実行しない}
+\texttt{git reset --hard}は、作業フォルダの未ステージの変更とステージ済みの変更をまとめて失わせることがあります。履歴上の位置も大きく変えることがあり、意味を理解しないまま実行すると必要な作業を失うため、この付録では操作例として使いません。困ったときは\texttt{git status}の表示を残し、担当者へ相談してください。
+\end{notebox}
+
+\section{よくある間違い}
+
+Gitの操作で迷ったときは、続けて別のコマンドを試す前に\texttt{git status}を確認します。現在のフォルダ、現在のブランチ、ステージ済みのファイルを順に読むと、どの段階で止まっているかを判断しやすくなります。
+
+\begin{mistakebox}{リポジトリではないフォルダで実行する}
+\texttt{not a git repository}と表示された場合は、現在のフォルダがGitリポジトリではありません。VS Codeで開いているフォルダとターミナルの場所を確認し、練習用の\texttt{git-practice}へ移動してから\texttt{git status}を実行します。
+\end{mistakebox}
+
+\begin{mistakebox}{\texttt{git add}だけで記録できたと思う}
+\texttt{git add}は、次のコミットへ含める変更を選ぶ操作です。履歴へ記録するには\texttt{git commit}が必要です。\texttt{git status}で\texttt{Changes to be committed}と表示された場合は、まだステージ済みの段階です。
+\end{mistakebox}
+
+\begin{mistakebox}{大きすぎるコミットを作る}
+関係のない変更を1つのコミットへまとめると、後で目的を読み取りにくくなります。\texttt{git add ファイル名}で必要な変更を選び、1つの目的ごとにコミットを作ります。
+\end{mistakebox}
+
+\begin{mistakebox}{ブランチの向きを確認せずマージする}
+\texttt{git merge experiment}は、現在のブランチへ\texttt{experiment}を取り込みます。\texttt{git branch}で\texttt{main}に\texttt{*}が付いていることを確認してから実行します。
+\end{mistakebox}
+
+\section{まとめ}
+
+この付録では、Gitを使って変更履歴を管理する基本を学びました。Gitでは、作業フォルダで編集した内容から次のコミットへ含める変更を選び、ステージングを経てコミットを作ります。\texttt{git status}、\texttt{git diff}、\texttt{git diff --staged}を使うと、それぞれの段階を確認できます。
+
+ブランチを使うと、試したい変更を\texttt{main}から分けて記録できます。作業が完了したら、取り込み先のブランチへ切り替えてマージします。取り消し操作では、変更が未ステージ、ステージ済み、コミット済みのどこにあるかを先に確認することが重要です。
+
+\section{練習問題}
+
+練習には教材リポジトリではなく、VS Codeで作成した\texttt{git-practice}フォルダを使います。最初は状態を確認する問題から始め、少しずつコミットやブランチへ進みましょう。
+
+\begin{enumerate}
+    \item \texttt{git --version}を実行し、表示されたバージョン番号を記録してください。
+    \item \texttt{git config --global user.name}と\texttt{git config --global user.email}を実行し、自分の設定を確認してください。
+    \item 新しい\texttt{git-practice}フォルダで\texttt{git init}を実行し、\texttt{git status}の表示を確認してください。
+    \item VS Codeで\texttt{memo.txt}を作り、\texttt{git add memo.txt}と\texttt{git commit -m "学習メモを追加"}を使って最初のコミットを作ってください。
+    \item \texttt{memo.txt}へ1行追加し、\texttt{git diff}と\texttt{git diff --staged}に表示される内容の違いを説明してください。
+    \item 2回目のコミットを作り、\texttt{git log --oneline}で2つのコミットIDとメッセージを確認してください。
+    \item \texttt{.gitignore}へ\texttt{*.log}を追加し、VS Codeで作った\texttt{test.log}が\texttt{git status}へ表示されないことを確認してください。
+    \item \texttt{experiment}ブランチを作り、\texttt{memo.txt}へ変更を加えてコミットしてください。その後、\texttt{main}へ戻り、変更がまだ見えないことを確認してください。
+    \item \texttt{experiment}を\texttt{main}へマージし、\texttt{git log --oneline}と\texttt{memo.txt}を確認してください。
+    \item \texttt{git restore}、\texttt{git restore --staged}、\texttt{git revert}を、それぞれどの状態で使うか説明してください。
+\end{enumerate}
+
+\begin{notebox}{挑戦問題}
+2つのブランチで\texttt{memo.txt}の同じ行を異なる内容へ変更し、コンフリクトが起きた場合の表示を確認してください。元の練習リポジトリを残したい場合は、フォルダを複製した別の練習用リポジトリで行いましょう。
+\end{notebox}

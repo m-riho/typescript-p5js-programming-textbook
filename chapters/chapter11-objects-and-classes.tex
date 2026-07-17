@@ -1,0 +1,519 @@
+\chapter{オブジェクトとクラス}
+\label{chap:objects-and-classes}
+
+この章では、オブジェクトとクラスを使って、複数の情報と処理をひとまとまりにする方法を学びます。前の章では、\texttt{circleX}、\texttt{circleY}、\texttt{circleRadius}のような複数の配列を使い、同じ添え字番号の値を1つの円の情報として扱いました。この方法は便利ですが、情報が増えるほど「どの配列が同じものを表しているのか」を意識し続ける必要があります。
+
+\section{この章の概要}
+
+オブジェクトは、複数の値を名前付きでまとめる仕組みです。クラスは、同じ形のオブジェクトを作るための設計図です。ゲームやアニメーションでは、プレイヤー、敵、弾、アイテムのように「位置、速さ、大きさ、色、動き方」を持つものがたくさん登場します。クラスを使うと、それらを1つの単位として扱いやすくなります。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item 複数の配列で1つのものを表す方法の限界
+    \item オブジェクトでデータをまとめる考え方
+    \item プロパティとドット記法
+    \item クラス、フィールド、コンストラクタ
+    \item \texttt{this}を使って自分自身の値を表す方法
+    \item メソッドで処理をクラスの中に入れる方法
+    \item クラスの配列で複数のものを動かす方法
+    \item クラスの中でp5.jsの機能を使う方法
+\end{itemize}
+
+\section{配列で表した円を見直す}
+
+第10章では、複数の円を動かすために、\texttt{circleX}、\texttt{circleY}、\texttt{circleSpeed}のような配列を用意しました。同じ添え字番号を使うことで、1つの円に関する複数の値を対応させていました。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        cell/.style={rectangle, draw, minimum width=18mm, minimum height=8mm, align=center},
+        arrow/.style={->, thick}
+    ]
+        \node at (-1.45, 0) {\texttt{circleX}};
+        \node at (-1.45, -0.9) {\texttt{circleY}};
+        \node at (-1.45, -1.8) {\texttt{circleRadius}};
+        \node at (-1.45, -2.7) {\texttt{circleColor}};
+        \foreach \i in {0,1,2,3} {
+            \node[cell] (x\i) at (\i*1.8, 0) {\texttt{[\i]}};
+            \node[cell] (y\i) at (\i*1.8, -0.9) {\texttt{[\i]}};
+            \node[cell] (r\i) at (\i*1.8, -1.8) {\texttt{[\i]}};
+            \node[cell] (c\i) at (\i*1.8, -2.7) {\texttt{[\i]}};
+        }
+        \draw[red, thick, rounded corners] (1.35, 0.35) rectangle (2.65, -3.05);
+        \node[align=center, red!70!black] at (2.0, -3.65) {1番目の円の情報};
+        \draw[arrow, red!70!black] (2.0, -3.35) -- (2.0, -3.0);
+    \end{tikzpicture}
+    \caption{複数の配列で1つの円を表す方法}
+    \label{fig:chapter11-parallel-array-limits}
+\end{figure}
+
+この方法では、\texttt{circleX[1]}、\texttt{circleY[1]}、\texttt{circleRadius[1]}、\texttt{circleColor[1]}が同じ円の情報です。しかし、プログラム上は別々の配列です。添え字をそろえるのは、書く人の注意に任されています。
+
+\begin{notebox}{同じものの情報が別々の場所にある}
+複数の配列を並べる方法は、少ない情報なら十分に使えます。しかし、情報が増えると、添え字のずれや更新忘れが起きやすくなります。オブジェクトとクラスは、この問題を整理するための道具です。
+\end{notebox}
+
+\section{オブジェクトで1つの円を表す}
+
+オブジェクトを使うと、1つの円に関する情報を1つの値としてまとめられます。TypeScriptでは、\texttt{\{ centerX: 100, centerY: 50 \}}のように、名前と値の組を並べてオブジェクトを作れます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter11/ball-object-literal.ts}
+\caption{オブジェクトで1つの円の情報をまとめる}
+\label{lst:chapter11-ball-object-literal}
+\end{listing}
+
+このサンプルでは、\texttt{ball}という1つの変数の中に、\texttt{centerX}、\texttt{centerY}、\texttt{radius}、\texttt{speedY}、\texttt{color}が入っています。これらの名前付きの値をプロパティと呼びます。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+書き方 & 読み方 & 意味 \\
+\midrule
+\texttt{ball.centerX} & ballのcenterX & 円の中心のx座標 \\
+\texttt{ball.centerY} & ballのcenterY & 円の中心のy座標 \\
+\texttt{ball.radius} & ballのradius & 円の半径 \\
+\texttt{ball.color} & ballのcolor & 円の色 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\texttt{ball.centerY = ball.centerY + ball.speedY;}のように、オブジェクトのプロパティは\texttt{.}を使って読み書きします。この\texttt{.}を使う書き方をドット記法と呼びます。
+
+\begin{pointbox}{オブジェクトは名前付きのまとまり}
+配列では\texttt{[0]}や\texttt{[1]}のような番号で値を取り出しました。オブジェクトでは\texttt{centerX}や\texttt{radius}のような名前で値を取り出します。意味のある名前で読めることが、オブジェクトの大きな利点です。
+\end{pointbox}
+
+\texttt{let ball: \{ ... \};}という書き方は、\texttt{ball}という変数に入るオブジェクトの形を、その場で説明しています。これは1つのオブジェクトを試すには分かりやすい書き方です。一方で、同じ形の円を何度も使う場合には、毎回\texttt{centerX: number;}、\texttt{centerY: number;}、\texttt{radius: number;}のような定義を書かなければならず、かなり面倒になります。
+
+\begin{notebox}{その場で書くオブジェクト型の弱点}
+\texttt{let ball: \{ ... \};}は、「この変数にはこの形のオブジェクトを入れる」と、その場所だけで説明する書き方です。同じ形を別の変数や関数の引数でも使いたくなると、同じ型の説明を何度も書くことになります。クラスは、この繰り返しを減らすための方法でもあります。
+\end{notebox}
+
+\section{オブジェクトを関数に渡す}
+
+オブジェクトは、数値や配列と同じように関数の引数として渡せます。第8章で関数を使って処理を整理したように、円を動かす処理と表示する処理を関数に分けてみます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=43]{ts}{listings/chapter11/ball-object-functions.ts}
+\caption{オブジェクトを作り、関数を呼び出す}
+\label{lst:chapter11-ball-object-functions-main}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=45,lastline=77]{ts}{listings/chapter11/ball-object-functions.ts}
+\caption{オブジェクトを受け取って更新と描画を行う関数}
+\label{lst:chapter11-ball-object-functions-helpers}
+\end{listing}
+
+このサンプルでは、\texttt{createBall}、\texttt{updateBall}、\texttt{displayBall}という3つの関数を使っています。\texttt{updateBall}は円の位置を更新し、\texttt{displayBall}は円を描画します。
+
+TypeScriptとJavaScriptでは、オブジェクトを関数へ渡すと、オブジェクトを指す参照を表す値が仮引数へコピーされます。呼び出し側の\texttt{ball}と、\texttt{updateBall}関数の仮引数\texttt{ball}は、同じ名前ですが別の変数です。ただし、どちらにも同じオブジェクトを指す値が入っています。
+
+図\ref{fig:chapter11-object-argument-reference}は、呼び出し側と関数側が同じ円のオブジェクトを見ていることを表しています。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        namebox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=48mm,
+            minimum height=11mm
+        },
+        objectbox/.style={
+            rectangle,
+            draw,
+            align=left,
+            fill=gray!8,
+            text width=58mm,
+            minimum height=27mm
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[namebox] (caller) at (-3.8, 1.4)
+            {呼び出し側の変数\\\texttt{ball}};
+        \node[namebox] (parameter) at (3.8, 1.4)
+            {\texttt{updateBall}の仮引数\\\texttt{ball}};
+        \node[objectbox] (object) at (0, -1.8)
+            {同じ円のオブジェクト\\
+             \texttt{centerX: 150}\\
+             \texttt{centerY: 80}\\
+             \texttt{radius: 18}\\
+             \texttt{speedY: 2}};
+
+        \draw[arrow] (caller.south) --
+            node[midway, left, fill=white, inner sep=2pt]
+            {同じ対象を見る} (object.north west);
+        \draw[arrow] (parameter.south) --
+            node[midway, right, fill=white, inner sep=2pt]
+            {同じ対象を見る} (object.north east);
+    \end{tikzpicture}
+    \caption{呼び出し側と関数側が同じオブジェクトを見る}
+    \label{fig:chapter11-object-argument-reference}
+\end{figure}
+
+\texttt{updateBall}の中にある\texttt{ball.centerY = ...}は、仮引数\texttt{ball}そのものを別の値へ変えているのではありません。図\ref{fig:chapter11-object-argument-reference}の中央にあるオブジェクトの\texttt{centerY}プロパティを変更しています。そのため、関数の処理が終わった後も、呼び出し側から変更後の\texttt{centerY}が見えます。
+
+ただし、同じオブジェクトの型を何度も書くため、少し長く見えます。\texttt{createBall}の戻り値、\texttt{updateBall}の引数、\texttt{displayBall}の引数で、ほとんど同じ\texttt{\{ centerX: number; ... \}}という説明が繰り返されています。これは、同じ形のオブジェクトを何度も扱う合図です。
+
+\begin{notebox}{この段階では長く見えてよい}
+オブジェクトを関数に渡す例は、型の書き方が少し長くなります。ここで大切なのは、\texttt{ball.centerX}のように、1つのものの情報を名前付きでまとめて扱えることです。
+\end{notebox}
+
+\section{クラスは設計図である}
+
+クラスは、同じ形のオブジェクトを作るための設計図です。円を表す\texttt{Ball}クラスを作れば、\texttt{centerX}、\texttt{centerY}、\texttt{radius}、\texttt{speedY}、\texttt{color}を持つ円を何個でも作れるようになります。さらに、円を動かす処理や描く処理も、同じ\texttt{Ball}クラスの中にまとめられます。
+
+{\footnotesize
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+方法 & 得意なこと & 困りやすいこと \\
+\midrule
+\shortstack[l]{\texttt{let ball: \{ ... \};}\\その場で形を書く} &
+\shortstack[l]{1つだけ試すときに\\すぐ書ける} &
+\shortstack[l]{同じ形を使うたびに\\型の説明を繰り返す} \\
+\shortstack[l]{\texttt{class Ball \{ ... \}}\\設計図を作る} &
+\shortstack[l]{同じ形のものを\\何個も作りやすい} &
+\shortstack[l]{最初にクラスの書き方を\\覚える必要がある} \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+この章では、まず\texttt{let}でオブジェクトを直接書く方法を見ました。これは、オブジェクトの考え方を理解するための入口です。そこから、同じ形を何度も書く面倒さに気づき、その解決方法として\texttt{class}へ進みます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        blueprint/.style={rectangle, draw, rounded corners, minimum width=44mm, minimum height=30mm, align=center, fill=blue!4},
+        object/.style={circle, draw, minimum size=18mm, align=center, fill=green!5},
+        arrow/.style={->, thick}
+    ]
+        \node[blueprint] (class) at (0, 0) {\texttt{class Ball}\\設計図\\フィールドとメソッドを持つ};
+        \node[object] (b1) at (5.2, 1.6) {\texttt{ball1}\\実体};
+        \node[object] (b2) at (5.2, 0) {\texttt{ball2}\\実体};
+        \node[object] (b3) at (5.2, -1.6) {\texttt{ball3}\\実体};
+        \draw[arrow] (class.east) -- (b1.west);
+        \draw[arrow] (class.east) -- (b2.west);
+        \draw[arrow] (class.east) -- (b3.west);
+        \node[align=center] at (2.65, -2.35) {\texttt{new Ball(p)}で\\インスタンスを作る};
+    \end{tikzpicture}
+    \caption{クラスとインスタンスの関係}
+    \label{fig:chapter11-class-instance}
+\end{figure}
+
+クラスから実際に作られたものをインスタンスと呼びます。\texttt{Ball}クラスは設計図で、\texttt{new Ball(p)}で作られる値が実際の円だと考えます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        blueprint/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=left,
+            minimum width=48mm,
+            minimum height=46mm,
+            fill=blue!4
+        },
+        instance/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=left,
+            minimum width=38mm,
+            minimum height=34mm,
+            fill=green!5
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[blueprint] (class) at (0, 0) {
+            \texttt{class Ball}\\[0.5ex]
+            \footnotesize 設計図に書くこと\\
+            \footnotesize \texttt{centerX: number}\\
+            \footnotesize \texttt{centerY: number}\\
+            \footnotesize \texttt{radius: number}\\
+            \footnotesize \texttt{update(p): void}\\
+            \footnotesize \texttt{display(p): void}
+        };
+
+        \node[instance] (ballA) at (5.5, 1.35) {
+            \texttt{ballA}\\[0.5ex]
+            \footnotesize \texttt{centerX = 120}\\
+            \footnotesize \texttt{centerY = 80}\\
+            \footnotesize \texttt{radius = 24}\\
+            \footnotesize \texttt{update}を持つ\\
+            \footnotesize \texttt{display}を持つ
+        };
+
+        \node[instance] (ballB) at (5.5, -2.45) {
+            \texttt{ballB}\\[0.5ex]
+            \footnotesize \texttt{centerX = 260}\\
+            \footnotesize \texttt{centerY = 140}\\
+            \footnotesize \texttt{radius = 36}\\
+            \footnotesize \texttt{update}を持つ\\
+            \footnotesize \texttt{display}を持つ
+        };
+
+        \draw[arrow] (class.east) -- node[above, font=\footnotesize] {\texttt{new Ball(p)}} (ballA.west);
+        \draw[arrow] (class.east) -- node[below, font=\footnotesize] {\texttt{new Ball(p)}} (ballB.west);
+    \end{tikzpicture}
+    \caption{設計図としてのクラスと、具体的な値を持つインスタンス}
+    \label{fig:chapter11-class-blueprint-instance-values}
+\end{figure}
+
+図\ref{fig:chapter11-class-blueprint-instance-values}では、\texttt{Ball}クラスに書かれたフィールドやメソッドが、\texttt{ballA}や\texttt{ballB}というインスタンスに受け継がれる様子を表しています。どちらも同じ\texttt{Ball}から作られますが、\texttt{centerX}や\texttt{radius}の値はインスタンスごとに違います。
+
+\section{Ballクラスを作る}
+
+まず、1つの円を\texttt{Ball}クラスで表してみます。クラスの中には、データを保存するフィールドと、処理をまとめるメソッドを書きます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=36]{ts}{listings/chapter11/ball-class-single.ts}
+\caption{Ballクラスの定義}
+\label{lst:chapter11-ball-class-single-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=38,lastline=55]{ts}{listings/chapter11/ball-class-single.ts}
+\caption{Ballクラスを使って1つの円を動かす}
+\label{lst:chapter11-ball-class-single-sketch}
+\end{listing}
+
+\texttt{class Ball \{ ... \}}がクラスの定義です。\texttt{centerX}や\texttt{radius}のようにクラスの中で宣言した変数をフィールドと呼びます。フィールドは、そのインスタンスが持つ状態です。
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+部分 & 意味 \\
+\midrule
+\texttt{class Ball} & \texttt{Ball}というクラスを定義する \\
+\texttt{centerX: number;} & 円の中心のx座標を保存するフィールド \\
+\texttt{constructor(p: p5)} & \texttt{new Ball(p)}のときに実行される特別な処理 \\
+\texttt{update(p: p5): void} & 円を動かすメソッド \\
+\texttt{display(p: p5): void} & 円を描くメソッド \\
+\texttt{this.centerY} & このインスタンス自身の\texttt{centerY} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pointbox}{thisは「このインスタンス」のこと}
+\texttt{this.centerY}は、「いま動かしているこの円の\texttt{centerY}」という意味です。複数の\texttt{Ball}を作っても、それぞれのインスタンスが自分の\texttt{centerY}を持ちます。
+\end{pointbox}
+
+\section{コンストラクタで初期状態を決める}
+
+\texttt{constructor}は、\texttt{new Ball(p)}で新しいインスタンスを作るときに自動的に呼び出される特別なメソッドです。初期位置、半径、速さ、色のように、インスタンスを作るときに決めたい値をここで代入します。
+
+この章のサンプルでは、\texttt{constructor(p: p5)}のように\texttt{p: p5}を受け取っています。これは、コンストラクタの中で\texttt{p.random}や\texttt{p.color}を使うためです。p5.js instance modeでは、クラスの中でもp5.jsの命令を使うときに\texttt{p.}が必要です。
+
+\section{メソッドで処理を持たせる}
+
+クラスの中に定義した関数をメソッドと呼びます。クラスはデータをまとめるだけでなく、そのデータに関係する処理もメソッドとしてまとめられます。\texttt{Ball}クラスでは、位置を更新する\texttt{update}メソッドと、画面に描く\texttt{display}メソッドを持たせています。\texttt{display}は円を表示する役割が分かり、スケッチ全体の\texttt{p.draw}と区別しやすい名前です。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw, rounded corners, align=center, minimum width=43mm, minimum height=9mm},
+        arrow/.style={->, thick}
+    ]
+        \node[box] (draw) at (0, 0) {\texttt{p.draw}};
+        \node[box] (update) at (4.8, 0.75) {\texttt{ball.update(p)}\\状態を変える};
+        \node[box] (display) at (4.8, -0.75) {\texttt{ball.display(p)}\\画面に描く};
+        \draw[arrow] (draw.east) -- (update.west);
+        \draw[arrow] (draw.east) -- (display.west);
+    \end{tikzpicture}
+    \caption{\texttt{draw}からメソッドを呼び出す流れ}
+    \label{fig:chapter11-method-calls}
+\end{figure}
+
+\texttt{p.draw}の中を見ると、\texttt{ball.update(p);}と\texttt{ball.display(p);}だけで、円を動かして表示していることが分かります。細かい計算はクラスの中に入り、メインの流れが読みやすくなります。
+
+\section{クラスの配列で複数の円を動かす}
+
+クラスが便利になるのは、同じ種類のものを複数作るときです。\texttt{Ball[]}は、\texttt{Ball}インスタンスを入れる配列です。第10章で\texttt{number[]}を使ったのと同じように、クラスも配列にできます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=36]{ts}{listings/chapter11/ball-class-array.ts}
+\caption{複数の円で使うBallクラス}
+\label{lst:chapter11-ball-class-array-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=38,lastline=63]{ts}{listings/chapter11/ball-class-array.ts}
+\caption{Ballクラスの配列で複数の円を動かす}
+\label{lst:chapter11-ball-class-array-sketch}
+\end{listing}
+
+このサンプルでは、\texttt{const balls: Ball[] = [];}で\texttt{Ball}の配列を作っています。\texttt{setup}の中で\texttt{new Ball(p)}を繰り返し、配列にインスタンスを入れています。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+書き方 & 意味 & 例 \\
+\midrule
+\texttt{Ball} & \texttt{Ball}型の値 & \texttt{let ball: Ball;} \\
+\texttt{new Ball(p)} & 新しい\texttt{Ball}を作る & \texttt{ball = new Ball(p);} \\
+\texttt{Ball[]} & \texttt{Ball}の配列 & \texttt{const balls: Ball[] = [];} \\
+\texttt{balls[index]} & 1つの\texttt{Ball} & \texttt{balls[index].update(p);} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pointbox}{配列の中身がまとまりになる}
+第10章では、\texttt{circleX[index]}、\texttt{circleY[index]}、\texttt{circleSpeed[index]}をそろえる必要がありました。クラスを使うと、\texttt{balls[index]}そのものが1つの円を表します。
+\end{pointbox}
+
+\section{インスタンスを関数に渡す}
+
+クラスから作ったインスタンスは、普通の値と同じように関数の引数として渡せます。数値なら\texttt{x: number}、文字列なら\texttt{message: string}と書いたように、\texttt{Ball}インスタンスを受け取る仮引数は\texttt{ball: Ball}と書きます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=26]{ts}{listings/chapter11/ball-instance-as-argument.ts}
+\caption{関数に渡すBallクラス}
+\label{lst:chapter11-ball-instance-as-argument-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=28,lastline=65]{ts}{listings/chapter11/ball-instance-as-argument.ts}
+\caption{Ballインスタンスを関数の引数として渡す}
+\label{lst:chapter11-ball-instance-as-argument-functions}
+\end{listing}
+
+このサンプルでは、\texttt{isMouseOverBall(p, ball)}のように、\texttt{ball}インスタンスを関数に渡しています。関数側では、\texttt{function isMouseOverBall(p: p5, ball: Ball): boolean}のように、仮引数の型として\texttt{Ball}を書いています。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+呼び出し側 & 関数定義側 & 意味 \\
+\midrule
+\texttt{ball} & \texttt{ball: Ball} & \texttt{Ball}インスタンスを受け取る \\
+\texttt{"inside"} & \texttt{message: string} & 文字列を受け取る \\
+\texttt{p} & \texttt{p: p5} & p5.jsの機能を使う値を受け取る \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\texttt{isMouseOverBall}関数の中では、受け取った\texttt{ball}の\texttt{centerX}、\texttt{centerY}、\texttt{radius}を使って、マウスが円の中にあるかどうかを調べています。クラスのインスタンスを渡すと、そのインスタンスが持っているフィールドを関数の中で読むことができます。
+
+\texttt{new Ball(...)}で作ったインスタンスもオブジェクトです。そのため、\texttt{isMouseOverBall(p, ball)}で\texttt{Ball}インスタンスを渡すときも、図\ref{fig:chapter11-object-argument-reference}と同じように、インスタンスを指す値が仮引数へコピーされます。呼び出し側と関数側は、同じ\texttt{Ball}インスタンスを見ることになります。
+
+第10章で扱った基本型と配列も含めると、関数へ値を渡したときの違いは次のように整理できます。
+
+\begin{center}
+\begin{tabular}{p{28mm}p{46mm}p{58mm}}
+\toprule
+渡す値 & 関数側が受け取るもの & 中身を変更したとき \\
+\midrule
+\texttt{number}など & 値そのもののコピー & 呼び出し側の変数は変わらない \\
+配列 & 配列を指す値のコピー & 要素の変更が呼び出し側にも見える \\
+オブジェクト & オブジェクトを指す値のコピー & プロパティの変更が呼び出し側にも見える \\
+クラスのインスタンス & インスタンスを指す値のコピー & フィールドの変更が呼び出し側にも見える \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+表でいう「中身の変更」は、配列の要素、オブジェクトのプロパティ、インスタンスのフィールドを書き換えることです。仮引数へ別の配列やオブジェクトを代入することとは区別してください。
+
+\begin{pointbox}{クラス名は型としても使える}
+\texttt{class Ball}を定義すると、\texttt{Ball}はインスタンスを作るための名前であると同時に、型の名前としても使えます。そのため、\texttt{let ball: Ball;}や\texttt{function f(ball: Ball): void}のように書けます。
+\end{pointbox}
+
+\begin{notebox}{メソッドにするか、関数にするか}
+\texttt{update}や\texttt{display}のように、円自身の基本動作はメソッドにすると読みやすくなります。一方で、「マウスとの関係を調べる」「画面に説明文を出す」のように、ほかの値との関係が強い処理は、関数として外に出してもかまいません。
+\end{notebox}
+
+\section{コンストラクタに値を渡す}
+
+コンストラクタには、初期値を実引数として渡すこともできます。すべてを乱数で決めるだけでなく、「このx座標に置きたい」「この大きさにしたい」「この色にしたい」という値を外から指定できます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=39]{ts}{listings/chapter11/ball-class-constructor-arguments.ts}
+\caption{実引数を受け取るBallクラス}
+\label{lst:chapter11-ball-class-constructor-arguments-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=41,lastline=64]{ts}{listings/chapter11/ball-class-constructor-arguments.ts}
+\caption{コンストラクタに実引数を渡して円を作る}
+\label{lst:chapter11-ball-class-constructor-arguments-sketch}
+\end{listing}
+
+\texttt{new Ball(p, 90, 16, 20)}では、\texttt{p}、\texttt{90}、\texttt{16}、\texttt{20}が実引数です。これらは、コンストラクタの\texttt{p: p5}、\texttt{centerX: number}、\texttt{radius: number}、\texttt{hue: number}に順番に渡されます。
+
+第8章で学んだ関数の実引数と仮引数の関係は、コンストラクタでも同じです。コンストラクタは、インスタンスを作るときに呼び出される特別な関数だと考えると理解しやすくなります。
+
+\section{円から正方形へ作り替える}
+
+ここでは、継承はまだ使わず、\texttt{Ball}と同じ考え方で正方形を落とす別のクラスを自分で作る練習をします。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=37]{ts}{listings/chapter11/square-class-array.ts}
+\caption{FallingSquareクラスの定義}
+\label{lst:chapter11-square-class-array-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=39,lastline=64]{ts}{listings/chapter11/square-class-array.ts}
+\caption{FallingSquareクラスで複数の正方形を動かす}
+\label{lst:chapter11-square-class-array-sketch}
+\end{listing}
+
+\texttt{FallingSquare}クラスは、\texttt{Ball}クラスとよく似ています。違うのは、半径ではなく一辺の長さを持つこと、\texttt{p.circle}ではなく\texttt{p.square}で描くことです。クラスを使っておくと、どこを変えれば別のものになるのかが見えやすくなります。
+
+\begin{notebox}{継承はまだ使わない}
+円と正方形には似ている部分があります。似ているクラスの共通部分を利用する仕組みとして継承がありますが、この教材では後の章で扱います。この章では、まずクラスを自分で書いて慣れることを優先します。
+\end{notebox}
+
+\section{よくある間違い}
+
+クラスでは、変数、フィールド、メソッド、インスタンスという言葉が一度に出てきます。最初は混乱しやすいので、エラーが出たら「クラスを定義する場所」「インスタンスを作る場所」「メソッドを呼び出す場所」を分けて確認しましょう。
+
+\begin{mistakebox}{\texttt{new}を書き忘れる}
+\texttt{let ball: Ball;}は、\texttt{Ball}型の変数を用意しただけです。実際のインスタンスはまだありません。\texttt{ball = new Ball(p);}のように、\texttt{new}で作る必要があります。
+\end{mistakebox}
+
+\begin{mistakebox}{\texttt{this.}を書き忘れる}
+クラスのメソッドの中でフィールドを使うときは、\texttt{this.centerY}のように\texttt{this.}を付けます。\texttt{centerY}だけを書くと、別の変数として扱われたり、見つからないというエラーになったりします。
+\end{mistakebox}
+
+\begin{mistakebox}{クラスの中で\texttt{p.}を忘れる}
+p5.js instance modeでは、クラスの中でも\texttt{random}や\texttt{circle}をそのまま呼び出しません。\texttt{p.random}、\texttt{p.circle}のように書くため、メソッドに\texttt{p: p5}を渡します。
+\end{mistakebox}
+
+\begin{mistakebox}{クラス名と変数名を混同する}
+\texttt{Ball}はクラス名で、\texttt{ball}や\texttt{balls[index]}はインスタンスを指す変数です。\texttt{Ball.update(p)}ではなく、\texttt{ball.update(p)}や\texttt{balls[index].update(p)}のように、作ったインスタンスに対してメソッドを呼び出します。
+\end{mistakebox}
+
+\begin{mistakebox}{引数の型にクラス名を書けることを忘れる}
+\texttt{Ball}クラスを定義した後は、\texttt{ball: Ball}のように、関数の仮引数の型にも\texttt{Ball}を書けます。インスタンスを関数に渡したいときは、\texttt{function check(ball: Ball): boolean}のように型を書きます。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、オブジェクトとクラスを使って、1つのものに関するデータと処理をまとめる方法を学びました。オブジェクトは、名前付きの値をまとめる仕組みです。クラスは、同じ形のオブジェクトを何度も作るための設計図です。
+
+クラスには、状態を保存するフィールド、初期状態を決めるコンストラクタ、処理をまとめるメソッドを書けます。\texttt{new Ball(p)}でインスタンスを作り、\texttt{ball.update(p)}や\texttt{ball.display(p)}のようにメソッドを呼び出します。また、\texttt{function isMouseOverBall(p: p5, ball: Ball): boolean}のように、クラス名を型として使い、インスタンスを関数に渡すこともできます。複数のものを扱うときは、\texttt{Ball[]}のようなクラスの配列を使うと、前章の複数配列よりも見通しよく書けます。
+
+\section{演習問題}
+
+この章の演習では、クラスのコードを少しずつ変更しながら、フィールド、コンストラクタ、メソッド、インスタンスの関係に慣れていきます。最初は1行だけ変える問題から始め、最後は自分のクラスを作る問題に進みます。
+
+\begin{enumerate}
+    \item \texttt{ball-class-single.ts}で、円の半径の乱数の範囲を変えてください。
+    \item \texttt{ball-class-single.ts}で、円の落ちる速さの乱数の範囲を変えてください。
+    \item \texttt{ball-class-single.ts}で、\texttt{this.centerY = -this.radius;}を別の値に変え、上から出てくる位置を確認してください。
+    \item \texttt{ball-class-array.ts}で、\texttt{numberOfBalls}を変えて、円の数を増減させてください。
+    \item \texttt{ball-class-array.ts}で、\texttt{display}メソッドの中の\texttt{p.circle}を使う位置を変え、円の描画をずらしてください。
+    \item \texttt{ball-class-constructor-arguments.ts}で、3つの円のx座標、半径、色相をそれぞれ変更してください。
+    \item \texttt{Ball}クラスに\texttt{speedX: number}フィールドを追加し、円が横にも少し動くようにしてください。
+    \item \texttt{Ball}クラスに\texttt{isOutsideCanvas(p: p5): boolean}メソッドを追加し、画面外判定をそのメソッドに分けてください。
+    \item \texttt{ball-instance-as-argument.ts}を変更し、\texttt{isMouseOverBall}関数の代わりに、マウスと円の中心の距離を返す\texttt{getDistanceFromMouse(p: p5, ball: Ball): number}関数を作ってください。
+    \item \texttt{square-class-array.ts}をもとに、落ちてくる三角形を表す\texttt{FallingTriangle}クラスを作ってください。
+    \item 挑戦問題として、プレイヤーを表す\texttt{Player}クラスと、落ちてくる円を表す\texttt{Ball}クラスを組み合わせ、マウスで動くプレイヤーが円をよける作品を作ってください。
+\end{enumerate}

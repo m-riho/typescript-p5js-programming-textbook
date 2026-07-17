@@ -1,0 +1,459 @@
+\chapter{関数で整理する}
+\label{chap:functions}
+
+この章では、関数を使ってプログラムを整理する方法を学びます。関数は、同じ処理をまとめたり、処理に名前を付けたり、値を受け取って結果を返したりするための仕組みです。TypeScriptでは、関数の引数や戻り値にも型注釈を書けるため、「何を受け取り、何を返す関数なのか」を読み取りやすくできます。
+
+\section{この章の概要}
+
+関数は便利ですが、初学者にとっては少し分かりにくい概念です。特に、関数を呼び出すときに渡す値と、関数の定義で受け取る名前の対応が混乱しやすいところです。この章では、実引数と仮引数の関係を丁寧に確認しながら進めます。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item 関数で処理をまとめる理由
+    \item \texttt{void}を返す関数
+    \item 実引数と仮引数の対応
+    \item 関数の中だけで使える変数
+    \item 処理を小さな関数に分ける考え方
+    \item \texttt{boolean}を返す関数
+    \item 関数の中でp5.jsの機能を使う方法
+\end{itemize}
+
+\section{同じ処理が何度も出てくる場面}
+
+同じような図形を複数描くとき、これまでの知識だけでもプログラムを書くことはできます。ただし、似た命令が何度も出てくると、どこを変更すればよいのか分かりにくくなります。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter08/repeated-cars-without-function.ts}
+\caption{関数を使わずに2台の車を描く}
+\label{lst:chapter08-repeated-cars-without-function}
+\end{listing}
+
+このサンプルでは、車体を描く処理とタイヤを描く処理が2回出てきます。車の形を少し変えたい場合、同じような場所を複数修正しなければなりません。修正する場所が増えるほど、片方だけ直し忘れる可能性も高くなります。
+
+\begin{pointbox}{関数の役割}
+関数は、まとまった処理に名前を付ける仕組みです。処理を関数にまとめると、「何をしている部分なのか」を名前で読めるようになります。
+\end{pointbox}
+
+\section{関数を定義する}
+
+TypeScriptでは、\texttt{function}を使って関数を定義できます。次のサンプルでは、車を描く処理を\texttt{drawCar}という関数にまとめています。
+
+\texttt{drawCar}の最初の仮引数\texttt{p: p5}は、スケッチを表す値を受け取るためのものです。関数の中で\texttt{p.rect}や\texttt{p.dist}のようなp5.jsの機能を使うときは、呼び出す側から\texttt{p}を渡します。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter08/draw-car-function.ts}
+\caption{車を描く処理を関数にまとめる}
+\label{lst:chapter08-draw-car-function}
+\end{listing}
+
+\texttt{function drawCar(...): void \{ ... \}}の部分が関数の定義です。\texttt{drawCar}は関数名です。\texttt{void}は、この関数が値を返さないことを表します。この関数は、画面に車を描くことが目的なので、計算結果を返す必要はありません。
+
+{\footnotesize
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+部分 & 意味 \\
+\midrule
+\texttt{function} & 関数を定義するためのキーワード \\
+\texttt{drawCar} & 関数名 \\
+\texttt{p: p5} & p5.jsの機能を使うための値 \\
+\texttt{carX: number} & 車の中心のx座標 \\
+\texttt{carY: number} & 車の中心のy座標 \\
+\texttt{: void} & 戻り値がないことを表す \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+関数定義の各部分を一般的な書き方と\texttt{drawCar}の書き方で対応させると、図\ref{fig:chapter08-function-definition-structure}のようになります。\texttt{function}に続けて関数名を書き、その後に仮引数、戻り値の型、関数本体を書きます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        syntaxpart/.style={
+            rectangle,
+            draw,
+            rounded corners=1pt,
+            align=center,
+            minimum height=8mm,
+            inner xsep=4pt
+        },
+        connection/.style={thick, gray!70}
+    ]
+        \node[syntaxpart, fill=gray!12] at (-5.7, 1.5)
+            {\texttt{function}};
+        \node[syntaxpart, fill=blue!10]
+            (general-name) at (-3.6, 1.5) {関数名};
+        \node at (-2.45, 1.5) {\texttt{(}};
+        \node[syntaxpart, fill=green!12]
+            (general-parameters) at (-1.0, 1.5) {仮引数};
+        \node at (0.45, 1.5) {\texttt{):}};
+        \node[syntaxpart, fill=orange!15]
+            (general-return) at (2.0, 1.5) {戻り値の型};
+        \node at (3.35, 1.5) {\texttt{\{}};
+        \node[syntaxpart, fill=red!10]
+            (general-body) at (4.85, 1.5) {関数本体};
+        \node at (6.15, 1.5) {\texttt{\}}};
+
+        \node[syntaxpart, fill=blue!10]
+            (example-name) at (-3.6, -0.9)
+            {\texttt{drawCar}};
+        \node[syntaxpart, fill=green!12]
+            (example-parameters) at (-0.8, -2.1)
+            {\texttt{p: p5,}\\
+             \texttt{carX: number,}\\
+             \texttt{carY: number}};
+        \node[syntaxpart, fill=orange!15]
+            (example-return) at (2.0, -0.9)
+            {\texttt{void}};
+        \node[syntaxpart, fill=red!10]
+            (example-body) at (4.85, -2.1)
+            {車を描く処理};
+
+        \draw[connection] (general-name) -- (example-name);
+        \draw[connection] (general-parameters) -- (example-parameters);
+        \draw[connection] (general-return) -- (example-return);
+        \draw[connection] (general-body) -- (example-body);
+    \end{tikzpicture}
+    \caption{関数定義の基本形と\texttt{drawCar}関数の対応}
+    \label{fig:chapter08-function-definition-structure}
+\end{figure}
+
+丸括弧の中には、関数が値を受け取るための仮引数を書きます。仮引数が複数ある場合はカンマで区切ります。ここでは、仮引数を関数が値を受け取るための「入口」と考えてください。呼び出し側の値と仮引数の詳しい関係は、次の節で確認します。
+
+丸括弧の後にある\texttt{: void}は戻り値の型です。\texttt{void}は、この関数が値を返さないことを表します。波括弧の中には、関数が呼び出されたときに実行する処理を書きます。関数を定義しただけでは中の処理は実行されず、\texttt{drawCar(...)}と呼び出されたときに実行されます。
+
+\begin{notebox}{関数名は処理の名前}
+関数名には、その関数が何をするのか分かる名前を付けます。\texttt{drawCar}なら「車を描く」という目的が読み取れます。短すぎる名前や、意味の広すぎる名前は避けましょう。
+\end{notebox}
+
+\section{実引数と仮引数}
+
+関数で最も混乱しやすいのは、実引数と仮引数の関係です。実引数は、関数を呼び出すときに実際に渡す値です。仮引数は、関数の定義側で、その値を受け取るために用意する名前です。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+呼び出し側の実引数 & 関数定義側の仮引数 & 関数内での意味 \\
+\midrule
+\texttt{p} & \texttt{p: p5} & p5.jsの機能を使う値 \\
+\texttt{p.mouseX} & \texttt{carX: number} & 車の中心のx座標 \\
+\texttt{p.mouseY} & \texttt{carY: number} & 車の中心のy座標 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+たとえば、\texttt{drawCar(p, p.mouseX, p.mouseY)}が実行されると、\texttt{p.mouseX}の値が\texttt{carX}に、\texttt{p.mouseY}の値が\texttt{carY}に渡されます。関数の中では、\texttt{carX}と\texttt{carY}という名前を使って処理を書きます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        headerbox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=55mm,
+            minimum height=12mm
+        },
+        valuebox/.style={
+            rectangle,
+            draw,
+            align=center,
+            minimum width=38mm,
+            minimum height=10mm,
+            fill=gray!8
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[headerbox] (call) at (0, 1.2)
+            {関数の呼び出し\\\texttt{drawCar(p, p.mouseX, p.mouseY)}};
+        \node[headerbox] (definition) at (7.4, 1.2)
+            {関数の定義\\\texttt{function drawCar(...): void}};
+
+        \node[valuebox] (actual1) at (0, -0.4)
+            {\texttt{p}\\1番目の実引数};
+        \node[valuebox] (formal1) at (7.4, -0.4)
+            {\texttt{p: p5}\\1番目の仮引数};
+        \node[valuebox] (actual2) at (0, -2.0)
+            {\texttt{p.mouseX}\\2番目の実引数};
+        \node[valuebox] (formal2) at (7.4, -2.0)
+            {\texttt{carX: number}\\2番目の仮引数};
+        \node[valuebox] (actual3) at (0, -3.6)
+            {\texttt{p.mouseY}\\3番目の実引数};
+        \node[valuebox] (formal3) at (7.4, -3.6)
+            {\texttt{carY: number}\\3番目の仮引数};
+
+        \draw[arrow] (actual1) --
+            node[midway, above, fill=white, inner sep=2pt]{順番で対応}
+            (formal1);
+        \draw[arrow] (actual2) --
+            node[midway, above, fill=white, inner sep=2pt]{順番で対応}
+            (formal2);
+        \draw[arrow] (actual3) --
+            node[midway, above, fill=white, inner sep=2pt]{順番で対応}
+            (formal3);
+    \end{tikzpicture}
+    \caption{実引数と仮引数は順番で対応する}
+    \label{fig:chapter08-actual-formal-arguments}
+\end{figure}
+
+図\ref{fig:chapter08-actual-formal-arguments}のように、実引数と仮引数は名前で対応するのではなく、並んでいる順番で対応します。\texttt{p.mouseX}という名前がそのまま関数の中に入るのではなく、その時点の値が\texttt{carX}という仮引数名で使えるようになります。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        callbox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=left,
+            minimum width=54mm,
+            minimum height=10mm
+        },
+        insidebox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=42mm,
+            minimum height=10mm,
+            fill=gray!8
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[callbox] (call1) at (0, 0) {\texttt{drawCar(p, 100, 150)}};
+        \node[insidebox] (inside1) at (7.2, 0) {関数の中では\\\texttt{carX = 100}\\\texttt{carY = 150}};
+
+        \node[callbox] (call2) at (0, -1.9) {\texttt{drawCar(p, 260, 150)}};
+        \node[insidebox] (inside2) at (7.2, -1.9) {関数の中では\\\texttt{carX = 260}\\\texttt{carY = 150}};
+
+        \node[callbox] (call3) at (0, -3.8) {\texttt{drawCar(p, p.mouseX, p.mouseY)}};
+        \node[insidebox] (inside3) at (7.2, -3.8) {関数の中では\\\texttt{carX = マウスのx座標}\\\texttt{carY = マウスのy座標}};
+
+        \draw[arrow] (call1) -- node[above]{値を受け取る} (inside1);
+        \draw[arrow] (call2) -- node[above]{値を受け取る} (inside2);
+        \draw[arrow] (call3) -- node[above]{値を受け取る} (inside3);
+    \end{tikzpicture}
+    \caption{呼び出すたびに仮引数の値が変わる}
+    \label{fig:chapter08-argument-values-change}
+\end{figure}
+
+図\ref{fig:chapter08-argument-values-change}は、同じ\texttt{drawCar}関数でも、呼び出し方によって関数の中で使われる\texttt{carX}と\texttt{carY}の値が変わることを表しています。関数の定義は1つでも、実引数を変えれば、違う位置に車を描けます。
+
+\begin{pointbox}{値がコピーされると考える}
+最初のうちは、実引数の値が仮引数にコピーされると考えると理解しやすくなります。\texttt{drawCar(p, 100, 150)}と呼び出したなら、関数の中では\texttt{carX}が100、\texttt{carY}が150として使われます。
+\end{pointbox}
+
+\section{仮引数は関数の中で使う名前}
+
+仮引数の名前は、関数の中で使うための名前です。呼び出し側と同じ名前にする必要はありません。むしろ、関数の中で何を表す値なのかが分かる名前にすることが大切です。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter08/moving-cars-function.ts}
+\caption{実引数を変えて同じ関数を使う}
+\label{lst:chapter08-moving-cars-function}
+\end{listing}
+
+このサンプルでは、同じ\texttt{drawCar}関数を2回呼び出しています。1回目は\texttt{drawCar(p, carX, p.height / 3)}、2回目は\texttt{drawCar(p, carX * 2, (p.height * 2) / 3)}です。呼び出すたびに実引数が違うため、同じ関数でも違う位置に車を描けます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        exprbox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=50mm,
+            minimum height=11mm
+        },
+        resultbox/.style={
+            rectangle,
+            draw,
+            align=center,
+            minimum width=49mm,
+            minimum height=13mm,
+            fill=gray!8
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[exprbox] (first) at (0, 0)
+            {\texttt{drawCar(p, carX, p.height / 3)}};
+        \node[resultbox] (firstResult) at (8.2, 0)
+            {\texttt{carX}には\texttt{carX}の値\\
+             \texttt{carY}には\texttt{p.height / 3}の結果};
+
+        \node[exprbox] (second) at (0, -3.0)
+            {\texttt{drawCar(p, carX * 2,}\\
+             \texttt{        (p.height * 2) / 3)}};
+        \node[resultbox] (secondResult) at (8.2, -3.0)
+            {\texttt{carX}には\texttt{carX * 2}の結果\\
+             \texttt{carY}には\texttt{(p.height * 2) / 3}の結果};
+
+        \draw[arrow] (first) --
+            node[midway, above=3pt, fill=white, inner sep=2pt]
+            {計算結果が渡る} (firstResult);
+        \draw[arrow] (second) --
+            node[midway, above=3pt, fill=white, inner sep=2pt]
+            {計算結果が渡る} (secondResult);
+    \end{tikzpicture}
+    \caption{式を実引数にしたときの対応}
+    \label{fig:chapter08-expression-arguments}
+\end{figure}
+
+実引数には、数値そのものだけでなく、\texttt{carX * 2}や\texttt{p.height / 3}のような式も書けます。この場合、式そのものが仮引数になるのではなく、式を計算した結果の値が仮引数に渡されます。
+
+\begin{notebox}{順番が大切}
+実引数は、仮引数の順番に対応します。\texttt{drawCar(p, x, y)}なら、2番目の実引数が\texttt{carCenterX}に、3番目の実引数が\texttt{carCenterY}に渡されます。名前ではなく、順番で対応することに注意しましょう。
+\end{notebox}
+
+\section{処理を小さな関数に分ける}
+
+関数は、同じ図形を何度も描くためだけの仕組みではありません。1つの\texttt{draw}の中に多くの処理が入ってきたとき、処理に名前を付けて分けるためにも使えます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter08/bouncing-ball-functions.ts}
+\caption{移動、反射、表示を関数に分ける}
+\label{lst:chapter08-bouncing-ball-functions}
+\end{listing}
+
+このサンプルでは、\texttt{moveBall}、\texttt{bounceBall}、\texttt{displayBall}という3つの関数に処理を分けています。\texttt{p.draw}の中を見ると、ボールを動かし、反射を調べ、表示する、という流れが読み取りやすくなっています。
+
+\begin{pointbox}{関数に分ける基準}
+「この数行は何をしているのか」を短い名前で言えるなら、関数に分ける候補になります。ただし、何でも細かく分ければよいわけではありません。読みやすくなるかどうかを基準に考えます。
+\end{pointbox}
+
+\section{戻り値を持つ関数}
+
+ここまでの関数は、画面に図形を描いたり、変数の値を変更したりする関数でした。関数は、計算した結果を呼び出し側に返すこともできます。返される値を戻り値と呼びます。
+
+関数から値を返すには、関数本体の中に\texttt{return 値;}と書きます。\texttt{return}が実行されると、その値が関数を呼び出した場所へ戻ります。呼び出し側では、関数呼び出しの部分を返された値として扱えるため、変数へ代入したり、式や条件の中で利用したりできます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter08/point-in-circle-function.ts}
+\caption{点が円の中にあるかを返す関数}
+\label{lst:chapter08-point-in-circle-function}
+\end{listing}
+
+\texttt{isInsideCircle}関数は、マウスの位置が円の中にあるかどうかを調べ、\texttt{boolean}型の値を返します。このサンプルでは、円の中心座標と半径を定数として用意し、関数の中でその値を使っています。円の中にあれば\texttt{true}、外にあれば\texttt{false}です。
+
+{\footnotesize
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+部分 & 意味 \\
+\midrule
+\texttt{: boolean} & 戻り値が\texttt{boolean}型であることを表す \\
+\texttt{return distanceFromCenter <= circleRadius;} & 判定結果を呼び出し側に返す \\
+\texttt{const mouseIsInsideCircle: boolean =} & 戻り値を変数で受け取る \\
+\texttt{\quad isInsideCircle(...);} & \\
+\texttt{if (mouseIsInsideCircle)} & 受け取った値を条件として使う \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+図\ref{fig:chapter08-return-value-flow}は、関数の呼び出しから、戻り値を受け取って利用するまでの流れを表しています。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        stepbox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum height=11mm,
+            text width=48mm
+        },
+        resultbox/.style={
+            rectangle,
+            draw,
+            align=center,
+            fill=gray!8,
+            minimum height=11mm,
+            text width=48mm
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[stepbox] (call) at (0, 1.2)
+            {呼び出し側\\
+             \texttt{isInsideCircle(}\\
+             \texttt{    p, p.mouseX, p.mouseY)}};
+        \node[stepbox] (judge) at (8.0, 1.2)
+            {関数側\\円の内側かどうかを判定};
+        \node[resultbox] (receive) at (0, -1.5)
+            {戻り値を変数で受け取る\\
+             \texttt{mouseIsInsideCircle: boolean}};
+        \node[resultbox] (return) at (8.0, -1.5)
+            {\texttt{return}で値を返す\\
+             \texttt{true}または\texttt{false}};
+        \node[stepbox] (use) at (0, -4.0)
+            {受け取った値を使う\\
+             \texttt{if (mouseIsInsideCircle)}};
+
+        \draw[arrow] (call) --
+            node[midway, above, fill=white, inner sep=2pt]
+            {関数を呼び出す} (judge);
+        \draw[arrow] (judge) -- (return);
+        \draw[arrow] (return) --
+            node[midway, above, fill=white, inner sep=2pt]
+            {値を返す} (receive);
+        \draw[arrow] (receive) -- (use);
+    \end{tikzpicture}
+    \caption{\texttt{return}で返された値を呼び出し側が受け取る流れ}
+    \label{fig:chapter08-return-value-flow}
+\end{figure}
+
+関数を呼び出した場所には、\texttt{return}で返された値が入ると考えられます。このサンプルでは、\texttt{isInsideCircle(...)}の呼び出し部分が\texttt{true}または\texttt{false}になり、その値が\texttt{mouseIsInsideCircle}へ代入されます。その後、\texttt{if (mouseIsInsideCircle)}で、受け取った値を条件として使っています。
+
+戻り値は\texttt{boolean}だけではありません。戻り値の型を\texttt{number}とした関数は数値を、\texttt{string}とした関数は文字列を返せます。関数名の後に書いた戻り値の型と、\texttt{return}で返す値の型は一致させます。
+
+\begin{notebox}{returnで関数から値を返す}
+\texttt{return}の後ろには、呼び出し側へ返したい値や式を書きます。\texttt{: boolean}と書いた関数では\texttt{boolean}型の値を返します。同じように、\texttt{: number}なら数値、\texttt{: string}なら文字列を返します。
+\end{notebox}
+
+\section{よくある間違い}
+
+関数では、名前、型、引数の数、引数の順番をそろえる必要があります。エラーが出たときは、関数を定義した場所と、関数を呼び出している場所を見比べましょう。
+
+\begin{mistakebox}{実引数と仮引数を同じものだと思ってしまう}
+\texttt{drawCar(p, p.mouseX, p.mouseY)}の\texttt{p.mouseX}は実引数です。\texttt{function drawCar(..., carX: number, ...)}の\texttt{carX}は仮引数です。名前は違っていても、順番によって値が渡されます。
+\end{mistakebox}
+
+\begin{mistakebox}{引数の順番を間違える}
+\texttt{drawCar(p, y, x)}のように順番を逆にすると、x座標とy座標が入れ替わります。関数を呼び出すときは、関数定義の仮引数の並びを確認しましょう。
+\end{mistakebox}
+
+\begin{mistakebox}{戻り値の型を書き忘れる}
+教材では、関数の戻り値の型を明示します。値を返さない関数は\texttt{: void}、真偽値を返す関数は\texttt{: boolean}のように書きます。
+\end{mistakebox}
+
+\begin{mistakebox}{pを渡し忘れる}
+\texttt{drawCar}の中で\texttt{p.rect}や\texttt{p.circle}を使うなら、\texttt{drawCar(p, ...)}のように\texttt{p}を実引数として渡す必要があります。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、関数を使ってプログラムを整理する方法を学びました。関数を使うと、同じ処理をまとめたり、処理に名前を付けたり、\texttt{draw}の中を読みやすくしたりできます。
+
+実引数は呼び出し側で渡す値、仮引数は関数側で受け取る名前です。実引数と仮引数は、基本的に順番で対応します。また、\texttt{return}を使うと、関数から値を返すことができます。
+
+\section{演習問題}
+
+この章の演習では、関数を少しずつ変更しながら、実引数と仮引数の関係に慣れていきます。最初は数値を変えるだけでよいので、関数を呼び出している場所と、関数を定義している場所を見比べながら進めましょう。
+
+\begin{enumerate}
+    \item \texttt{draw-car-function.ts}で、固定された車の位置を変えてください。
+    \item \texttt{draw-car-function.ts}で、\texttt{drawCar}を3回呼び出し、3台の車を描いてください。
+    \item \texttt{draw-car-function.ts}の\texttt{carWidth}と\texttt{carHeight}を変えて、車の形を変えてください。
+    \item \texttt{moving-cars-function.ts}で、2台目の車の速さが1台目と違うようにしてください。
+    \item \texttt{drawCar}関数に\texttt{carColor: number}という仮引数を追加し、車体の明るさを実引数で指定できるようにしてください。
+    \item \texttt{bouncing-ball-functions.ts}で、\texttt{moveBall}、\texttt{bounceBall}、\texttt{displayBall}がそれぞれ何をしているか説明してください。
+    \item \texttt{bouncing-ball-functions.ts}を変更し、ボールの半径を変えてください。
+    \item \texttt{point-in-circle-function.ts}で、円の半径を変えて、判定範囲の変化を確認してください。
+    \item \texttt{isInsideCircle}関数を使い、円の中にマウスがあるときだけ小さな円を追加で描いてください。
+    \item 挑戦問題として、\texttt{drawFace(p, x, y)}のような関数を作り、実引数で位置を指定して顔を複数描いてください。
+\end{enumerate}

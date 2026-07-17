@@ -1,0 +1,55 @@
+\documentclass[lualatex,ja=standard,oneside,openany]{bxjsbook}
+
+\input{preamble}
+\hypersetup{hidelinks}
+
+
+\begin{document}
+
+\frontmatter
+\title{
+    \BookTitle\\[1ex]
+    \Large \BookSubtitle
+}
+\author{
+  佐藤尚\\
+  神奈川工科大学 情報メディア学科\\
+  \texttt{sato@ic.kanagawa-it.ac.jp}}
+\date{\today}
+\hypersetup{pageanchor=false}
+\maketitle
+\hypersetup{pageanchor=true}
+\tableofcontents
+
+\mainmatter
+\input{chapters/chapter01-introduction}
+\input{chapters/chapter02-drawing-shapes}
+\input{chapters/chapter03-color-and-style}
+\input{chapters/chapter04-variables-and-types}
+\input{chapters/chapter05-animation-basics}
+\input{chapters/chapter06-conditions-and-interaction}
+\input{chapters/chapter07-loops}
+\input{chapters/chapter08-functions}
+\input{chapters/chapter09-coordinate-transform-parts}
+\input{chapters/chapter10-arrays-and-many-objects}
+\input{chapters/chapter11-objects-and-classes}
+\input{chapters/chapter12-images-and-text}
+\input{chapters/chapter13-multidimensional-arrays}
+\input{chapters/chapter14-inheritance}
+\input{chapters/chapter15-small-game}
+\input{chapters/chapter16-file-io}
+\input{chapters/chapter17-sound}
+\input{chapters/chapter18-iteration-again}
+\input{chapters/chapter19-algorithm-improvement}
+\input{chapters/chapter20-polymorphism-leaf-collector}
+\input{chapters/chapter21-final-projects}
+
+\appendix
+\input{chapters/appendix-macos-setup}
+\input{chapters/appendix-ubuntu-setup}
+\input{chapters/appendix-git-guide}
+
+\backmatter
+\input{chapters/colophon}
+
+\end{document}

@@ -1,0 +1,284 @@
+\chapter{小さなゲームを作る}
+\label{chap:small-game}
+
+この章では、これまでに学んだ図形、色、変数、条件分岐、繰り返し、関数、配列、クラス、継承を組み合わせて、小さなゲームを作ります。ゲームは特別な命令だけで作るものではありません。画面を毎回描き直し、入力を読み取り、状態を少しずつ変え、条件に応じて得点やライフを更新することで作れます。
+
+\section{この章の概要}
+
+この章では、プレイヤーを動かして星を集め、落ちてくる敵を避ける「星集めゲーム」を作ります。最初から完成形を書くのではなく、まずプレイヤーを動かし、次に星を取る処理を加え、最後に敵、ライフ、ゲームオーバーを組み込みます。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item ゲームを状態とルールに分けて考える
+    \item キーボードでプレイヤーを動かす
+    \item 当たり判定で得点を増やす
+    \item 敵を配列で管理する
+    \item ライフとゲームオーバーを扱う
+    \item 関数でゲーム全体の処理を整理する
+    \item 継承でプレイヤー、星、敵の共通部分をまとめる
+    \item 押し続ける入力と押した瞬間の入力を使い分ける
+\end{itemize}
+
+\section{ゲームを状態とルールに分ける}
+
+ゲームを作るときは、まず「何を覚えておく必要があるか」と「何が起きたら何を変えるか」を分けて考えると整理しやすくなります。画面に見えているものは、ほとんどの場合、変数やオブジェクトの状態を描いた結果です。
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+考えること & この章のゲームでの例 \\
+\midrule
+状態 & プレイヤーの位置、星の位置、敵の位置、得点、ライフ \\
+入力 & 矢印キーでプレイヤーを動かす \\
+ルール & 星に触れたら得点、敵に触れたらライフを減らす \\
+終了条件 & ライフが0になったらゲームオーバー \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pointbox}{ゲームは毎フレームの小さな判断で動く}
+ゲームは、1回の大きな処理で完成するものではありません。\texttt{draw}が呼ばれるたびに、入力を見て、位置を更新し、当たり判定を行い、画面を描き直します。この小さな流れを何度も繰り返すことで、ゲームとして動いて見えます。
+\end{pointbox}
+
+\section{プレイヤーを動かす}
+
+最初に、矢印キーで動くプレイヤーを作ります。プレイヤーは、中心座標、半径、移動速度を持つクラスとして表します。第11章で学んだように、プレイヤーに関する状態と処理を\texttt{Player}クラスにまとめます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=44]{ts}{listings/chapter15/player-control.ts}
+\caption{矢印キーで動く\texttt{Player}クラス}
+\label{lst:chapter15-player-control-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=46,lastline=62]{ts}{listings/chapter15/player-control.ts}
+\caption{\texttt{Player}クラスを使うスケッチ}
+\label{lst:chapter15-player-control-sketch}
+\end{listing}
+
+\texttt{Player}クラスの\texttt{update}メソッドでは、\texttt{p.keyIsDown}を使ってキーが押されているかを調べています。\texttt{update}は\texttt{draw}から毎フレーム呼ばれるため、\texttt{p.keyIsDown(p.LEFT\_ARROW)}のように押されている間の状態を調べると、キーを押し続けてプレイヤーを動かせます。左矢印キーが押されていればx座標を減らし、右矢印キーが押されていればx座標を増やします。上下方向も同じ考え方です。
+
+\texttt{p.constrain}は、値を指定した範囲におさめる関数です。このサンプルでは、プレイヤーがキャンバスの外へ出ないように、\texttt{centerX}と\texttt{centerY}を制限しています。ゲームでは、動かすだけでなく、動いてよい範囲を決めることも大切です。
+
+\section{星を取ったら得点を増やす}
+
+次に、プレイヤーが星に触れたら得点が増えるようにします。星も、中心座標と半径を持つものとして考えられます。プレイヤーと星の距離を調べ、その距離が2つの半径の合計より小さければ、触れていると判断します。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        circleNode/.style={circle, draw, minimum size=20mm, align=center},
+        arrow/.style={<->, thick}
+    ]
+        \node[circleNode, fill=blue!8] (player) at (0, 0) {Player};
+        \node[circleNode, fill=yellow!20] (star) at (4, 0.6) {Star};
+        \draw[arrow] (player.center) -- (star.center);
+        \node[align=center] at (2, -0.8) {中心同士の距離};
+        \node[align=center] at (2, -1.6) {距離 < 半径の合計なら触れている};
+    \end{tikzpicture}
+    \caption{円同士の当たり判定}
+    \label{fig:chapter15-circle-hit-test}
+\end{figure}
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=44]{ts}{listings/chapter15/collect-star.ts}
+\caption{星を取るサンプルで使う\texttt{Player}}
+\label{lst:chapter15-collect-star-player}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=46,lastline=82]{ts}{listings/chapter15/collect-star.ts}
+\caption{取る対象になる\texttt{Star}}
+\label{lst:chapter15-collect-star-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=84,lastline=120]{ts}{listings/chapter15/collect-star.ts}
+\caption{星を取ったら得点を増やすスケッチ}
+\label{lst:chapter15-collect-star-sketch}
+\end{listing}
+
+\texttt{Star}クラスには、星の位置をランダムに置き直す\texttt{reset}メソッドがあります。星を取ったときに新しい星を出したいので、位置を決め直す処理をメソッドとしてまとめています。
+
+\texttt{isTouching}メソッドは、プレイヤーと星が触れているかを\texttt{boolean}で返します。\texttt{true}なら触れている、\texttt{false}なら触れていないという意味です。ゲームのルールを書くとき、\texttt{boolean}を返す関数やメソッドを作ると、\texttt{if}文の条件として読みやすく使えます。
+
+\begin{pointbox}{当たり判定はゲームのルールを支える}
+当たり判定は、見た目を描く処理ではありません。「触れたら得点」「触れたらダメージ」のようなルールを実行するための判断です。そのため、\texttt{display}とは分けて、\texttt{isTouching}のような名前のメソッドにすると読みやすくなります。
+\end{pointbox}
+
+\section{完成版の構成}
+
+完成版では、プレイヤー、星、敵をクラスで表します。さらに、どれも「中心座標と半径を持ち、当たり判定に使える」という共通点があるため、第14章で学んだ継承を使って\texttt{GameObject}クラスに共通部分をまとめます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw, rounded corners, align=center, minimum width=32mm, minimum height=9mm},
+        arrow/.style={->, thick}
+    ]
+        \node[box, fill=blue!5] (gameObject) at (0, 0) {\texttt{GameObject}\\座標・半径・当たり判定};
+        \node[box, fill=green!5] (player) at (-4, -1.7) {\texttt{Player}\\キー入力で動く};
+        \node[box, fill=yellow!15] (star) at (0, -1.7) {\texttt{Star}\\取ると得点};
+        \node[box, fill=red!8] (enemy) at (4, -1.7) {\texttt{Enemy}\\落ちてくる};
+        \draw[arrow] (player.north) -- (gameObject.south);
+        \draw[arrow] (star.north) -- (gameObject.south);
+        \draw[arrow] (enemy.north) -- (gameObject.south);
+    \end{tikzpicture}
+    \caption{完成版ゲームのクラス構成}
+    \label{fig:chapter15-game-classes}
+\end{figure}
+
+\texttt{GameObject}は画面に登場するものの共通部分です。プレイヤーも星も敵も、中心座標と半径を持っています。また、どれも当たり判定では同じ計算を使えます。そこで、\texttt{isTouching}を親クラスに置き、子クラスから共通して使えるようにします。
+
+\section{共通部分を\texttt{GameObject}にまとめる}
+
+まず、完成版の親クラスを見ます。\texttt{GameObject}には、中心座標、半径、当たり判定だけを入れます。どのように描くか、どのように動くかは、子クラスごとに違うため、ここには入れません。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=25]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{ゲーム内のものに共通する\texttt{GameObject}}
+\label{lst:chapter15-game-object}
+\end{listing}
+
+\texttt{isTouching}の引数は\texttt{other: GameObject}です。これは、「相手も\texttt{GameObject}をもとにしたものなら調べられる」という意味です。\texttt{Player}、\texttt{Star}、\texttt{Enemy}はすべて\texttt{GameObject}を継承するので、同じ\texttt{isTouching}で当たり判定できます。
+
+\begin{notebox}{親クラスには本当に共通するものだけを置く}
+\texttt{GameObject}に何でも入れると、かえって分かりにくくなります。このゲームでは、座標、半径、当たり判定は共通しています。一方、キー入力、ランダムな再配置、下方向への移動はクラスごとに違うため、それぞれの子クラスに書きます。
+\end{notebox}
+
+\section{\texttt{Player}、\texttt{Star}、\texttt{Enemy}を作る}
+
+次に、ゲームに登場する3種類のクラスを作ります。\texttt{Player}はキー入力で動き、\texttt{Star}は取られたら別の場所へ移動し、\texttt{Enemy}は上から下へ落ちてきます。同じ\texttt{GameObject}を継承していても、役割が違うため、持つメソッドも少しずつ違います。
+
+\begin{listing}[htbp]
+\inputminted[firstline=27,lastline=67]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{キー入力で動く\texttt{Player}}
+\label{lst:chapter15-player-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=69,lastline=85]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{集める対象になる\texttt{Star}}
+\label{lst:chapter15-star-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=87,lastline=116]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{上から落ちてくる\texttt{Enemy}}
+\label{lst:chapter15-enemy-class}
+\end{listing}
+
+\texttt{Player}の\texttt{update}は、矢印キーを調べて座標を変えます。\texttt{Star}の\texttt{reset}は、星をランダムな位置に置き直します。\texttt{Enemy}の\texttt{update}は、敵を下へ動かし、画面外に出たら上に戻します。
+
+同じ\texttt{update}という名前でも、クラスごとに意味が少し違います。これは、第14章で学んだ「同じ名前のメソッドをクラスごとに用意する」という考え方につながります。このゲームでは、\texttt{Player}と\texttt{Enemy}がそれぞれ自分に必要な更新処理を持っています。
+
+\section{ゲーム全体の状態を用意する}
+
+クラスは、ゲームに登場するものを整理するために使います。一方で、得点、ライフ、ゲームオーバーかどうかのように、ゲーム全体で1つだけ持てばよい状態もあります。そのような値は、スケッチの中の変数として用意します。
+
+\begin{listing}[htbp]
+\inputminted[firstline=119,lastline=145]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{ゲーム全体の状態を用意する}
+\label{lst:chapter15-game-state}
+\end{listing}
+
+\texttt{score}は現在の得点、\texttt{life}は残りライフ、\texttt{isGameOver}はゲームオーバーかどうかを表します。\texttt{isGameOver}の型は\texttt{boolean}です。ゲームの状態を\texttt{true}または\texttt{false}で表すと、\texttt{if (isGameOver)}のように条件分岐で使いやすくなります。
+
+\texttt{enemies}は\texttt{Enemy[]}型の配列です。敵は複数登場するため、1つずつ別の変数にするのではなく、配列にまとめています。第10章の配列、第11章のクラス、第14章の継承がここで一緒に使われています。
+
+\section{\texttt{draw}でゲームを進める}
+
+ゲームの中心になるのは\texttt{p.draw}です。\texttt{draw}の中では、まずゲームオーバーかどうかを調べます。ゲーム中なら、プレイヤーと敵を更新し、星や敵との当たり判定を行い、最後に画面を描きます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=146,lastline=173]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{\texttt{draw}でゲームのルールを進める}
+\label{lst:chapter15-draw-rules}
+\end{listing}
+
+\texttt{if (star.isTouching(player, p))}は、星とプレイヤーが触れているかを調べています。触れていれば、\texttt{score}を1増やし、星を別の場所へ移動します。
+
+敵との当たり判定は、敵の配列を\texttt{for}文で順番に調べます。どの敵に触れても、ライフを1減らし、その敵を上へ戻します。敵が複数いても、配列と繰り返しを使えば、同じ処理を1つの形で書けます。
+
+\begin{mistakebox}{状態を変える場所を散らばらせすぎない}
+得点やライフをいろいろな関数でばらばらに変更すると、どこで値が変わったのか分かりにくくなります。この章では、得点とライフの更新を\texttt{draw}のルール部分に集めています。
+\end{mistakebox}
+
+\section{ゲームオーバーと再スタート}
+
+ライフが0になったら、\texttt{isGameOver}を\texttt{true}にします。次の\texttt{draw}では、ゲーム中の更新を行わず、ゲームオーバー画面だけを表示します。スペースキーが押されたら、得点とライフを初期値に戻し、敵と星の位置をリセットします。
+
+\begin{listing}[htbp]
+\inputminted[firstline=175,lastline=187]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{スペースキーでゲームを再スタートする}
+\label{lst:chapter15-restart}
+\end{listing}
+
+\texttt{p.keyPressed}は、キーが押された瞬間に1回呼ばれる処理です。プレイヤーの移動では、押され続けているキーを毎フレーム調べるために\texttt{p.keyIsDown}を使いました。一方、ゲームオーバーからの再スタートは、キーを押した瞬間に1回だけ実行したいので、\texttt{p.keyPressed}を使っています。このように、連続して変えたい状態には\texttt{p.keyIsDown}、一度だけ始めたい処理には\texttt{p.keyPressed}を使います。
+
+\section{処理を関数に分ける}
+
+完成版の最後では、ゲームを更新する処理、描画する処理、ステータス表示、ゲームオーバー表示を関数に分けています。関数に分けることで、\texttt{draw}の中で「今どの段階の処理をしているか」が読み取りやすくなります。
+
+\begin{listing}[htbp]
+\inputminted[firstline=190,lastline=237]{ts}{listings/chapter15/star-catcher-game.ts}
+\caption{更新、描画、表示を関数に分ける}
+\label{lst:chapter15-helper-functions}
+\end{listing}
+
+\texttt{updateGame}は、プレイヤーと敵の位置を更新します。\texttt{displayGame}は、星、敵、プレイヤー、得点、ライフを描画します。\texttt{displayStatus}と\texttt{displayGameOver}は、文字表示を担当します。
+
+関数に分けるときは、何でも細かく分ければよいわけではありません。この章では、「更新」「描画」「状態表示」のように、役割で分けています。関数名を読むだけで、その関数がゲームのどの部分を担当しているか分かることが大切です。
+
+\begin{pointbox}{完成版を読む順番}
+長いプログラムは、上から1行ずつ読むだけでは大変です。まず、\texttt{setup}で何を作っているかを見ます。次に、\texttt{draw}で毎フレーム何をしているかを読みます。その後で、クラスや関数の中身を必要に応じて確認すると、全体像をつかみやすくなります。
+\end{pointbox}
+
+\section{よくある間違い}
+
+小さなゲームでも、状態、入力、当たり判定、描画が組み合わさるため、間違いの原因が見つけにくくなることがあります。次の点を確認しながら作ると、原因を切り分けやすくなります。
+
+\begin{mistakebox}{\texttt{draw}の中で毎回インスタンスを作ってしまう}
+\texttt{draw}の中で\texttt{player = new Player(...)}のように書くと、毎フレーム位置が初期値に戻ってしまいます。インスタンスを作る処理は基本的に\texttt{setup}で行い、\texttt{draw}では状態を更新します。
+\end{mistakebox}
+
+\begin{mistakebox}{当たり判定と描画を混ぜてしまう}
+\texttt{display}の中で得点を増やすと、「描く処理」と「ゲームのルール」が混ざってしまいます。表示する処理と、得点やライフを変える処理は分けて考えましょう。
+\end{mistakebox}
+
+\begin{mistakebox}{キー入力を使い分けられない}
+押され続けている間プレイヤーを動かすなら\texttt{p.keyIsDown}を使います。ゲームオーバーからの再スタートのように、押した瞬間だけ実行したい処理には\texttt{p.keyPressed}を使います。
+\end{mistakebox}
+
+\begin{mistakebox}{配列の要素数と繰り返し条件をずらしてしまう}
+敵の配列を処理するときは、\texttt{index < enemies.length}のように配列の長さを使います。固定の数値を書くと、敵の数を変えたときに修正忘れが起きやすくなります。
+\end{mistakebox}
+
+\begin{mistakebox}{ゲームオーバー中にも更新し続けてしまう}
+ゲームオーバー画面を表示していても、敵やプレイヤーを更新し続けると、再スタート時に予想しない状態になりやすくなります。この章では、\texttt{isGameOver}が\texttt{true}なら早めに\texttt{return}して、ゲーム中の更新を止めています。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、これまで学んだ内容を組み合わせて、小さなゲームを作りました。ゲームでは、状態を変数やインスタンスに保存し、\texttt{draw}の中で少しずつ更新します。入力、当たり判定、得点、ライフ、ゲームオーバーは、すべて条件分岐や関数、クラスを使って表せます。
+
+完成版では、\texttt{GameObject}を親クラスにして、\texttt{Player}、\texttt{Star}、\texttt{Enemy}の共通部分をまとめました。継承を使うことで、当たり判定を1か所に置き、種類ごとの違いは子クラスに書けます。小さなゲームを作ることは、プログラムの部品をどう分けるかを考える練習にもなります。
+
+\section{演習問題}
+
+この章の演習では、まず完成版の値を少し変え、次にルールやクラスを追加していきます。最後は、自分なりの小さなゲームへ発展させます。
+
+\begin{enumerate}
+    \item \texttt{player-control.ts}で、プレイヤーの移動速度を変えて、操作感がどう変わるか確認してください。
+    \item \texttt{collect-star.ts}で、星の半径を大きくし、取りやすさがどう変わるか確認してください。
+    \item \texttt{star-catcher-game.ts}で、敵の数を\texttt{4}から\texttt{6}に変更してください。
+    \item \texttt{Enemy}の\texttt{speedY}の範囲を変更し、敵の落ちる速さを調整してください。
+    \item 星を取ったときに、得点が2点増えるように変更してください。
+    \item 敵に当たったときに、ライフが減るだけでなく、プレイヤーの位置も初期位置に戻るようにしてください。
+    \item \texttt{Star}をもう1つ増やし、2つの星を集められるようにしてください。
+    \item 新しい子クラス\texttt{BonusStar}を作り、取ると得点が5点増えるようにしてください。
+    \item 敵に当たった直後、少しの間だけ連続でライフが減らない仕組みを考えてください。
+    \item 自由制作として、プレイヤー、集めるもの、避けるものを変え、自分なりの小さなゲームを作ってください。
+    \item 挑戦問題として、ゲームクリア条件を追加してください。たとえば、得点が20点になったらクリア画面を表示するようにします。
+\end{enumerate}

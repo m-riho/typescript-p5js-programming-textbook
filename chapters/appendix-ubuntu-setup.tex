@@ -1,0 +1,203 @@
+\chapter{Ubuntu Linuxで教材を始める}
+\label{app:ubuntu-setup}
+
+この付録では、Ubuntu Desktop LTSで教材のスケッチを実行するまでの準備を説明します。
+
+ここで扱うのは、WebブラウザでTypeScript + p5.jsのプログラムを実行するための準備です。ターミナルでコマンドを入力する場面がありますが、表示されたコマンドを上から順に実行すれば進められます。授業で配布された教材リポジトリを使うことを確認してから作業を始めましょう。
+
+LinuxにはUbuntu以外にもさまざまなディストリビューションがあり、ソフトウェアを入れるためのパッケージマネージャや手順が異なります。この付録では、迷わず進められるようにUbuntu Desktop LTSだけを対象にします。
+
+教材リポジトリを作成する前のVS Code、Git、curl、nvmの準備コマンドは、ターミナルをどのフォルダから開いても実行できます。ただし、VS Codeの\texttt{.deb}ファイルをターミナルからインストールするときは、Filesで確認したダウンロードフォルダへ移動します。
+
+この付録では、次の順番で準備します。
+
+\begin{itemize}
+    \item VS Codeをインストールする
+    \item Gitをインストールする
+    \item nvmでNode.jsのLTS版とnpmをインストールする
+    \item 教材をGitHubから取得する
+    \item 必要なライブラリを\texttt{npm}でインストールする
+    \item Viteの開発サーバを起動する
+    \item \texttt{typescript-p5/src/main.ts}を編集し、サンプルを入れ替える
+\end{itemize}
+
+\section{VS Codeをインストールする}
+
+VS Codeは、TypeScriptのプログラムを書くためのエディタです。ファイルを見つけやすく表示し、入力中の間違いにも気づきやすくなります。
+
+WebブラウザでVS CodeのLinux向け公式手順を開きます。
+\url{https://code.visualstudio.com/docs/setup/linux}
+\texttt{.deb}形式のインストーラをダウンロードしてください。ダウンロードしたファイルをFilesのDownloadsフォルダでダブルクリックし、ソフトウェアセンターの画面でインストールしても構いません。Ubuntuの表示言語によっては、Filesに表示されるDownloadsフォルダの名前が異なることがあります。その場合は、Filesに表示されているフォルダ名を使ってください。
+
+ターミナルからインストールすることもできます。この段階では教材リポジトリはまだ不要です。ターミナルの開始場所はどこでも構いませんが、最初の\texttt{cd}で、ダウンロードした\texttt{.deb}ファイルがあるDownloadsフォルダへ移動してから実行します。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+cd ~/Downloads
+sudo apt install ./code_*.deb
+\end{minted}
+\caption{DownloadsフォルダのVS Code用\texttt{.deb}ファイルをインストールするコマンド}
+\label{lst:appendix-ubuntu-install-vscode}
+\end{listing}
+
+\texttt{code\_*.deb}の\texttt{*}は、ダウンロードしたファイルのバージョン番号の部分に対応します。ファイル名が異なる場合は、Filesで表示されているダウンロードフォルダにある実際の\texttt{.deb}ファイル名を指定してください。
+
+\section{Gitをインストールする}
+
+Gitは、教材をGitHubから取得するときに使う道具です。Ubuntuでは\texttt{apt}というパッケージマネージャを使ってインストールできます。
+
+教材リポジトリはまだ必要ありません。次のコマンドはどのフォルダからでも実行できます。\texttt{sudo apt update}でインストール可能なソフトウェアの情報を更新し、続けてGitとcurlをインストールしてから、それぞれのバージョンを確認します。nvmのインストールコマンドはcurlを使うため、ここでcurlの準備を済ませます。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+sudo apt update
+sudo apt install git curl
+git --version
+curl --version
+\end{minted}
+\caption{Gitとcurlをインストールしてバージョンを確認するコマンド}
+\label{lst:appendix-ubuntu-install-git}
+\end{listing}
+
+\texttt{sudo}は、コンピュータ全体に関わる操作を一時的に管理者として実行するための言葉です。\texttt{sudo}を付けたコマンドでは、Ubuntuにログインするときのパスワードを求められることがあります。入力中は文字も\texttt{*}も画面に表示されませんが、入力されているので、そのままパスワードを入力してEnterキーを押してください。
+
+\begin{notebox}{\texttt{npm install}に\texttt{sudo}を付けない}
+この教材の\texttt{npm install}は、後で自分の教材フォルダ内で実行します。\texttt{sudo npm install}とは入力しません。管理者の権限でライブラリを入れると、後の編集や更新でファイルの権限が合わなくなることがあります。
+\end{notebox}
+
+\texttt{git --version}で\texttt{git version}に続く番号が表示されれば、Gitを使えます。
+
+\section{nvmでNode.jsとnpmをインストールする}
+
+Node.jsは、教材で使うTypeScript、p5.js、Viteを動かすために必要な実行環境です。Node.jsをインストールすると、必要なライブラリを管理する\texttt{npm}も一緒に使えるようになります。Ubuntuに最初から入っているNode.jsは古い場合があるため、ここではNode.jsの版を管理する\texttt{nvm}を使います。
+
+\texttt{nvm}はNode Version Managerの略です。複数のNode.jsの版を必要に応じて切り替えられる道具で、この教材では安定して長く使えるLTS版を入れるために使います。教材リポジトリはまだ必要ありません。ターミナルの現在のフォルダはどこでも構いません。前節で準備したcurlを使って、次のコマンドで\texttt{nvm}をインストールします。\texttt{nvm}の公式リポジトリは次のURLです。
+\url{https://github.com/nvm-sh/nvm}
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash
+\end{minted}
+\caption{nvmをインストールするコマンド}
+\label{lst:appendix-ubuntu-install-nvm}
+\end{listing}
+
+インストール用のコマンドは将来変更されることがあります。授業資料のコマンドが動かないときは、上の公式リポジトリで現在の手順を確認してください。
+
+コマンドが終わったら、Terminalをいったん閉じてから、新しく開きます。新しいターミナルでは教材リポジトリをまだ必要とせず、現在のフォルダはどこでも構いません。次のコマンドを上から順に実行してください。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+command -v nvm
+nvm install --lts
+node -v
+npm -v
+\end{minted}
+\caption{nvm、Node.js、npmを確認してLTS版をインストールするコマンド}
+\label{lst:appendix-ubuntu-install-node}
+\end{listing}
+
+最初の\texttt{command -v nvm}で\texttt{nvm}と表示されれば、ターミナルが\texttt{nvm}を使える状態です。\texttt{--lts}は、長期的に安定して使うためのLTS版を選ぶ指定です。現在のLTS版のNode.jsは、教材で使うVite 8の要件を満たします。最後の2行で、\texttt{node -v}には\texttt{v}で始まる値、\texttt{npm -v}には数字で始まるバージョン番号が表示されることを確認してください。
+
+\section{教材をGitHubから取得する}
+
+ここからはターミナルで教材を保存する場所を作り、GitHubから教材を取得します。\texttt{cd}はフォルダを移動するコマンド、\texttt{mkdir}はフォルダを作るコマンド、\texttt{git clone}は教材リポジトリを自分のPCへ複製するコマンドです。
+
+教材リポジトリはまだPC上にないため、ターミナルの開始場所はどこでも構いません。最初の\texttt{cd}でUbuntuに登録されているドキュメントフォルダへ移動し、次のコマンドを上から順に実行してください。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+cd "$(xdg-user-dir DOCUMENTS)"
+pwd
+mkdir -p work-textbook
+cd work-textbook
+git clone https://github.com/m-riho/typescript-p5js-programming-textbook.git
+\end{minted}
+\caption{教材を保存するフォルダを作成してリポジトリを取得するコマンド}
+\label{lst:appendix-ubuntu-git-clone}
+\end{listing}
+
+\texttt{xdg-user-dir DOCUMENTS}は、Ubuntuに登録されたドキュメントフォルダを調べるので、表示言語や設定が違っても正しい場所へ移動できます。\texttt{pwd}に表示された場所が、「ファイル」アプリのドキュメントフォルダと同じか確認してください。\texttt{https://github.com/m-riho/typescript-p5js-programming-textbook.git}は、学生向け公開リポジトリの公式URLです。\texttt{mkdir -p}は、すでに\texttt{work-textbook}フォルダがあってもエラーにせず進める書き方です。\texttt{git clone}が終わると、その中に\texttt{typescript-p5js-programming-textbook}フォルダが作られます。\texttt{git clone}は、通常は教材を最初に取得するときに一度だけ実行します。
+
+次にVS Codeへ戻り、「File」→「Open Folder...」から、今作成された教材リポジトリのルートフォルダを開きます。\texttt{work-textbook}フォルダそのものではなく、その中に作られた教材リポジトリのフォルダを選びます。画面左側のエクスプローラーに\texttt{chapters/}、\texttt{listings/}、\texttt{typescript-p5/}が表示されることを確認しましょう。
+
+\section{必要なライブラリをインストールする}
+
+この節では、VS Codeで教材リポジトリのルートフォルダを開いた状態から始めます。VS Codeの「Terminal」→「New Terminal」を選び、画面下部にターミナルを開いてください。\texttt{npm}のコマンドは、必ず\texttt{typescript-p5/}で実行します。
+
+リポジトリのルートフォルダにいるターミナルで、次のコマンドを実行してください。最初の\texttt{cd}で\texttt{typescript-p5/}へ移動してから、現在の場所と\texttt{package.json}の存在を確認します。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+cd typescript-p5
+pwd
+ls package.json
+npm install
+\end{minted}
+\caption{実行用プロジェクトで必要なライブラリをインストールするコマンド}
+\label{lst:appendix-ubuntu-npm-install}
+\end{listing}
+
+\texttt{pwd}は現在いるフォルダを表示するコマンドです。表示されたパスの末尾が\texttt{typescript-p5}になっていることを確認します。続く\texttt{ls package.json}では\texttt{package.json}と表示されます。これらを確認してから\texttt{npm install}を実行してください。
+
+\texttt{npm install}は、p5.jsやTypeScriptなど、教材を動かすために必要なライブラリをインストールします。完了まで少し時間がかかることがあります。実行後には\texttt{node\_modules/}フォルダが作られ、\texttt{package-lock.json}にはインストールしたライブラリのバージョンが記録されます。警告が表示されることはありますが、出力の終わり近くに\texttt{npm error}がないかを確認してください。
+
+\begin{pointbox}{確認してから進む}
+\texttt{npm install}がうまくいかないときは、まず\texttt{pwd}の末尾が\texttt{typescript-p5}か、\texttt{ls package.json}で\texttt{package.json}が表示されるかを確認します。フォルダが違うと、必要な設定ファイルを見つけられません。
+\end{pointbox}
+
+\section{開発サーバを起動する}
+
+ライブラリをインストールしたら、同じ\texttt{typescript-p5/}のターミナルで開発サーバを起動します。開発サーバは、作成中のプログラムを自分のPCのブラウザで確認するための仕組みです。
+
+ターミナルの現在のフォルダが\texttt{typescript-p5/}であることを確認してから、次のコマンドを実行してください。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+npm run dev
+\end{minted}
+\caption{Viteの開発サーバを起動するコマンド}
+\label{lst:appendix-ubuntu-npm-run-dev}
+\end{listing}
+
+実行すると、ターミナルに\texttt{http://localhost:5173/}のようなLocal URLが表示されます。表示されたURLをControlキーを押しながらクリックするか、ブラウザにコピーして開いてください。5173番がすでに使われている場合は、別の番号になることがありますが、正常な動作です。
+
+\texttt{npm run dev}を実行しているターミナルは、作業中は開いたままにします。止めるときは、そのターミナルを選んで\texttt{Ctrl + C}を押します。サーバを動かしたまま\texttt{typescript-p5/src/main.ts}を保存すると、Viteが変更を検出し、通常はブラウザの表示を自動で更新します。
+
+\section{プログラムを編集してサンプルを入れ替える}
+
+ブラウザで図形が表示されたら、プログラムは動いています。実行の入口は\texttt{typescript-p5/index.html}で、ここから\texttt{src/main.ts}が読み込まれます。したがって、編集して実行されるファイルは、教材リポジトリのルートフォルダから見て\texttt{typescript-p5/src/main.ts}です。VS Codeのエクスプローラーで\texttt{typescript-p5}、\texttt{src}の順に開き、\texttt{main.ts}を選びます。変更したら\texttt{Ctrl + S}で保存してください。
+
+本書に掲載するサンプルは\texttt{listings/}に保存されていますが、\texttt{listings/}のファイルそのものはブラウザで実行されません。別のサンプルを試すときは、その内容を\texttt{typescript-p5/src/main.ts}へコピーします。ターミナルが\texttt{typescript-p5/}にいる状態で、第2章のサンプルを試すには次のコマンドを実行します。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+cp ../listings/chapter02/points-and-lines.ts src/main.ts
+\end{minted}
+\caption{第2章のサンプルで\texttt{main.ts}を上書きするコマンド}
+\label{lst:appendix-ubuntu-copy-sample}
+\end{listing}
+
+Ubuntuでは、ファイル名とフォルダ名の大文字・小文字を区別します。たとえば\texttt{typescript-p5}と\texttt{TypeScript-P5}、\texttt{main.ts}と\texttt{Main.ts}は別の名前です。教材に書かれたパスと同じ大文字・小文字で入力してください。
+
+このコピーは、\texttt{src/main.ts}の内容を上書きします。コピーの後も、通常はViteを起動し直す必要はありません。画像、JSON、音を使うサンプルでは、コードだけではなく、各章で説明する素材ファイルの配置も必要です。
+
+\section{よくある問題}
+
+環境構築では、プログラムの文法とは別のところで止まることがあります。エラー文全体を覚える必要はありません。コマンド名、現在いるフォルダ、表示の最後の数行を順に確認しましょう。
+
+\begin{mistakebox}{\texttt{nvm: command not found}と表示される}
+\texttt{nvm}をインストールした後に開いていたターミナルを閉じ、新しくTerminalを開いてください。教材リポジトリは不要で、どのフォルダにいても\texttt{command -v nvm}を実行できます。\texttt{nvm}と表示されない場合は、インストール時の表示の最後の数行を添えて担当者に相談してください。
+\end{mistakebox}
+
+\begin{mistakebox}{\texttt{npm}のコマンドを実行するフォルダが違う}
+\texttt{npm install}や\texttt{npm run dev}は、教材リポジトリのルートではなく\texttt{typescript-p5/}で実行します。\texttt{pwd}で現在の場所を表示し、末尾が\texttt{typescript-p5}か確認します。リポジトリのルートにいるなら、\texttt{cd typescript-p5}で移動してからやり直してください。
+\end{mistakebox}
+
+\begin{mistakebox}{ファイルがないというエラーが表示される}
+Ubuntuでは大文字・小文字を区別します。\texttt{chapter02}を\texttt{Chapter02}、\texttt{points-and-lines.ts}を\texttt{Points-and-Lines.ts}のように入力すると、別のファイル名として扱われます。教材に書かれたパスを一文字ずつ確認してください。
+\end{mistakebox}
+
+\begin{mistakebox}{権限に関するエラーが表示される}
+教材は自分のドキュメントフォルダの下に\texttt{git clone}して使います。\texttt{npm install}や\texttt{npm run dev}には\texttt{sudo}を付けません。以前に\texttt{sudo npm install}を実行していた場合は、ファイルの所有者が管理者になっていることがあります。表示の最後の数行と、どのコマンドを実行したかを添えて担当者に相談してください。
+\end{mistakebox}

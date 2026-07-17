@@ -1,0 +1,28 @@
+.DS_Store
+
+# LaTeX build outputs
+*.aux
+*.dvi
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+_minted/
+out/
+
+# Generated PDF
+main.pdf
+main-*.pdf
+
+# Root-level temporary Node.js project
+/node_modules/
+/package.json
+/package-lock.json
+
+# Temporary work
+/tmp/
+
+# Local draft entry point
+main-draft.tex

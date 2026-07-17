@@ -1,0 +1,352 @@
+\chapter{落ち葉拾いで学ぶポリモーフィズム}
+\label{chap:polymorphism-leaf-collector}
+
+この章では、第11章で学んだクラスと、第14章で学んだ継承をもう一歩進めて、ポリモーフィズムと\texttt{interface}について学びます。題材は、画面上に落ちてくる落ち葉をプレイヤーが拾う小さなゲームです。
+
+ポリモーフィズムは難しい言葉ですが、ここでは「同じ呼び方で、違う種類のものを動かすこと」と考えます。落ち葉、金色の落ち葉、石のように見た目や点数が違うものでも、\texttt{update}、\texttt{display}、\texttt{isCollected}を持つなら、同じ配列に入れて同じ手順で扱えます。
+
+\section{この章の概要}
+
+この章は、興味を持った学生向けの発展的な話題です。すべてを一度で理解しようとするよりも、「同じ呼び方で扱えるように設計すると、ゲームを広げやすくなる」という感覚をつかむことを目標にします。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item クラスを使って落ち葉を1つの部品として表す
+    \item \texttt{interface}で「必要なメソッドの約束」を書く
+    \item \texttt{implements}で約束を満たすクラスを作る
+    \item \texttt{CollectibleItem[]}で違う種類のものを同じ配列に入れる
+    \item ポリモーフィズムにより、同じ呼び方で違う動きを実行する
+    \item 継承と\texttt{interface}の使い分けを考える
+\end{itemize}
+
+\begin{notebox}{この章は少し背伸びした内容}
+\texttt{interface}やポリモーフィズムは、プログラムが少し大きくなってから便利さが見えやすい考え方です。最初は書き方を暗記するより、「同じ使い方ができるものをまとめる約束」として読むところから始めましょう。
+\end{notebox}
+
+\section{まずは1枚の落ち葉を動かす}
+
+最初に、クラスを使わずに1枚の落ち葉を動かします。落ち葉は下へ落ちながら、左右に少し揺れるようにします。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=26]{ts}{listings/chapter19/single-leaf.ts}
+\caption{1枚の落ち葉を動かすスケッチ}
+\label{lst:chapter19-single-leaf-sketch}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=28,lastline=36]{ts}{listings/chapter19/single-leaf.ts}
+\caption{落ち葉の位置を更新する関数}
+\label{lst:chapter19-single-leaf-update}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=38,lastline=55]{ts}{listings/chapter19/single-leaf.ts}
+\caption{落ち葉を揺らしながら描く関数}
+\label{lst:chapter19-single-leaf-display}
+\end{listing}
+
+このサンプルでは、\texttt{leafX}、\texttt{leafY}、\texttt{leafSpeedY}などの変数で落ち葉の状態を表しています。1枚だけなら十分に読めますが、落ち葉が10枚、20枚と増えると、変数を増やすだけでは管理しにくくなります。
+
+\begin{pointbox}{同じ種類のものが増える合図}
+落ち葉を何枚も出したくなったら、\texttt{leafX1}、\texttt{leafX2}のように変数名を増やすより、クラスや配列でまとめることを考えます。
+\end{pointbox}
+
+\section{落ち葉をクラスにする}
+
+次に、落ち葉を\texttt{FallingLeaf}クラスとして表します。位置、速さ、色、揺れ方をフィールドにし、動かす処理を\texttt{update}、描く処理を\texttt{display}にまとめます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=30]{ts}{listings/chapter19/leaf-class.ts}
+\caption{\texttt{FallingLeaf}クラスのフィールドとコンストラクタ}
+\label{lst:chapter19-leaf-class-constructor}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=32,lastline=57]{ts}{listings/chapter19/leaf-class.ts}
+\caption{\texttt{FallingLeaf}の更新と描画}
+\label{lst:chapter19-leaf-class-methods}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=60,lastline=73]{ts}{listings/chapter19/leaf-class.ts}
+\caption{\texttt{FallingLeaf}を使うスケッチ}
+\label{lst:chapter19-leaf-class-sketch}
+\end{listing}
+
+第11章で学んだように、クラスは同じ形のインスタンスを作るための設計図です。落ち葉が複数になっても、\texttt{new FallingLeaf(...)}でインスタンスを増やせます。
+
+ただし、この章で作りたいゲームでは、拾えるものが落ち葉だけとは限りません。得点の高い金色の落ち葉や、拾うと減点される石も出したくなるかもしれません。そのとき、すべてを\texttt{FallingLeaf}の子クラスにするべきでしょうか。
+
+\section{\texttt{interface}は使い方の約束}
+
+\texttt{interface}は、クラスがどのようなメソッドを持つべきかを表す約束です。ここでは、拾えるものを\texttt{CollectibleItem}という\texttt{interface}で表します。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=8]{ts}{listings/chapter19/collectible-interface.ts}
+\caption{拾えるものに必要なメソッドを表す\texttt{interface}}
+\label{lst:chapter19-collectible-interface}
+\end{listing}
+
+\texttt{CollectibleItem}は、\texttt{update}、\texttt{display}、\texttt{isCollected}、\texttt{isOutsideCanvas}、\texttt{getScore}を持つことを約束しています。これは「拾えるものなら、少なくともこの5つの呼び方ができる」という意味です。
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+メソッド & 役割 \\
+\midrule
+\texttt{update(p)} & アイテムの状態を変える \\
+\texttt{display(p)} & アイテムを画面に描く \\
+\texttt{isCollected(player)} & プレイヤーが拾ったか判定する \\
+\texttt{isOutsideCanvas(p)} & 画面外に出たか判定する \\
+\texttt{getScore()} & 拾ったときの点数を返す \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pointbox}{\texttt{interface}は中身を書かない}
+\texttt{interface}には、メソッドの名前、引数、戻り値の型を書きます。実際にどのように動くかは、それを\texttt{implements}するクラス側に書きます。
+\end{pointbox}
+
+\section{\texttt{implements}で約束を満たす}
+
+クラスが\texttt{interface}の約束を満たすことを、\texttt{implements}で表します。次の例では、\texttt{ScoreLeaf}が\texttt{CollectibleItem}を実装しています。
+
+\begin{listing}[htbp]
+\inputminted[firstline=10,lastline=35]{ts}{listings/chapter19/collectible-interface.ts}
+\caption{プレイヤーを表す\texttt{Player}クラス}
+\label{lst:chapter19-player-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=37,lastline=80]{ts}{listings/chapter19/collectible-interface.ts}
+\caption{\texttt{CollectibleItem}を実装する落ち葉}
+\label{lst:chapter19-score-leaf}
+\end{listing}
+
+\texttt{ScoreLeaf implements CollectibleItem}と書くと、\texttt{ScoreLeaf}は\texttt{CollectibleItem}で約束したメソッドをすべて持つ必要があります。もし\texttt{getScore}を書き忘れると、TypeScriptが教えてくれます。
+
+\begin{notebox}{型は設計ミスに早く気づくためにも役立つ}
+\texttt{interface}を使うと、「拾えるもの」として必要なメソッドの書き忘れに気づきやすくなります。ゲームの要素が増えるほど、この助けは大きくなります。
+\end{notebox}
+
+\section{判定処理を読みやすくする}
+
+距離の計算は、クラスごとに何度も書くと読みにくくなります。ここでは、プレイヤーとアイテムが近いかどうかを調べる\texttt{isNear}関数を用意します。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=23]{ts}{listings/chapter19/interface-without-vector.ts}
+\caption{距離判定を関数に分ける}
+\label{lst:chapter19-interface-helper}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=25,lastline=61]{ts}{listings/chapter19/interface-without-vector.ts}
+\caption{距離判定の関数を使う落ち葉}
+\label{lst:chapter19-interface-leaf-with-helper}
+\end{listing}
+
+\texttt{isNear}は、アイテムの座標、プレイヤー、判定距離を受け取り、近ければ\texttt{true}を返します。このように、複数のクラスで使う処理は関数に分けておくと、同じ計算をあちこちに書かずにすみます。
+
+\section{ポリモーフィズムで同じ配列に入れる}
+
+ポリモーフィズムは、同じ型として扱っているものが、実際にはそれぞれ違う動きをすることです。次のサンプルでは、普通の落ち葉と金色の落ち葉をどちらも\texttt{CollectibleItem}として扱います。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=49]{ts}{listings/chapter19/polymorphism-items.ts}
+\caption{ポリモーフィズムで使う共通部分}
+\label{lst:chapter19-polymorphism-base}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=51,lastline=87]{ts}{listings/chapter19/polymorphism-items.ts}
+\caption{普通の落ち葉を表す\texttt{LeafItem}}
+\label{lst:chapter19-polymorphism-leaf}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=89,lastline=127]{ts}{listings/chapter19/polymorphism-items.ts}
+\caption{得点の高い\texttt{GoldenLeafItem}}
+\label{lst:chapter19-polymorphism-golden-leaf}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=4,lastline=49]{ts}{listings/chapter19/polymorphism-sketch.ts}
+\caption{\texttt{CollectibleItem[]}でまとめて動かす}
+\label{lst:chapter19-polymorphism-sketch}
+\end{listing}
+
+\texttt{items}は\texttt{CollectibleItem[]}型です。この配列には、\texttt{LeafItem}も\texttt{GoldenLeafItem}も入れられます。どちらも\texttt{CollectibleItem}の約束を満たしているからです。
+
+\begin{pointbox}{同じ呼び方で違う結果になる}
+\texttt{item.display(p)}と同じ呼び方をしても、普通の落ち葉なら茶色の葉、金色の落ち葉なら光る葉が描かれます。\texttt{item.getScore()}も、普通の落ち葉なら10点、金色の落ち葉なら30点を返します。
+\end{pointbox}
+
+\section{減点アイテムを追加する}
+
+\texttt{interface}で設計しておくと、新しい種類のアイテムを追加しやすくなります。次の例では、拾うと点数が下がる石を追加します。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter19/harmful-item.ts}
+\caption{減点される石とランダムなアイテム追加}
+\label{lst:chapter19-harmful-item}
+\end{listing}
+
+\texttt{StoneItem}も\texttt{CollectibleItem}を実装しているため、\texttt{items}配列に入れられます。\texttt{getScore}が\texttt{-20}を返すので、拾ったときに得点が下がります。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        interfacebox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=56mm,
+            minimum height=14mm,
+            fill=gray!10
+        },
+        classbox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=36mm,
+            minimum height=13mm
+        },
+        arraybox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=92mm,
+            minimum height=13mm,
+            fill=gray!6
+        },
+        arrow/.style={->, thick},
+        implementarrow/.style={->, thick, dashed}
+    ]
+        \node[interfacebox] (interface) at (0, 1.8) {
+            \texttt{CollectibleItem}\\
+            \footnotesize 共通の呼び方の約束
+        };
+
+        \node[classbox] (leaf) at (-4.4, -0.5) {
+            \texttt{LeafItem}\\
+            \footnotesize 普通の落ち葉\\
+            \footnotesize \texttt{getScore()}は10
+        };
+        \node[classbox] (golden) at (0, -0.5) {
+            \texttt{GoldenLeafItem}\\
+            \footnotesize 金色の落ち葉\\
+            \footnotesize \texttt{getScore()}は30
+        };
+        \node[classbox] (stone) at (4.4, -0.5) {
+            \texttt{StoneItem}\\
+            \footnotesize 石\\
+            \footnotesize \texttt{getScore()}は-20
+        };
+
+        \node[arraybox] (array) at (0, -3.0) {
+            \texttt{const items: CollectibleItem[] = [leaf, goldenLeaf, stone];}\\
+            \footnotesize 同じ配列に入れて、同じメソッド名で扱える
+        };
+
+        \draw[implementarrow] (leaf) -- node[left, font=\footnotesize] {\texttt{implements}} (interface);
+        \draw[implementarrow] (golden) -- node[right, font=\footnotesize] {\texttt{implements}} (interface);
+        \draw[implementarrow] (stone) -- node[right, font=\footnotesize] {\texttt{implements}} (interface);
+
+        \draw[arrow] (leaf) -- (array);
+        \draw[arrow] (golden) -- (array);
+        \draw[arrow] (stone) -- (array);
+    \end{tikzpicture}
+    \caption{\texttt{CollectibleItem}と複数のアイテムクラスの関係}
+    \label{fig:chapter19-collectible-item-classes}
+\end{figure}
+
+図\ref{fig:chapter19-collectible-item-classes}のように、\texttt{LeafItem}、\texttt{GoldenLeafItem}、\texttt{StoneItem}は、それぞれ違う見た目や点数を持っています。それでも、どれも\texttt{CollectibleItem}の約束を満たしているため、\texttt{CollectibleItem[]}型の配列にまとめられます。
+
+ここで大切なのは、メインの更新処理を大きく変えなくてよいことです。普通の落ち葉、金色の落ち葉、石のどれであっても、\texttt{update}、\texttt{display}、\texttt{isCollected}、\texttt{isOutsideCanvas}、\texttt{getScore}を同じように呼び出せます。
+
+\section{継承と\texttt{interface}の違い}
+
+第14章では、共通するフィールドやメソッドを親クラスにまとめる継承を学びました。一方、\texttt{interface}は「どのように呼び出せるか」を決める約束です。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+仕組み & 得意なこと & 考え方 \\
+\midrule
+継承 & 共通する実装をまとめる & \texttt{A}は\texttt{B}の一種 \\
+\texttt{interface} & 同じ使い方を約束する & \texttt{A}はこの呼び方ができる \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+たとえば、\texttt{LeafItem}と\texttt{GoldenLeafItem}は、共通部分が多いので親クラスを作る選択もできます。一方、石、鍵、回復アイテム、ゴール地点のように見た目も役割も違うものは、無理に親子関係にするより、\texttt{CollectibleItem}という使い方の約束でまとめる方が自然な場合があります。
+
+\begin{notebox}{迷ったときの考え方}
+共通するデータや処理をまとめたいなら継承、同じ配列に入れて同じメソッドを呼びたいなら\texttt{interface}を考えます。実際のプログラムでは、両方を組み合わせることもあります。
+\end{notebox}
+
+\section{小さなゲームへ広げる}
+
+最後に、アイテムをランダムに追加する形へ近づけます。この例では、前のサンプルで定義した\texttt{Player}、\texttt{CollectibleItem}、\texttt{LeafItem}、\texttt{GoldenLeafItem}、\texttt{StoneItem}、\texttt{addRandomItem}を使う想定です。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter19/complete-leaf-game.ts}
+\caption{落ち葉拾いゲームの全体の流れ}
+\label{lst:chapter19-complete-leaf-game}
+\end{listing}
+
+このサンプルでは、アイテムを後ろから順番に見ています。途中で\texttt{items.splice(index, 1)}により配列からアイテムを取り除くため、前から順番に進むより、後ろから進む方が添え字のずれを避けやすくなります。
+
+\begin{mistakebox}{消す処理と配列の順番}
+配列の途中の要素を消すと、その後ろにあった要素の添え字が変わります。配列から要素を消しながら調べるときは、後ろから前へ進む方法がよく使われます。
+\end{mistakebox}
+
+\section{よくある間違い}
+
+\texttt{interface}を使う章では、書き方そのものよりも、どこに何を書くかで迷いやすくなります。エラーが出たときは、約束したメソッドをすべて書いているか、戻り値の型が合っているかを確認します。
+
+\begin{mistakebox}{\texttt{interface}に処理の中身を書こうとする}
+\texttt{interface}には、メソッドの形だけを書きます。実際の処理は、\texttt{implements}するクラスの中に書きます。
+\end{mistakebox}
+
+\begin{mistakebox}{約束したメソッドを書き忘れる}
+\texttt{CollectibleItem}に\texttt{getScore}があるなら、\texttt{implements CollectibleItem}するクラスには\texttt{getScore}が必要です。名前、引数、戻り値の型をそろえます。
+\end{mistakebox}
+
+\begin{mistakebox}{親クラスと\texttt{interface}を同じものだと思う}
+親クラスはフィールドや処理の中身を持てます。\texttt{interface}は「この呼び方ができる」という約束です。役割が違うため、どちらを使うかは目的で決めます。
+\end{mistakebox}
+
+\begin{mistakebox}{共通の配列から個別のメソッドを呼ぼうとする}
+\texttt{CollectibleItem[]}の要素から呼べるのは、\texttt{CollectibleItem}に書かれているメソッドです。特定のクラスだけが持つメソッドを呼びたい場合は、そのメソッドも\texttt{interface}に含めるべきか考えます。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、落ち葉拾いゲームを題材にして、\texttt{interface}とポリモーフィズムを学びました。\texttt{interface}は、クラスが持つべきメソッドの約束を表します。\texttt{implements}を使うと、その約束を満たすクラスを作れます。
+
+ポリモーフィズムを使うと、普通の落ち葉、金色の落ち葉、石のように違う種類のものを、\texttt{CollectibleItem[]}としてまとめて扱えます。同じ\texttt{update}、\texttt{display}、\texttt{isCollected}、\texttt{isOutsideCanvas}、\texttt{getScore}を呼び出しても、実際に動く処理はインスタンスごとに変わります。
+
+継承は共通する実装をまとめる方法で、\texttt{interface}は同じ使い方を約束する方法です。ゲームの要素が増えてきたとき、この2つを使い分けられると、プログラムを広げやすくなります。
+
+\section{演習問題}
+
+この章の演習では、まず\texttt{interface}の読み方を確認し、次に落ち葉拾いゲームへ新しいアイテムやルールを追加していきます。
+
+\begin{enumerate}
+    \item \texttt{CollectibleItem}に書かれている5つのメソッドの役割を説明しなさい。
+    \item \texttt{LeafItem}の\texttt{getScore}が返す点数を変更しなさい。
+    \item \texttt{GoldenLeafItem}の見た目を変更し、普通の落ち葉と区別しやすくしなさい。
+    \item \texttt{StoneItem}の減点を\texttt{-20}から別の値に変更しなさい。
+    \item \texttt{addRandomItem}で、金色の落ち葉が出る確率を上げなさい。
+    \item 新しい\texttt{RedLeafItem}を作り、拾うと20点入るようにしなさい。
+    \item 一定時間だけ得点が2倍になる\texttt{BonusItem}の設計を考えなさい。
+    \item \texttt{isOutsideCanvas}の判定距離を変更し、画面外に出たアイテムが消えるタイミングを変えなさい。
+    \item \texttt{LeafItem}と\texttt{GoldenLeafItem}に共通する処理を親クラスにまとめる案を考えなさい。
+    \item \texttt{interface}を使う場合と継承を使う場合の違いを、自分の言葉で説明しなさい。
+    \item 挑戦問題として、プレイヤーのHPを追加し、石を拾うとHPが減るゲームに発展させなさい。
+\end{enumerate}

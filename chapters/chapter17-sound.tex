@@ -1,0 +1,238 @@
+\chapter{音声を扱う}
+\label{chap:sound}
+
+この章では、TypeScript + p5.jsで音声ファイルを読み込み、再生、一時停止、繰り返し再生、効果音の再生を行う方法を学びます。前の章ではJSONファイルを読み込みました。音声ファイルも、画像やJSONと同じように、プログラムの外にある素材を読み込んで使います。
+
+\section{この章の概要}
+
+音声を使うと、ゲームやインタラクティブな作品の印象は大きく変わります。星を取ったときに短い効果音を鳴らしたり、ゲーム中に背景音楽を流したりすると、画面上の変化がより分かりやすくなります。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item p5.soundを使う準備を知る
+    \item \texttt{async setup}と\texttt{await}で音声ファイルを読み込む
+    \item マウス操作をきっかけに音を鳴らす
+    \item 再生、一時停止、停止、繰り返し再生を使い分ける
+    \item ゲームの効果音として音声を組み込む
+    \item 発振器で簡単な音を作る
+    \item p5.soundで音声ファイルと波形を扱う
+\end{itemize}
+
+\begin{notebox}{音声ファイルについて}
+この章のサンプルでは、\texttt{public/sounds/background.mp3}や\texttt{public/sounds/get-star.wav}のように、教材プロジェクトの公開用フォルダに音声ファイルを置くことを想定します。プログラムからは\texttt{"sounds/background.mp3"}のようなパスで読み込みます。
+\end{notebox}
+
+\begin{notebox}{教材テンプレートのp5.sound補助ファイル}
+公式のp5.soundは、p5.js本体とは別のパッケージです。教材テンプレートにはp5.sound 0.3.0と、その機能を準備する\texttt{p5-sound} 補助ファイルが含まれています。各サンプルの\texttt{import "./p5-sound";}は、この補助ファイルを読み込む1行です。補助ファイルの中身を編集する必要はありません。
+\end{notebox}
+
+\section{p5.soundとブラウザの制約}
+
+p5.soundは、p5.jsで音声を扱うための公式の追加ライブラリです。p5.soundを使うと、音声ファイルを読み込んだり、音を一時停止したり、簡単な波形を作ったりできます。サンプルでは、p5.jsのimportに加えて\texttt{import "./p5-sound";}を書き、音声機能の準備が終わってからスケッチを開始します。
+
+ただし、ブラウザで動くプログラムには大切な制約があります。多くのブラウザでは、ページを開いただけで自動的に音を鳴らすことが制限されています。そのため、マウスクリックやキー入力など、ユーザーの操作をきっかけに音声を開始する必要があります。
+
+この章のサンプルでは、p5.jsのインスタンスを受け取る変数名を\texttt{p5Instance}にしています。これまでの章で使ってきた\texttt{p}と役割は同じですが、音声のように新しい命令が増える章では、変数名から「p5.jsの機能をまとめたもの」だと分かるようにしています。
+
+\begin{pointbox}{まずユーザー操作で音声を開始する}
+p5.jsでは、\texttt{p5Instance.userStartAudio()}を呼ぶことで、ブラウザに「このページで音を出します」と伝えます。多くの場合、この処理は\texttt{p5Instance.mousePressed}や\texttt{p5Instance.keyPressed}の中で呼び出します。
+\end{pointbox}
+
+\section{音声ファイルを読み込んで再生する}
+
+最初に、音声ファイルを1つ読み込み、マウスクリックで再生するサンプルを見ます。現在の\texttt{p5Instance.loadSound}は、音声ファイルの読み込み完了をあとから知らせる\texttt{Promise}を返します。そこで、前章のJSON読み込みと同じように、\texttt{p5Instance.setup}へ\texttt{async}を付け、\texttt{await}で読み込みが終わるのを待ちます。
+
+\texttt{music = await p5Instance.loadSound(...)}と書くと、\texttt{Promise}から読み込み済みの\texttt{p5.SoundFile}を受け取れます。\texttt{Promise<void>}は、\texttt{setup}の処理があとで完了し、完了時に値を返さないことを表します。キャンバスは、音声の読み込みが終わったあとに作ります。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter17/play-sound.ts}
+\caption{マウスクリックで音声を再生する}
+\label{lst:chapter17-play-sound}
+\end{listing}
+
+\texttt{music: p5.SoundFile}は、読み込んだ音声ファイルを入れておく変数です。サンプルでは、\texttt{await}で受け取った音声ファイルを\texttt{music}に保存しています。\texttt{p5.SoundFile}に対して\texttt{play()}を呼ぶと再生し、\texttt{pause()}を呼ぶと一時停止し、\texttt{stop()}を呼ぶと停止します。
+
+\texttt{p5Instance.mousePressed}の中では、最初に\texttt{p5Instance.userStartAudio()}を呼びます。その後で\texttt{music.play()}を呼ぶと、音声の再生が始まります。\texttt{isAudioStarted}は、音声を開始するための処理をすでに行ったかどうかを覚えておく変数です。
+
+\section{再生操作を増やす}
+
+音声を扱うときは、再生だけでなく、一時停止、停止、繰り返し再生もよく使います。ここでは、マウスクリックで先頭から再生し、キー操作で一時停止やループ再生を行うサンプルを作ります。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=33]{ts}{listings/chapter17/sound-controls.ts}
+\caption{音声操作のための変数と画面表示}
+\label{lst:chapter17-sound-controls-display}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=35,lastline=65]{ts}{listings/chapter17/sound-controls.ts}
+\caption{再生、一時停止、繰り返し、停止の操作}
+\label{lst:chapter17-sound-controls-input}
+\end{listing}
+
+\texttt{music.isPlaying()}は、音声が現在再生中かどうかを調べ、再生中は\texttt{true}を、それ以外の場合は\texttt{false}を返します。
+
+\texttt{music.play()}は現在位置から再生を始めます。クリックするたびに先頭から鳴らしたい場合は、先に\texttt{music.stop()}を呼び、その後で\texttt{music.play()}を呼びます。
+
+\texttt{music.pause()}は一時停止です。もう一度\texttt{play()}を呼ぶと、止めた位置の続きから再生します。\texttt{music.stop()}は停止です。次に再生するときは、基本的に先頭から始まります。\texttt{music.loop()}は繰り返しを有効にします。停止中なら続けて\texttt{music.play()}を呼び、背景音楽のように同じ音を流し続けます。
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\small,
+        state/.style={draw, rounded corners=4pt, minimum width=38mm, minimum height=17mm, align=center},
+        transition/.style={->, thick}
+    ]
+        \node[state, fill=gray!10] (stopped) at (0,0)
+            {停止中\\次は先頭から};
+        \node[state, fill=green!10] (playing) at (8.0,0)
+            {再生中\\再生位置が進む};
+        \node[state, fill=yellow!13] (paused) at (8.0,-4.0)
+            {一時停止中\\途中の位置を保持};
+
+        \draw[transition] (stopped.east) --
+            node[midway, below=2pt, align=center]{\texttt{play()}\\先頭から再生}
+            (playing.west);
+        \draw[transition] (playing.north west) to[bend right=32]
+            node[above]{\texttt{stop()}または自然終了}
+            (stopped.north east);
+        \draw[transition] (playing.south east) to[bend left=18]
+            node[right]{\texttt{pause()}}
+            (paused.north east);
+        \draw[transition] (paused.north west) to[bend left=18]
+            node[left, align=right]{\texttt{play()}\\途中から再開}
+            (playing.south west);
+        \draw[transition] (paused.west) --
+            node[midway, below left]{\texttt{stop()}}
+            (stopped.south east);
+    \end{tikzpicture}
+    \caption{再生、一時停止、停止、再開による音声の状態変化}
+    \label{fig:chapter17-sound-state-transition}
+\end{figure}
+
+図\ref{fig:chapter17-sound-state-transition}では、\texttt{pause()}と\texttt{stop()}の違いを状態として表しています。一時停止中は途中の再生位置を覚えているため、\texttt{play()}で続きから再開します。停止中から\texttt{play()}を呼ぶと、先頭から再生します。
+
+\begin{notebox}{停止と一時停止は同じではない}
+\texttt{pause()}は「途中で止めておく」操作です。\texttt{stop()}は「再生を止め、次は先頭から始める」操作として考えると分かりやすくなります。ゲームの効果音では、同じ音を何度も先頭から鳴らしたいことが多いため、\texttt{stop()}と\texttt{play()}を組み合わせることがあります。
+\end{notebox}
+
+\section{ゲームに効果音を入れる}
+
+音声の基本操作が分かったら、ゲームに効果音を組み込みます。ここでは、プレイヤーが星を取ったときに短い効果音を鳴らします。第15章の星集めゲームよりも少し小さいサンプルにし、音が鳴る場所を見つけやすくします。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=25]{ts}{listings/chapter17/sound-effect-game.ts}
+\caption{効果音つきゲームで使う\texttt{Player}の状態}
+\label{lst:chapter17-sound-game-player-state}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=27,lastline=62]{ts}{listings/chapter17/sound-effect-game.ts}
+\caption{\texttt{Player}の更新と描画}
+\label{lst:chapter17-sound-game-player-methods}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=64,lastline=92]{ts}{listings/chapter17/sound-effect-game.ts}
+\caption{効果音つきゲームで使う\texttt{Star}の状態}
+\label{lst:chapter17-sound-game-star-state}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=94,lastline=110]{ts}{listings/chapter17/sound-effect-game.ts}
+\caption{\texttt{Star}の当たり判定と描画}
+\label{lst:chapter17-sound-game-star-methods}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=112,lastline=134]{ts}{listings/chapter17/sound-effect-game.ts}
+\caption{効果音を読み込むスケッチの準備}
+\label{lst:chapter17-sound-game-sketch-setup}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=136,lastline=163]{ts}{listings/chapter17/sound-effect-game.ts}
+\caption{星を取ったときに効果音を鳴らす}
+\label{lst:chapter17-sound-game-sketch-sound}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=166,lastline=170]{ts}{listings/chapter17/sound-effect-game.ts}
+\caption{得点を表示する関数}
+\label{lst:chapter17-sound-game-score}
+\end{listing}
+
+\texttt{getSound: p5.SoundFile}は、星を取ったときに鳴らす効果音です。\texttt{async setup}の中で\texttt{p5Instance.loadSound}に効果音のパスを渡し、\texttt{await}で読み込みが終わるのを待ってからゲームを初期化します。
+
+効果音を鳴らしているのは、星とプレイヤーが触れたと判定した直後です。得点を増やし、星の位置を変え、そのタイミングで\texttt{getSound.play()}を呼びます。ゲームでは「どの出来事で音を鳴らすのか」をはっきりさせることが大切です。
+
+\begin{pointbox}{効果音はゲームの出来事と結びつける}
+音をただ鳴らすだけではなく、「星を取った」「敵に当たった」「ゲームオーバーになった」のような出来事と結びつけます。音を鳴らす位置を、得点やライフが変わる処理の近くに置くと、プログラムを読んだときに理由が分かりやすくなります。
+\end{pointbox}
+
+\section{プログラムで音を作る}
+
+p5.soundでは、音声ファイルを再生するだけでなく、プログラムで音を作ることもできます。ここでは、\texttt{p5.Oscillator}を使って正弦波を鳴らします。正弦波は、音の基本を学ぶときによく使われるなめらかな波形です。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=23]{ts}{listings/chapter17/oscillator.ts}
+\caption{発振器を準備する}
+\label{lst:chapter17-oscillator-setup}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=25,lastline=68]{ts}{listings/chapter17/oscillator.ts}
+\caption{マウス位置で周波数を変える}
+\label{lst:chapter17-oscillator-control}
+\end{listing}
+
+\texttt{new p5.Oscillator(440, "sine")}は、440Hzの正弦波を出す発振器を作ります。1つ目の引数が周波数、2つ目の引数が波形です。周波数が高いほど高い音になり、低いほど低い音になります。
+
+\texttt{p5.Oscillator}には\texttt{"sine"}、\texttt{"square"}、\texttt{"sawtooth"}を指定できます。波形によって音の聞こえ方が変わるため、同じ周波数でも聞き比べてみましょう。
+
+\texttt{oscillator.amp(0)}は音量を0にするという意味です。発振器は、ブラウザの音声を開始できる最初のクリックで1度だけ\texttt{start()}します。その後は、クリックするたびに音量を上げたり下げたりします。急に音量を変えると耳に痛い音が出ることがあるため、\texttt{oscillator.amp(0.3, 0.1)}のように少し時間をかけて音量を変えています。
+
+\section{よくある間違い}
+
+音声のプログラムでは、コードの文法だけでなく、ファイルの場所、ブラウザの制限、音量にも注意が必要です。画面は表示されているのに音だけ出ない場合は、次の点を順番に確認します。
+
+\begin{mistakebox}{音声ファイルの場所が違う}
+\texttt{p5Instance.loadSound("sounds/background.mp3")}と書いた場合、実行時に見える\texttt{sounds/background.mp3}が必要です。教材プロジェクトでは、\texttt{public/sounds/}のような公開用フォルダに置くことを想定します。
+\end{mistakebox}
+
+\begin{mistakebox}{ユーザー操作の前に音を鳴らそうとする}
+ブラウザでは、ページを開いた瞬間に音を鳴らせないことがあります。音が出ないときは、\texttt{p5Instance.mousePressed}や\texttt{p5Instance.keyPressed}の中で\texttt{p5Instance.userStartAudio()}を呼んでいるか確認します。
+\end{mistakebox}
+
+\begin{mistakebox}{効果音を毎フレーム鳴らしてしまう}
+\texttt{draw}は何度も呼ばれます。当たり判定が成立している間ずっと\texttt{play()}を呼ぶと、音が何度も重なって鳴ることがあります。得点を増やすタイミングや、星を移動するタイミングと合わせて、1回だけ鳴るようにします。
+\end{mistakebox}
+
+\begin{mistakebox}{音量を大きくしすぎる}
+発振器で作る音は、設定によっては耳に痛く感じることがあります。最初は\texttt{0.2}や\texttt{0.3}のような小さめの音量から試します。授業中は周囲への配慮として、イヤホンや音量設定にも注意します。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、p5.soundを使って音声ファイルを読み込み、再生、一時停止、停止、繰り返し再生を行いました。また、星を取ったときに効果音を鳴らすことで、ゲームの出来事と音を結びつける方法を学びました。
+
+音声は、画像やJSONと同じように外部ファイルとして読み込めます。\texttt{async setup}の中で\texttt{await p5Instance.loadSound(...)}と書き、読み込みが終わってから使います。ただし、ブラウザでは自動再生が制限されるため、ユーザー操作をきっかけに音を開始する必要があります。音を扱うときは、ファイルの場所、読み込みのタイミング、鳴らす出来事を意識すると整理しやすくなります。
+
+\section{演習問題}
+
+この章の演習では、まず音声ファイルの再生を確認し、少しずつ操作やゲームへの組み込みを増やしていきます。
+
+\begin{enumerate}
+    \item \texttt{play-sound.ts}で、別の音声ファイルを読み込んで再生してください。
+    \item \texttt{sound-controls.ts}で、画面に表示する操作説明の位置や文字サイズを変更してください。
+    \item \texttt{music.loop()}を使い、クリックしたら背景音楽が繰り返し再生されるようにしてください。
+    \item \texttt{music.isPlaying()}を使い、再生中と停止中で画面の表示色を変えてください。
+    \item \texttt{sound-effect-game.ts}で、星を取ったときの得点を2点に変更してください。
+    \item 星を取ったときの効果音とは別に、マウスをクリックしたときの効果音を追加してください。
+    \item ゲームオーバーのあるプログラムに、ゲームオーバー時の音を追加する方法を考えてください。
+    \item \texttt{oscillator.ts}で、周波数の範囲を\texttt{110}Hzから\texttt{660}Hzに変更してください。
+    \item 発振器の波形を\texttt{"sine"}から\texttt{"square"}や\texttt{"sawtooth"}に変え、聞こえ方の違いを説明してください。
+    \item 自由制作として、図形の動き、キー入力、効果音を組み合わせた小さな作品を作ってください。
+    \item 挑戦問題として、得点が増えるほど背景音楽の再生速度や発振器の周波数が変わる作品を作ってください。
+\end{enumerate}

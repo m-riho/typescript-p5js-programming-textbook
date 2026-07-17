@@ -1,0 +1,165 @@
+\chapter{macOSで教材を始める}
+\label{app:macos-setup}
+
+この付録では、macOSで教材のスケッチを実行するまでの準備を、最初から順に説明します。
+
+ここで扱うのは、WebブラウザでTypeScript + p5.jsのプログラムを実行するための準備です。ターミナルでコマンドを入力する場面がありますが、表示されたコマンドを上から順に実行すれば進められます。授業で配布された教材リポジトリを使うことを確認してから作業を始めましょう。
+
+この付録では、次の順番で準備します。
+
+\begin{itemize}
+    \item VS Codeをインストールする
+    \item Node.jsのLTS版とnpmをインストールする
+    \item Gitを確認し、必要ならインストールする
+    \item 教材をGitHubから取得する
+    \item 必要なライブラリを\texttt{npm}でインストールする
+    \item Viteの開発サーバを起動する
+    \item \texttt{typescript-p5/src/main.ts}を編集し、サンプルを入れ替える
+\end{itemize}
+
+\section{VS Codeをインストールする}
+
+VS Codeは、TypeScriptのプログラムを書くためのエディタです。ファイルを見つけやすく表示し、入力中の間違いにも気づきやすくなります。
+
+WebブラウザでVS CodeのmacOS向け公式手順を開きます。
+\url{https://code.visualstudio.com/docs/setup/mac}
+ダウンロードした\texttt{.dmg}ファイルを開くと、VS CodeのアイコンとApplicationsフォルダが表示されます。VS CodeのアイコンをApplicationsフォルダへドラッグしてから、Applicationsフォルダ内のVS Codeを起動してください。
+
+教材を取得した後は、VS Codeのメニューから「File」→「Open Folder...」を選び、\texttt{git clone}で作られた教材リポジトリのルートフォルダを開きます。画面左側のエクスプローラーに\texttt{chapters/}、\texttt{listings/}、\texttt{typescript-p5/}が表示されることを確認しましょう。
+
+ターミナルからVS Codeを開く\texttt{code}コマンドも使えます。必要になったときは、VS CodeのCommand Paletteを開き、「Shell Command: Install 'code' command in PATH」を選んで設定できます。ただし、この付録の手順では\texttt{code}コマンドを設定しなくても構いません。
+
+\section{Node.jsとnpmをインストールする}
+
+Node.jsは、教材で使うTypeScript、p5.js、Viteを動かすために必要な実行環境です。Node.jsをインストールすると、必要なライブラリを管理する\texttt{npm}も一緒に使えるようになります。
+
+Node.jsの公式ダウンロードページを開きます。
+\url{https://nodejs.org/en/download/}
+表示されているLTS版のmacOS用インストーラをダウンロードして実行し、画面の指示に従ってインストールしてください。LTS版は、長く安定して使うための版です。教材で使うVite 8には、十分に新しいNode.jsが必要です。Node.js公式サイトで現在のLTS版を選べば、本書の要件を満たします。すでに古いNode.jsが入っている場合は、更新してから使ってください。
+
+インストール後は、開いているターミナルをいったん閉じてから新しく開きます。Finderで「Applications」→「Utilities」→「Terminal」を選ぶとターミナルを開けます。新しいターミナルで、次のコマンドを一行ずつ実行してください。
+
+このバージョン確認は、教材リポジトリを使う前に行います。ターミナルの現在の作業フォルダは問わないため、どのフォルダにいても実行できます。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+node -v
+npm -v
+\end{minted}
+\caption{Node.jsとnpmのバージョンを確認するコマンド}
+\label{lst:appendix-macos-check-node}
+\end{listing}
+
+\texttt{node -v}では\texttt{v}で始まる値、\texttt{npm -v}では数字で始まるバージョン番号が表示されれば準備できています。何も表示されず\texttt{command not found}と表示された場合は、まずターミナルを開き直してください。
+
+\section{Gitを確認する}
+
+Gitは、教材をGitHubから取得するときに使う道具です。macOSには最初からGitが入っていることもありますが、まず使えるかどうかを確認します。
+
+Gitの公式macOS向け手順は、次のページで確認できます。
+\url{https://git-scm.com/install/mac}
+このバージョン確認も、教材リポジトリをまだ必要としない段階で行います。ターミナルの現在の作業フォルダは問わず、どのフォルダからでも実行できます。次のコマンドを実行してください。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+git --version
+\end{minted}
+\caption{Gitのバージョンを確認するコマンド}
+\label{lst:appendix-macos-check-git}
+\end{listing}
+
+バージョン番号が表示されれば、Gitを使えます。Gitがない場合、Xcode Command Line Toolsをインストールするか確認する画面が表示されることがあります。その場合は画面の指示に従ってインストールを完了し、ターミナルを開き直してから、もう一度\texttt{git --version}を実行してください。
+
+\section{教材をGitHubから取得する}
+
+ここからはターミナルで教材を保存する場所を作り、GitHubから教材を取得します。\texttt{cd}はフォルダを移動するコマンド、\texttt{mkdir}はフォルダを作るコマンド、\texttt{git clone}は教材リポジトリを自分のPCへ複製するコマンドです。
+
+教材リポジトリはまだPC上に存在しないため、最初からリポジトリのフォルダにいることはできません。最初の\texttt{cd ~/Documents}で保存先を作るための開始場所をDocumentsにしてから、次のコマンドを上から順に実行してください。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+cd ~/Documents
+mkdir -p work-textbook
+cd work-textbook
+git clone https://github.com/m-riho/typescript-p5js-programming-textbook.git
+\end{minted}
+\caption{教材を保存するフォルダを作成してリポジトリを取得するコマンド}
+\label{lst:appendix-macos-git-clone}
+\end{listing}
+
+\texttt{https://github.com/m-riho/typescript-p5js-programming-textbook.git}は、学生向け公開リポジトリの公式URLです。\texttt{mkdir -p}は、すでに\texttt{work-textbook}フォルダがある場合でもエラーにせずに進める書き方です。\texttt{git clone}が終わると、\texttt{work-textbook}の中に\texttt{typescript-p5js-programming-textbook}フォルダが作られます。\texttt{git clone}は、通常は教材を最初に取得するときに一度だけ実行します。
+
+次にVS Codeへ戻り、「File」→「Open Folder...」から、今作成された教材リポジトリのルートフォルダを開きます。\texttt{work-textbook}フォルダそのものではなく、その中に作られた教材リポジトリのフォルダを選びます。
+
+\section{必要なライブラリをインストールする}
+
+この節では、VS Codeで教材リポジトリのルートフォルダを開いた状態から始めます。VS Codeの「Terminal」→「New Terminal」を選び、画面下部にターミナルを開いてください。\texttt{npm}のコマンドは、必ず\texttt{typescript-p5/}で実行します。
+
+リポジトリのルートフォルダにいるターミナルで、次のコマンドを実行してください。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+cd typescript-p5
+pwd
+ls package.json
+npm install
+\end{minted}
+\caption{実行用プロジェクトで必要なライブラリをインストールするコマンド}
+\label{lst:appendix-macos-npm-install}
+\end{listing}
+
+\texttt{pwd}は現在いるフォルダを表示するコマンドです。表示されたパスの末尾が\texttt{typescript-p5}になっていることを確認します。続く\texttt{ls package.json}では\texttt{package.json}と表示されます。これらを確認してから\texttt{npm install}を実行してください。
+
+\texttt{npm install}は、p5.jsやTypeScriptなど、教材を動かすために必要なライブラリをインストールします。完了まで少し時間がかかることがあります。実行後には\texttt{node\_modules/}フォルダが作られ、\texttt{package-lock.json}にはインストールしたライブラリのバージョンが記録されます。警告が表示されることはありますが、出力の終わり近くに\texttt{npm error}がないかを確認してください。
+
+\begin{pointbox}{確認してから進む}
+\texttt{npm install}がうまくいかないときは、まず\texttt{pwd}の末尾が\texttt{typescript-p5}か、\texttt{ls package.json}で\texttt{package.json}が表示されるかを確認します。フォルダが違うと、必要な設定ファイルを見つけられません。
+\end{pointbox}
+
+\section{開発サーバを起動する}
+
+ライブラリをインストールしたら、同じ\texttt{typescript-p5/}のターミナルで開発サーバを起動します。開発サーバは、作成中のプログラムを自分のPCのブラウザで確認するための仕組みです。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+npm run dev
+\end{minted}
+\caption{Viteの開発サーバを起動するコマンド}
+\label{lst:appendix-macos-npm-run-dev}
+\end{listing}
+
+実行すると、ターミナルに\texttt{http://localhost:5173/}のようなLocal URLが表示されます。表示されたURLをCommandキーを押しながらクリックするか、ブラウザにコピーして開いてください。5173番がすでに使われている場合は、別の番号になることがありますが、正常な動作です。
+
+\texttt{npm run dev}を実行しているターミナルは、作業中は開いたままにします。止めるときは、そのターミナルを選んで\texttt{Control + C}を押します。サーバを動かしたまま\texttt{typescript-p5/src/main.ts}を保存すると、Viteが変更を検出し、通常はブラウザの表示を自動で更新します。
+
+\section{プログラムを編集してサンプルを入れ替える}
+
+ブラウザで図形が表示されたら、プログラムは動いています。編集して実行される入口のファイルは、教材リポジトリのルートフォルダから見て\texttt{typescript-p5/src/main.ts}です。VS Codeのエクスプローラーで\texttt{typescript-p5}、\texttt{src}の順に開き、\texttt{main.ts}を選びます。変更したら\texttt{Command + S}で保存してください。
+
+本書に掲載するサンプルは\texttt{listings/}に保存されていますが、\texttt{listings/}のファイルそのものはブラウザで実行されません。別のサンプルを試すときは、その内容を\texttt{typescript-p5/src/main.ts}へコピーします。\texttt{typescript-p5/}にいるターミナルで、第2章のサンプルを試すには次のコマンドを実行します。
+
+\begin{listing}[htbp]
+\begin{minted}{bash}
+cp ../listings/chapter02/points-and-lines.ts src/main.ts
+\end{minted}
+\caption{第2章のサンプルで\texttt{main.ts}を上書きするコマンド}
+\label{lst:appendix-macos-copy-sample}
+\end{listing}
+
+このコマンドは、\texttt{src/main.ts}の内容を上書きします。コピーの後も、通常はViteを起動し直す必要はありません。画像、JSON、音を使うサンプルでは、コードだけではなく、各章で説明する素材ファイルの配置も必要です。
+
+\section{よくある問題}
+
+環境構築では、プログラムの文法とは別のところで止まることがあります。エラー文全体を覚える必要はありません。コマンド名、現在いるフォルダ、表示の最後の数行を順に確認しましょう。
+
+\begin{mistakebox}{PATHの設定で\texttt{node}、\texttt{npm}、\texttt{git}が見つからない}
+\texttt{command not found}と表示されたときは、インストールしたコマンドを見つけるための設定であるPATHが、新しいターミナルに反映されていないことがあります。インストール後に開いていたターミナルを閉じ、新しいターミナルを開いてから\texttt{node -v}、\texttt{npm -v}、\texttt{git --version}をもう一度実行します。それでも数値が表示されない場合は、インストールが完了しているかを確認して、担当者に表示を添えて相談してください。
+\end{mistakebox}
+
+\begin{mistakebox}{初回起動時にmacOSの確認画面が表示される}
+公式サイトから取得したVS CodeをApplicationsフォルダから起動していることを確認してください。macOSが初回起動の確認画面を表示した場合は、表示内容を読み、入手元が公式サイトであることを確かめてから許可します。入手元が分からないアプリは開かないでください。
+\end{mistakebox}
+
+\begin{mistakebox}{Finderで見ている場所とターミナルの場所が違う}
+Finderでフォルダを開いていても、ターミナルが同じフォルダにいるとは限りません。\texttt{pwd}で現在の場所を表示し、\texttt{cd}で移動します。\texttt{npm install}と\texttt{npm run dev}の前には、\texttt{pwd}の末尾が\texttt{typescript-p5}であることを確認しましょう。
+\end{mistakebox}

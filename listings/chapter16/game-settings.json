@@ -1,0 +1,8 @@
+{
+    "canvasWidth": 480,
+    "canvasHeight": 360,
+    "playerSpeed": 5,
+    "enemySpeed": 3,
+    "starScore": 10,
+    "startLife": 3
+}

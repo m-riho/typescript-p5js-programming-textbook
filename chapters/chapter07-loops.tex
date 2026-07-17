@@ -1,0 +1,407 @@
+\chapter{繰り返し処理}
+\label{chap:loops}
+
+この章では、同じ処理を何度も実行するための繰り返し処理を学びます。第6章では条件によって処理を選びました。この章では、図形をたくさん並べたり、同じ規則で位置を変えたりするために、\texttt{for}文と\texttt{while}文を使います。
+
+\section{この章の概要}
+
+繰り返し処理を使うと、似た命令を何度も書かずに、短く読みやすいプログラムにできます。図形を規則的に並べる、ランダムな位置にたくさん描く、マウスの位置から画面の端まで描く、というような処理でよく使います。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item 繰り返し処理が必要になる場面
+    \item \texttt{for}文の基本形
+    \item カウンタ変数の使い方
+    \item \texttt{p.random}を使った繰り返し描画
+    \item 繰り返し処理の入れ子
+    \item \texttt{while}文の基本形
+    \item \texttt{while}文の初期化、条件、更新
+    \item 乱数と繰り返しを組み合わせる方法
+\end{itemize}
+
+\section{繰り返し処理が必要になる場面}
+
+同じような線を何本も描きたい場合、これまでの知識だけでもプログラムを書くことはできます。ただし、線の本数が増えるほど、同じような命令を何度も書くことになります。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/repeated-lines-without-loop.ts}
+\caption{繰り返し処理を使わずに線を並べる}
+\label{lst:chapter07-repeated-lines-without-loop}
+\end{listing}
+
+このサンプルでは、\texttt{p.line}を9回書いています。線の本数を増やしたい場合は、さらに多くの行を追加しなければなりません。線の位置を変えるときも、1行ずつ確認する必要があります。
+
+\begin{pointbox}{繰り返し処理の役割}
+繰り返し処理は、「同じ形の処理を何度も行う」ための仕組みです。図形の位置や色だけを少しずつ変えると、少ないコードでたくさんの図形を描けます。
+\end{pointbox}
+
+\section{for文の基本}
+
+回数が分かっている繰り返しでは、\texttt{for}文をよく使います。次のサンプルは、先ほどの線を\texttt{for}文で書き直したものです。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/for-lines.ts}
+\caption{for文で線を並べる}
+\label{lst:chapter07-for-lines}
+\end{listing}
+
+\texttt{for (let count: number = 0; count < numberOfLines; count++)}の部分が繰り返しの指定です。\texttt{count}は、今が何回目の繰り返しかを表すための変数です。このような変数をカウンタ変数と呼びます。
+
+\begin{pointbox}{for文の型注釈}
+\texttt{let count: number = 0}のように書くと、カウンタ変数の最初の値と\texttt{number}型を同時に指定できます。
+\end{pointbox}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+部分 & 役割 \\
+\midrule
+\texttt{let count: number = 0} & カウンタ変数を0から始める \\
+\texttt{count < numberOfLines} & 繰り返しを続ける条件 \\
+\texttt{count++} & 1回終わるたびに\texttt{count}を1増やす \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\texttt{for}文は、初期化、条件、更新、繰り返す処理の4つの部分からできています。一般的な書き方と、このサンプルで使っている具体的な書き方を対応させると、図\ref{fig:chapter07-for-syntax}のようになります。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        syntaxpart/.style={
+            rectangle,
+            draw,
+            rounded corners=1pt,
+            align=center,
+            minimum height=8mm,
+            inner xsep=4pt
+        },
+        connection/.style={thick, gray!70}
+    ]
+        \node at (-6.2, 1.4) {\texttt{for (}};
+        \node[syntaxpart, fill=blue!10]
+            (general-init) at (-3.9, 1.4) {初期化};
+        \node at (-2.65, 1.4) {\texttt{;}};
+        \node[syntaxpart, fill=green!12]
+            (general-condition) at (-1.2, 1.4) {条件};
+        \node at (0.05, 1.4) {\texttt{;}};
+        \node[syntaxpart, fill=orange!15]
+            (general-update) at (1.35, 1.4) {更新};
+        \node at (2.55, 1.4) {\texttt{) \{}};
+        \node[syntaxpart, fill=red!10]
+            (general-body) at (4.55, 1.4) {繰り返す処理};
+        \node at (6.2, 1.4) {\texttt{\}}};
+
+        \node[syntaxpart, fill=blue!10]
+            (example-init) at (-3.9, -0.9)
+            {\texttt{let count: number = 0}};
+        \node[syntaxpart, fill=green!12]
+            (example-condition) at (-1.2, -2.0)
+            {\texttt{count < numberOfLines}};
+        \node[syntaxpart, fill=orange!15]
+            (example-update) at (1.35, -0.9)
+            {\texttt{count++}};
+        \node[syntaxpart, fill=red!10]
+            (example-body) at (4.55, -2.0)
+            {\texttt{p.line(...);}};
+
+        \draw[connection] (general-init) -- (example-init);
+        \draw[connection] (general-condition) -- (example-condition);
+        \draw[connection] (general-update) -- (example-update);
+        \draw[connection] (general-body) -- (example-body);
+    \end{tikzpicture}
+    \caption{for文の基本形とサンプルの対応}
+    \label{fig:chapter07-for-syntax}
+\end{figure}
+
+図\ref{fig:chapter07-for-syntax}は「どこに何を書くか」を示し、図\ref{fig:chapter07-for-flowchart}は「どの順番で実行されるか」を示します。\texttt{for}文は短く書けますが、実行順も図で確認しましょう。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        flowbox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=33mm,
+            minimum height=8mm
+        },
+        decision/.style={
+            diamond,
+            draw,
+            aspect=2.3,
+            align=center,
+            inner sep=1pt,
+            text width=25mm
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[flowbox] (start) at (0, 0) {開始};
+        \node[flowbox] (init) at (0, -1.7) {初期化\\\texttt{let count = 0}};
+        \node[decision] (condition) at (0, -3.9) {条件を\\調べる};
+        \node[flowbox] (body) at (0, -6.25) {繰り返す処理};
+        \node[flowbox] (update) at (0, -8.0) {更新\\\texttt{count++}};
+        \node[flowbox] (end) at (4.3, -3.9) {終了};
+
+        \draw[arrow] (start) -- (init);
+        \draw[arrow] (init) -- (condition);
+        \draw[arrow] (condition) -- node[right]{はい} (body);
+        \draw[arrow] (body) -- (update);
+        \draw[arrow] (update.west) -- ++(-1.55, 0) |- (condition.west);
+        \draw[arrow] (condition) -- node[above]{いいえ} (end);
+    \end{tikzpicture}
+    \caption{for文による繰り返しの流れ}
+    \label{fig:chapter07-for-flowchart}
+\end{figure}
+
+\begin{notebox}{0から数える}
+プログラムでは、回数を0から数え始めることがよくあります。\texttt{count < 9}なら、\texttt{count}は0、1、2、\ldots、8と変化し、全部で9回実行されます。
+\end{notebox}
+
+\section{カウンタ変数で位置を決める}
+
+繰り返し処理では、カウンタ変数を使って図形の位置を計算できます。たとえば、\texttt{count}が0、1、2と増えるなら、\texttt{startX + lineSpacing * count}も少しずつ大きくなります。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/counter-rectangles.ts}
+\caption{カウンタ変数で位置と明るさを変える}
+\label{lst:chapter07-counter-rectangles}
+\end{listing}
+
+このサンプルでは、\texttt{rectangleX}をカウンタ変数から計算して、長方形を横に並べています。また、\texttt{brightness}にも\texttt{count}を使っているため、右へ進むほど明るさが変わります。
+
+\begin{pointbox}{繰り返しの中で計算する}
+繰り返しの中で\texttt{const rectangleX: number = ...;}のように書くと、その回に必要な値を計算できます。同じ名前の\texttt{rectangleX}でも、繰り返しの1回ごとに新しく作られると考えましょう。
+\end{pointbox}
+
+\section{ランダムな位置にたくさん描く}
+
+p5.jsでは、\texttt{p.random}を使うと、実行するたびに変わる数値を作れます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/random-circles.ts}
+\caption{for文でランダムな位置に円を描く}
+\label{lst:chapter07-random-circles}
+\end{listing}
+
+\texttt{p.random(p.width)}は、0以上\texttt{p.width}未満の\texttt{number}型の数値を返します。
+
+高さ方向も同じ考え方です。\texttt{p.height}を上限にすると、キャンバスの高さに収まる値を作れます。
+
+この値を円の中心座標に使うと、円がランダムな位置に描かれます。
+
+\section{繰り返し処理の入れ子}
+
+繰り返し処理の中に、さらに繰り返し処理を書くこともできます。これを繰り返し処理の入れ子と呼びます。格子状に図形を並べたいときに便利です。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/grid-circles.ts}
+\caption{for文の入れ子で円を格子状に並べる}
+\label{lst:chapter07-grid-circles}
+\end{listing}
+
+外側の\texttt{for}文では、\texttt{column}を使って横方向の位置を決めています。内側の\texttt{for}文では、\texttt{row}を使って縦方向の位置を決めています。外側が1回進むたびに、内側の繰り返しが最初から最後まで実行されます。
+
+\begin{notebox}{入れ子では名前を分ける}
+入れ子の\texttt{for}文では、外側と内側のカウンタ変数に別の名前を付けます。この章では、横方向を\texttt{column}、縦方向を\texttt{row}としています。
+\end{notebox}
+
+\section{while文の基本}
+
+回数ではなく、「条件が成り立つ間」繰り返したい場合は、\texttt{while}文を使えます。\texttt{for}文は繰り返しの回数を意識しやすい書き方ですが、\texttt{while}文は「この条件が成り立つあいだ続ける」と読む書き方です。
+
+まずは、縦線を左から右へ並べる短い例で考えます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/while-lines.ts}
+\caption{while文で線を並べる}
+\label{lst:chapter07-while-lines}
+\end{listing}
+
+\texttt{while (lineX <= 270)}は、「\texttt{lineX}が270以下である間は繰り返す」という意味です。\texttt{lineX}は、現在描く線のx座標を表しています。
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+部分 & 役割 \\
+\midrule
+\texttt{let lineX: number = 30} & 最初の値を決める \\
+\texttt{lineX <= 270} & 繰り返しを続ける条件 \\
+\texttt{lineX = lineX + lineSpacing} & 次の位置へ進める \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pointbox}{while文の3点セット}
+\texttt{while}文では、初期化、条件、更新の3つを分けて考えます。最初の値を用意し、条件を調べ、繰り返しの中で値を更新します。この3つのどれかが抜けると、思った通りに動かないことがあります。
+\end{pointbox}
+
+\texttt{for}文なら、この3つを\texttt{for (...; ...; ...)}の中にまとめて書きました。\texttt{while}文では、同じ考え方を少し離れた場所に書きます。そのため、条件に使っている変数がどこで変わるのかを確認することが大切です。図\ref{fig:chapter07-while-flowchart}では、初期化が\texttt{while}文の前にあり、更新が繰り返す処理の中にあることに注目してください。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        flowbox/.style={
+            rectangle,
+            draw,
+            rounded corners,
+            align=center,
+            minimum width=35mm,
+            minimum height=8mm
+        },
+        decision/.style={
+            diamond,
+            draw,
+            aspect=2.3,
+            align=center,
+            inner sep=1pt,
+            text width=25mm
+        },
+        arrow/.style={->, thick}
+    ]
+        \node[flowbox] (start) at (0, 0) {開始};
+        \node[flowbox] (init) at (0, -1.7) {初期化\\\texttt{let lineX = 30}};
+        \node[decision] (condition) at (0, -3.9) {条件を\\調べる};
+        \node[flowbox] (body) at (0, -6.25) {繰り返す処理};
+        \node[flowbox] (update) at (0, -8.0) {更新\\\texttt{lineX = lineX + ...}};
+        \node[flowbox] (end) at (4.5, -3.9) {終了};
+
+        \draw[arrow] (start) -- (init);
+        \draw[arrow] (init) -- (condition);
+        \draw[arrow] (condition) -- node[right]{はい} (body);
+        \draw[arrow] (body) -- (update);
+        \draw[arrow] (update.west) -- ++(-1.55, 0) |- (condition.west);
+        \draw[arrow] (condition) -- node[above]{いいえ} (end);
+    \end{tikzpicture}
+    \caption{while文による繰り返しの流れ}
+    \label{fig:chapter07-while-flowchart}
+\end{figure}
+
+\section{while文で大きさを変えながら描く}
+
+\texttt{while}文は、位置だけでなく、大きさを条件にして使うこともできます。次の例では、円の直径を少しずつ大きくしながら、条件を満たす間だけ円を描きます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/while-growing-circles.ts}
+\caption{while文で直径を変えながら円を描く}
+\label{lst:chapter07-while-growing-circles}
+\end{listing}
+
+このサンプルでは、\texttt{circleDiameter}が現在描く円の直径です。最初は30で、円を1つ描くたびに\texttt{diameterStep}だけ大きくなります。\texttt{circleDiameter <= 210}が成り立たなくなると、繰り返しは終わります。
+
+\begin{notebox}{条件は「最後に描いてよい値」を意識する}
+\texttt{circleDiameter <= 210}と書くと、直径が210以下の間だけ円を描きます。\texttt{<}と\texttt{<=}の違いによって、最後の1回が実行されるかどうかが変わることがあります。
+\end{notebox}
+
+\section{while文で画面の端まで描く}
+
+ここまでの例では、終わりの値を数値で決めていました。次の例では、マウスの位置から画面の下端まで、正方形を並べて描きます。画面の高さを条件に使うため、キャンバスの大きさに合わせて繰り返しが止まります。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/while-stacked-squares.ts}
+\caption{while文で画面の下まで正方形を並べる}
+\label{lst:chapter07-while-stacked-squares}
+\end{listing}
+
+\texttt{while (squareY + squareSize <= p.height)}は、「正方形の下端がキャンバスの中にある間」という意味です。繰り返しの中で\texttt{squareY}を更新しないと、条件がいつまでも変わらず、繰り返しが終わりません。
+
+\begin{pointbox}{図形全体が入る条件}
+正方形の左上の座標だけを見るなら、\texttt{squareY <= p.height}と書けます。しかし、それでは正方形の一部が画面の外にはみ出すことがあります。このサンプルでは、\texttt{squareY + squareSize <= p.height}と書き、正方形の下端まで画面に入るかを調べています。
+\end{pointbox}
+
+\begin{mistakebox}{while文で更新を忘れる}
+\texttt{while}文では、条件に使っている値を繰り返しの中で変えることが多くあります。更新を忘れると、プログラムが終わらない繰り返しになることがあります。
+\end{mistakebox}
+
+\begin{mistakebox}{条件と更新の向きが合っていない}
+\texttt{lineX <= 270}のように右へ進む条件を書いた場合は、\texttt{lineX}を増やす必要があります。反対に、値を小さくしながら繰り返すなら、条件もそれに合わせます。条件と更新の向きが合っていないと、繰り返しが終わらない原因になります。
+\end{mistakebox}
+
+\section{for文とwhile文の使い分け}
+
+\texttt{for}文と\texttt{while}文は、どちらも繰り返し処理を書くための仕組みです。どちらで書ける場合もありますが、読みやすさを考えて使い分けると、プログラムの意図が伝わりやすくなります。
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+使いたい場面 & 向いている書き方 \\
+\midrule
+10回描く、5個並べる & \texttt{for}文 \\
+左から右まで一定間隔で進む & \texttt{for}文または\texttt{while}文 \\
+画面の端に届くまで続ける & \texttt{while}文 \\
+条件が成り立つ間だけ続ける & \texttt{while}文 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{notebox}{迷ったときの選び方}
+最初のうちは、「何回繰り返すか」がはっきりしているなら\texttt{for}文、「いつ終わるか」を条件で考えたいなら\texttt{while}文、と考えると整理しやすくなります。
+\end{notebox}
+
+\section{増やし方を変える}
+
+\texttt{for}文の更新部分は、必ず\texttt{count++}でなければならないわけではありません。線と線の間隔のように、別の値だけ増やすこともできます。
+
+\begin{listing}[htbp]
+\inputminted{ts}{listings/chapter07/for-with-step.ts}
+\caption{for文の更新量を変える}
+\label{lst:chapter07-for-with-step}
+\end{listing}
+
+このサンプルでは、\texttt{lineX = lineX + lineSpacing}によって、線を描く位置を\texttt{lineSpacing}ずつ増やしています。\texttt{lineSpacing}はマウスの位置から計算しているため、マウスを動かすと線の間隔が変わります。
+
+\begin{notebox}{小さすぎる間隔を避ける}
+\texttt{lineSpacing}が0に近いと、同じ場所に大量の線を描こうとしてしまいます。このサンプルでは\texttt{if}文を使い、最小でも8になるようにしています。
+\end{notebox}
+
+\section{よくある間違い}
+
+繰り返し処理は便利ですが、条件や更新を少し間違えるだけで、回数がずれたり、終わらない処理になったりします。まずは短い繰り返しで動きを確認しましょう。
+
+\begin{mistakebox}{繰り返し回数が1つずれる}
+\texttt{count < 10}なら\texttt{count}は0から9まで変化し、10回実行されます。\texttt{count <= 10}にすると11回実行されます。
+\end{mistakebox}
+
+\begin{mistakebox}{カウンタ変数を使わない}
+\texttt{for}文を書いても、描く位置が毎回同じなら、同じ場所に重なって描かれます。位置や色の計算にカウンタ変数を使うと、繰り返しの意味が出ます。
+\end{mistakebox}
+
+\begin{mistakebox}{入れ子のカウンタ変数に同じ名前を使う}
+入れ子の\texttt{for}文で同じ名前のカウンタ変数を使うと、どちらの値を使っているのか分かりにくくなります。横方向は\texttt{column}、縦方向は\texttt{row}のように名前を分けます。
+\end{mistakebox}
+
+\begin{mistakebox}{while文の条件が変わらない}
+\texttt{while}文では、条件に関係する値を更新しないと、同じ条件をずっと調べ続けます。\texttt{squareY = squareY + squareSize + squareSpacing;}のような更新が必要です。
+\end{mistakebox}
+
+\begin{mistakebox}{while文の初期値を条件の外に置き忘れる}
+\texttt{while}文では、条件を調べる前に変数の最初の値を用意します。\texttt{let lineX: number = 30;}のような初期化がないと、どの値から始めるのかが分かりません。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、\texttt{for}文と\texttt{while}文を使って、繰り返し処理を書く方法を学びました。\texttt{for}文は、回数や規則がはっきりしている繰り返しに向いています。\texttt{while}文は、条件が成り立つ間だけ繰り返したい場合に使えます。
+
+また、カウンタ変数を使って位置や色を計算したり、繰り返し処理を入れ子にして格子状に図形を並べたりしました。\texttt{while}文では、初期化、条件、更新の3つを確認することが特に大切です。繰り返し処理を使うと、図形をたくさん描くプログラムを読みやすくできます。
+
+\section{演習問題}
+
+この章の演習では、繰り返し回数、間隔、色、入れ子の構造を少しずつ変えて、繰り返し処理の感覚をつかみます。まずは数値を変えるところから始め、最後は自分の規則で図形を並べてみましょう。
+
+\begin{enumerate}
+    \item \texttt{for-lines.ts}の\texttt{numberOfLines}を変えて、線の本数を増減させてください。
+    \item \texttt{for-lines.ts}の\texttt{lineSpacing}を変えて、線と線の間隔を変えてください。
+    \item \texttt{counter-rectangles.ts}で、長方形の幅や高さを変えてください。
+    \item \texttt{counter-rectangles.ts}の\texttt{brightness}の計算式を変え、色の変化を調整してください。
+    \item \texttt{random-circles.ts}で、円の個数と直径を変えてください。
+    \item \texttt{grid-circles.ts}で、横方向と縦方向の個数を変えてください。
+    \item \texttt{grid-circles.ts}を変更し、円ではなく四角形を格子状に並べてください。
+    \item \texttt{while-lines.ts}で、線を描き終えるx座標を変えてください。
+    \item \texttt{while-growing-circles.ts}で、円の直径の増え方を変えてください。
+    \item \texttt{while-stacked-squares.ts}で、正方形の間隔を変えてください。
+    \item \texttt{while-stacked-squares.ts}を変更し、マウスの位置から右端まで正方形を並べてください。
+    \item \texttt{for-with-step.ts}で、マウスの位置によって線の長さも変わるようにしてください。
+    \item 挑戦問題として、\texttt{for}文または\texttt{while}文を使い、色や大きさが少しずつ変わる模様を作ってください。
+\end{enumerate}

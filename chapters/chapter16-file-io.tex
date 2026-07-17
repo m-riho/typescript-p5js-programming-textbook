@@ -1,0 +1,351 @@
+\chapter{ファイル入出力}
+\label{chap:file-io}
+
+この章では、ゲームに必要な設定を外部ファイルから読み込み、得点のように残しておきたい値を保存する方法を学びます。ここで扱うファイル入出力は、ゲームの初期設定、難易度調整、最高得点の記録など、実際の制作で使いやすい場面にしぼって考えます。
+
+\section{この章の概要}
+
+前の章では、小さなゲームを1つのプログラムとして作りました。しかし、ゲームが少し大きくなると、キャンバスの大きさ、プレイヤーの速さ、敵の速さ、得点の増え方などを、プログラムの中に直接書き続けるのが大変になります。p5.jsはブラウザの中で動くため、プログラムからコンピュータ上のファイルを自由に書き換えることはできません。この章では、設定をJSONファイルから読み込み、最高得点をブラウザの保存領域に保存します。
+
+この章で扱う主な内容は次の通りです。
+
+\begin{itemize}
+    \item ブラウザでの読み込みと保存の違いを理解する
+    \item JSONの基本的な書き方を知る
+    \item JSONファイルにゲームの初期設定を書く
+    \item \texttt{async setup}と\texttt{await}で設定ファイルを読み込む
+    \item 読み込んだ設定をクラスで扱いやすくする
+    \item \texttt{storeItem}と\texttt{getItem}で最高得点を保存する
+    \item 設定読み込みと得点保存を小さなゲームに組み込む
+\end{itemize}
+
+\section{ゲーム設定を外に出す}
+
+ゲームの調整値をプログラムの外に出すと、コードを大きく書き換えずに難易度を変えられます。たとえば、プレイヤーの速度だけを少し上げたいとき、TypeScriptのクラスや関数を探して変更するより、設定ファイルの数値を変える方が分かりやすい場合があります。
+
+この章では、JSONという形式で設定を書きます。JSONは、名前と値の組を並べてデータを表す形式です。Webアプリ、ゲーム、サーバとの通信、設定ファイルなど、さまざまな場面で使われています。今後プログラムを作るときにも何度も出会う形式なので、ここで基本を確認しておきます。
+
+\section{JSONの基本}
+
+JSONは、データを文字として保存したり、別のプログラムに渡したりするための書き方です。見た目はTypeScriptのオブジェクトに似ていますが、JSONは「プログラムそのもの」ではなく「データを表すための形式」です。
+
+JSONでは、全体を\texttt{\{}と\texttt{\}}で囲みます。その中に、\texttt{"名前": 値}という組を並べます。名前は必ずダブルクォーテーション\texttt{" "}で囲みます。複数の項目を書くときは、項目の間をカンマで区切ります。
+
+\begin{listing}[htbp]
+\begin{minted}{json}
+{
+    "playerSpeed": 5,
+    "startLife": 3,
+    "gameTitle": "Star Catcher",
+    "showGrid": false
+}
+\end{minted}
+\caption{JSONの基本的な書き方}
+\label{lst:chapter16-json-basic}
+\end{listing}
+
+この例では、\texttt{playerSpeed}、\texttt{startLife}、\texttt{gameTitle}、\texttt{showGrid}が名前です。それぞれの右側にある\texttt{5}、\texttt{3}、\texttt{"Star Catcher"}、\texttt{false}が値です。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+JSONの値 & TypeScriptで考える型 & 例 \\
+\midrule
+数値 & \texttt{number} & \texttt{5}, \texttt{3.5} \\
+文字列 & \texttt{string} & \texttt{"Star Catcher"} \\
+真偽値 & \texttt{boolean} & \texttt{true}, \texttt{false} \\
+配列 & 配列 & \texttt{[1, 2, 3]} \\
+オブジェクト & オブジェクト & \texttt{\{"x": 100, "y": 80\}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+TypeScriptで使う\texttt{number}、\texttt{string}、\texttt{boolean}という考え方は、JSONを読むときにも役に立ちます。たとえば、\texttt{"playerSpeed": 5}なら、\texttt{playerSpeed}は数値として使えます。一方、\texttt{"playerSpeed": "5"}のようにダブルクォーテーションで囲むと、見た目は数字でも文字列として扱われます。
+
+\begin{pointbox}{JSONは設定を共有しやすい}
+JSONは、TypeScriptだけでなく多くの言語やツールで読めます。そのため、ゲームの設定、Webサービスのデータ、エディタの設定など、プログラムの外に置きたいデータによく使われます。
+\end{pointbox}
+
+\section{JSONとTypeScriptオブジェクトの違い}
+
+JSONはTypeScriptのオブジェクトに似ていますが、同じものではありません。TypeScriptのオブジェクトはプログラムの中で直接使う値です。一方、JSONはファイルや通信でやり取りするためのデータ形式です。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+内容 & JSON & TypeScriptオブジェクト \\
+\midrule
+名前の書き方 & \texttt{"playerSpeed"} & \texttt{playerSpeed}も使える \\
+文字列 & ダブルクォーテーションのみ & シングルクォートも使える \\
+コメント & 書けない & 書ける \\
+最後のカンマ & 書かない & 書ける場合がある \\
+関数 & 書けない & メソッドとして書ける \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+特に間違えやすいのは、JSONにはコメントを書けないという点です。TypeScriptでは\texttt{// プレイヤーの速さ}のようなコメントを書けますが、JSONファイルの中に同じように書くと読み込みに失敗します。設定の説明を書きたい場合は、教材やREADMEに説明を書くか、名前そのものを\texttt{playerSpeed}のように分かりやすくします。
+
+\begin{mistakebox}{JSONでよくある書き間違い}
+名前をダブルクォーテーションで囲み忘れる、項目の間のカンマを忘れる、最後の項目のあとに余計なカンマを書く、といった間違いがよくあります。JSONは書き方に厳しいので、1文字の違いで読み込めなくなることがあります。
+\end{mistakebox}
+
+\section{ゲーム設定をJSONで書く}
+
+それでは、実際にゲームの設定をJSONファイルに書いてみます。ここでは、キャンバスの大きさ、プレイヤーの速さ、敵の速さ、星を取ったときの得点、開始時のライフを設定として外に出します。
+
+\begin{listing}[htbp]
+\inputminted{json}{listings/chapter16/game-settings.json}
+\caption{ゲームの初期設定を書くJSONファイル}
+\label{lst:chapter16-game-settings-json}
+\end{listing}
+
+このファイルは、実際のp5.jsプロジェクトでは\texttt{public/data/game-settings.json}のような場所に置くことを想定します。プログラムからは\texttt{"data/game-settings.json"}というパスで読み込みます。
+
+\begin{pointbox}{設定ファイルに向いている値}
+キャンバスの大きさ、敵の速さ、開始時のライフ、得点の増え方のように、ゲームの調整で変えたくなる値は設定ファイルに向いています。一方、当たり判定の計算やキー入力の処理のようなルールそのものは、TypeScriptのコードに書きます。
+\end{pointbox}
+
+\section{\texttt{async setup}で設定を読み込む}
+
+p5.js 2の\texttt{p.loadJSON}は、読み込みの完了をあとから知らせる\texttt{Promise}を返します。そのため、第\ref{chap:images-and-text}章で画像を読み込んだときと同じように、\texttt{p.setup}へ\texttt{async}を付け、\texttt{await p.loadJSON(...)}で読み込みが終わるのを待ちます。設定を受け取ってから\texttt{createCanvas}を呼べば、JSONに書いた大きさでキャンバスを作れます。
+
+\texttt{async}は、関数の中で\texttt{await}を使えるようにする指定です。\texttt{await}は、\texttt{Promise}が完了して読み込んだ値を受け取るまで、次の行へ進まないようにします。\texttt{p.setup = async (): Promise<void> => \{ ... \};}の\texttt{Promise<void>}は、「処理はあとで完了し、完了時に値を返さない」という戻り値の型です。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=39]{ts}{listings/chapter16/load-settings.ts}
+\caption{設定値をまとめる\texttt{GameSettings}クラス}
+\label{lst:chapter16-game-settings-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=41,lastline=79]{ts}{listings/chapter16/load-settings.ts}
+\caption{\texttt{async setup}でJSON設定を読み込む}
+\label{lst:chapter16-load-settings}
+\end{listing}
+
+\texttt{GameSettings}クラスは、JSONから読み込んだ値をゲーム内で扱いやすくするためのクラスです。JSONのままでも値を読むことはできますが、クラスに入れると、\texttt{gameSettings.playerSpeed}のように意味のある名前で使えます。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        font=\small,
+        flowbox/.style={draw, rounded corners=3pt, minimum width=38mm, minimum height=24mm, align=center},
+        flowarrow/.style={->, thick}
+    ]
+        \node[flowbox, fill=yellow!10] (json) at (0,0)
+            {JSONファイル\\
+             \texttt{game-settings.json}\\
+             文字列として保存された設定};
+        \node[flowbox, fill=blue!7] (settings) at (5.2,0)
+            {\texttt{GameSettings}\\
+             \texttt{playerSpeed}\\
+             \texttt{enemySpeed}など};
+        \node[flowbox, fill=green!8] (game) at (10.4,0)
+            {ゲーム\\
+             キャンバスの大きさ\\
+             移動速度・得点・ライフ};
+
+        \draw[flowarrow] (json) -- (settings);
+        \draw[flowarrow] (settings) -- (game);
+        \node[align=center, font=\scriptsize] at (2.6,1.65)
+            {\texttt{await p.loadJSON(...)}\\で読み込む};
+        \node[align=center, font=\scriptsize] at (7.8,1.65)
+            {意味のある型と名前で\\ゲームから使う};
+    \end{tikzpicture}
+    \caption{JSONの設定を\texttt{GameSettings}へ入れてゲームで使う流れ}
+    \label{fig:chapter16-json-settings-flow}
+\end{figure}
+
+図\ref{fig:chapter16-json-settings-flow}の左から右へ進むにつれて、ファイルに保存された設定が、TypeScriptのクラスを通してゲーム内で使える値になります。JSONファイルを書き換えると、TypeScriptのルール部分を変更せずに速度や得点を調整できます。
+
+\texttt{p.loadJSON}は、JSONファイルを読み込むp5.jsの機能です。p5.js instance modeでは、\texttt{p.}を付けて\texttt{p.loadJSON}と書きます。\texttt{await}を付けると、\texttt{Promise}から読み込み済みのオブジェクトを受け取れます。
+
+読み込んだオブジェクトには、TypeScriptから見ると「どのような形のデータか」がすぐには分かりません。そのため、\texttt{as \{ ... \}}の部分で、\texttt{canvasWidth}や\texttt{playerSpeed}などを持つデータとして扱うことを明示しています。この形を書くことで、設定ファイルにどの値が必要なのかも読み取りやすくなります。
+
+\section{得点を保存する}
+
+ゲームでは、プレイが終わったあとも最高得点を残しておきたいことがあります。ブラウザ版のp5.jsでは、\texttt{storeItem}と\texttt{getItem}を使うと、ブラウザの保存領域に小さな値を保存できます。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=27]{ts}{listings/chapter16/save-score.ts}
+\caption{保存してある最高得点を読み込む}
+\label{lst:chapter16-load-high-score}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=29,lastline=57]{ts}{listings/chapter16/save-score.ts}
+\caption{最高得点を保存・リセットする}
+\label{lst:chapter16-save-high-score}
+\end{listing}
+
+\texttt{p.getItem("highScore")}は、\texttt{highScore}という名前で保存されている値を読み込みます。保存されていない場合もあるため、読み込んだ値が\texttt{number}かどうかを\texttt{typeof}で確認してから使っています。
+
+\texttt{p.storeItem("highScore", highScore)}は、最高得点を保存します。この保存は、同じブラウザで同じページを開いたときに利用できます。別のコンピュータや別のブラウザには自動では引き継がれません。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        font=\small,
+        flowbox/.style={draw, rounded corners=3pt, minimum width=39mm, minimum height=22mm, align=center},
+        flowarrow/.style={->, thick}
+    ]
+        \node[flowbox, fill=orange!10] (score) at (0,0)
+            {今回のゲーム\\\texttt{highScore = 120}};
+        \node[flowbox, fill=blue!7] (storage) at (5.2,0)
+            {ブラウザの保存領域\\\texttt{localStorage}\\キー: \texttt{highScore}};
+        \node[flowbox, fill=green!8] (next) at (10.4,0)
+            {次にページを開いたとき\\保存済みの最高得点を\\画面へ戻す};
+
+        \draw[flowarrow] (score) -- (storage);
+        \draw[flowarrow] (storage) -- (next);
+        \node[align=center, font=\scriptsize] at (2.6,1.55)
+            {\texttt{p.storeItem(...)}\\で保存};
+        \node[align=center, font=\scriptsize] at (7.8,1.55)
+            {\texttt{p.getItem(...)}\\で読み出す};
+    \end{tikzpicture}
+    \caption{最高得点を保存して次回の起動時に読み出す流れ}
+    \label{fig:chapter16-score-storage-flow}
+\end{figure}
+
+図\ref{fig:chapter16-score-storage-flow}の保存先は、プロジェクト内のファイルではなく、ブラウザがページごとに持つ\texttt{localStorage}です。次に同じページを開いたとき、同じキー名を使って値を読み出します。
+
+\begin{mistakebox}{保存したつもりでも保存場所が違うことがある}
+\texttt{storeItem}の保存先はブラウザごとの保存領域です。ファイルとしてプロジェクトのフォルダに書き込まれるわけではありません。また、別のURLとして開くと、同じキー名でも別の保存先として扱われることがあります。
+\end{mistakebox}
+
+\section{設定と保存をゲームに組み込む}
+
+ここまでの内容を組み合わせると、ゲームの初期設定をJSONから読み込み、ゲームオーバー時に最高得点を保存する小さなゲームを作れます。第15章の星集めゲームを少し簡単にし、ファイル入出力の役割が見えやすい形にします。
+
+\begin{listing}[htbp]
+\inputminted[firstline=1,lastline=39]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{完成版で使う\texttt{GameSettings}}
+\label{lst:chapter16-configurable-settings}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[
+    firstline=41,
+    lastline=92,
+    baselinestretch=0.95
+]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{設定された速度で動く\texttt{Player}}
+\label{lst:chapter16-player-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=94,lastline=133]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{得点の対象になる\texttt{Star}}
+\label{lst:chapter16-star-class}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=135,lastline=179]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{敵のクラス}
+\label{lst:chapter16-enemy}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=181,lastline=204]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{ゲーム全体で使う変数}
+\label{lst:chapter16-game-state}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=206,lastline=250]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{設定を読み込む\texttt{setup}とゲームの進行}
+\label{lst:chapter16-setup-draw-key}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=252,lastline=274]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{設定を使ってゲームを更新する}
+\label{lst:chapter16-update-game}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=276,lastline=295]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{ゲーム画面とゲームオーバー表示}
+\label{lst:chapter16-display-game}
+\end{listing}
+
+\begin{listing}[htbp]
+\inputminted[firstline=297,lastline=315]{ts}{listings/chapter16/configurable-star-game.ts}
+\caption{再スタートと最高得点の保存}
+\label{lst:chapter16-reset-and-save}
+\end{listing}
+
+この完成例では、\texttt{playerSpeed}、\texttt{enemySpeed}、\texttt{starScore}、\texttt{startLife}を設定ファイルから読み込みます。ゲームの難しさや得点の増え方は、コードではなくJSONの値を変えることで調整できます。
+
+\texttt{updateGame}では、星を取ったときに\texttt{gameSettings.starScore}だけ得点を増やします。敵に触れてライフが0になったら\texttt{isGameOver}を\texttt{true}にし、\texttt{saveHighScore}を呼び出します。保存処理をゲームオーバーのタイミングにまとめることで、いつ得点が保存されるのかが分かりやすくなります。
+
+\begin{pointbox}{設定と状態を分けて考える}
+\texttt{gameSettings.startLife}は「ゲーム開始時の設定」です。一方、\texttt{life}は「今の残りライフ」です。設定値と現在の状態を同じ変数にしてしまうと、再スタートするときに元の値が分からなくなります。
+\end{pointbox}
+
+\section{JSONファイルを書き換えて調整する}
+
+設定ファイルを使う良さは、ゲームを調整しやすくなることです。たとえば、敵が速すぎるなら\texttt{enemySpeed}を小さくします。ゲームが簡単すぎるなら、\texttt{startLife}を減らしたり、\texttt{enemySpeed}を大きくしたりできます。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+変えたいこと & 変更する設定 & 例 \\
+\midrule
+画面を広くする & \texttt{canvasWidth}, \texttt{canvasHeight} & \texttt{640}, \texttt{400} \\
+プレイヤーを速くする & \texttt{playerSpeed} & \texttt{7} \\
+敵を遅くする & \texttt{enemySpeed} & \texttt{2} \\
+星の得点を増やす & \texttt{starScore} & \texttt{20} \\
+ゲームを難しくする & \texttt{startLife} & \texttt{1} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+ただし、設定ファイルにどんな値でも入れてよいわけではありません。たとえば、\texttt{playerSpeed}を\texttt{0}にするとプレイヤーは動けなくなります。設定ファイルを使う場合も、どの範囲の値ならゲームとして成り立つかを考える必要があります。
+
+\begin{pointbox}{ブラウザ版p5.jsでの保存の考え方}
+ゲームの設定を使うときは、\texttt{p.loadJSON}でJSONファイルを読み込みます。最高得点のように小さな値を次回も使いたいときは、\texttt{p.storeItem}でブラウザの保存領域に残します。\texttt{p.saveJSON}を使うとJSONファイルをダウンロードできますが、プロジェクト内のファイルを直接書き換えるものではありません。
+\end{pointbox}
+
+\section{よくある間違い}
+
+ファイル入出力では、コードが正しく見えても、ファイルの置き場所や読み込みのタイミングでつまずくことがあります。エラーが出たときは、変数の値だけでなく、ファイルのパスと実行環境も確認します。
+
+\begin{mistakebox}{\texttt{await}せずに読み込んだ値を使おうとする}
+\texttt{p.loadJSON}が返す\texttt{Promise}は、読み込み済みの設定そのものではありません。\texttt{async setup}の中で\texttt{await}を付け、設定を受け取ってから\texttt{GameSettings}やキャンバスを作ります。
+\end{mistakebox}
+
+\begin{mistakebox}{JSONの名前とTypeScript側の名前がずれている}
+JSONに\texttt{player\_speed}と書き、TypeScript側で\texttt{playerSpeed}を読もうとしても、同じ値として扱われません。名前は1文字違っても別のものです。
+\end{mistakebox}
+
+\begin{mistakebox}{保存した得点が別の環境で見えない}
+\texttt{storeItem}で保存した値は、基本的にそのブラウザの保存領域に残ります。別のブラウザ、別のコンピュータ、別のURLでは同じ得点が見えないことがあります。
+\end{mistakebox}
+
+\section{まとめ}
+
+この章では、ゲームの初期設定をJSONファイルから読み込み、最高得点をブラウザに保存する方法を学びました。ファイル入出力を使うと、プログラムの中に直接書いていた調整値を外に出せます。また、プレイヤーの記録を次回の実行に残すこともできます。
+
+JSONの読み込みには時間がかかるため、\texttt{p.setup}へ\texttt{async}を付け、\texttt{await p.loadJSON(...)}で完了を待ちます。読み込んだ設定を受け取ってから、キャンバスやゲームの状態を初期化します。
+
+ブラウザで動くp5.jsでは、ローカルファイルを自由に書き換えることはできません。読み込み、保存、ダウンロードの違いを理解しておくと、ゲーム制作で何をどこに保存すればよいか判断しやすくなります。
+
+\section{演習問題}
+
+この章の演習では、設定ファイルの値を変えるところから始め、少しずつゲームの調整項目や保存する値を増やしていきます。
+
+\begin{enumerate}
+    \item \texttt{game-settings.json}の\texttt{playerSpeed}を変更し、プレイヤーの動きがどう変わるか確認しなさい。
+    \item \texttt{enemySpeed}を変更し、ゲームの難易度がどう変わるか説明しなさい。
+    \item \texttt{starScore}を\texttt{5}、\texttt{10}、\texttt{50}に変えて、得点の増え方を比べなさい。
+    \item \texttt{startLife}を変更し、ゲームオーバーまでの長さがどう変わるか確認しなさい。
+    \item JSONに\texttt{enemyRadius}を追加し、敵の半径を設定ファイルから変えられるようにしなさい。
+    \item JSONに\texttt{playerRadius}を追加し、プレイヤーの大きさを設定できるようにしなさい。
+    \item 最高得点だけでなく、最後に遊んだときの得点も保存して表示しなさい。
+    \item \texttt{R}キーで最高得点をリセットする機能を、完成版のゲームにも追加しなさい。
+    \item ゲームオーバー時に、\texttt{p.saveJSON}を使って得点をファイルとしてダウンロードする処理を調べ、試しなさい。
+    \item 設定ファイルを「やさしい」「ふつう」「むずかしい」の3種類に分ける方法を考えなさい。
+    \item 自分で小さなゲームを1つ作り、設定ファイルから少なくとも3つの値を読み込むようにしなさい。
+\end{enumerate}
