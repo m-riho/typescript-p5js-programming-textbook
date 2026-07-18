@@ -21,3 +21,32 @@
     fonttitle=\bfseries,
     breakable
 }
+
+\newtcolorbox{chapterphasebox}[2]{
+    title={#1},
+    colback=#2!5,
+    colframe=#2!55!black,
+    boxrule=0.8pt,
+    arc=1mm,
+    fonttitle=\bfseries,
+    left=3mm,
+    right=3mm,
+    top=2mm,
+    bottom=2mm,
+    breakable
+}
+
+\newcommand{\worktiming}[1]{
+    \begin{tcolorbox}[
+        colback=black!3,
+        colframe=black!45,
+        boxrule=0.5pt,
+        arc=0.5mm,
+        left=2mm,
+        right=2mm,
+        top=1mm,
+        bottom=1mm
+    ]
+    \textbf{実行するタイミング：}#1
+    \end{tcolorbox}
+}
