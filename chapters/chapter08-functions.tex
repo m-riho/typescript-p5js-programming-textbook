@@ -499,6 +499,52 @@ JSDocはコメントの書き方の名前であると同時に、コメントか
 \end{listing}
 \clearpage
 
+リスト\ref{lst:chapter08-comment-sample-draw-face-start}からリスト\ref{lst:chapter08-comment-sample-draw-face-end}の\texttt{drawKyubeyFace}は、顔の部品を描く関数を順番に呼び出して、顔全体を組み立てています。図\ref{fig:chapter08-draw-kyubey-face-calls}に、関数の呼び出し関係を示します。
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        function/.style={
+            rectangle,
+            draw,
+            rounded corners=2pt,
+            minimum width=42mm,
+            minimum height=13mm,
+            align=center
+        },
+        part/.style={
+            rectangle,
+            draw,
+            rounded corners=2pt,
+            minimum width=38mm,
+            minimum height=14mm,
+            align=center
+        },
+        call/.style={->, thick}
+    ]
+        \node[function, fill=blue!8] (face) at (0, 0)
+            {\texttt{drawKyubeyFace}\\顔全体を組み立てる};
+
+        \node[part, fill=yellow!12] (mark) at (-4.5, -2.4)
+            {\texttt{drawMark}\\額の模様を描く（1回）};
+        \node[part, fill=green!10] (eye) at (0, -2.4)
+            {\texttt{drawEye}\\左右の目を描く（2回）};
+        \node[part, fill=red!8] (mouth) at (4.5, -2.4)
+            {\texttt{drawMouth}\\口を描く（1回）};
+
+        \draw[call] (face.south west) -- (mark.north);
+        \draw[call] (face.south) -- (eye.north);
+        \draw[call] (face.south east) -- (mouth.north);
+    \end{tikzpicture}
+    \caption{\texttt{drawKyubeyFace}から呼び出す関数}
+    \label{fig:chapter08-draw-kyubey-face-calls}
+\end{figure}
+
+\texttt{drawKyubeyFace}を読むと、顔が「額の模様、左右の目、口」という部品からできていることが分かります。目や口をどのような図形で描くかという細かな処理は、それぞれ\texttt{drawEye}や\texttt{drawMouth}の中にまとめられています。そのため、顔全体の構成を確認するときに、すべての描画命令を一度に追う必要がありません。
+
+このように、意味のある処理のまとまりに名前を付けて関数にすると、プログラムの役割や構造を読み取りやすくなります。また、左右の目のように同じ形を描く場合は、同じ\texttt{drawEye}を実引数だけ変えて再利用できます。
+\clearpage
+
 \section{よくある間違い}
 
 関数では、名前、型、引数の数、引数の順番をそろえる必要があります。エラーが出たときは、関数を定義した場所と、関数を呼び出している場所を見比べましょう。
