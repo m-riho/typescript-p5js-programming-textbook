@@ -12,6 +12,8 @@
 
 環境構築と最初の実行手順は、教材PDFの第1章で詳しく説明しています。
 
+自分で作成するTypeScriptファイルは [`workspace/`](workspace/) に、演習問題・課題のファイルは [`workspace/exercises/`](workspace/exercises/) に保存します。課題のファイル名は `02-01.ts` のように、章番号と問題番号をそれぞれ2桁にします。
+
 ## Windowsで始める最短手順
 
 VS Code、Git、Node.jsをインストールしたあと、PowerShellで教材を取得します。
@@ -35,7 +37,9 @@ npm run dev
 
 `listings/chapter02/`のように、章ごとのフォルダへサンプルプログラムを収録しています。試したい `.ts` ファイルの内容を `typescript-p5/src/main.ts` へコピーして保存すると、開発サーバを動かしたまま結果を確認できます。
 
-元の `main.ts`を残したい場合は、別の名前でバックアップしてから書き換えてください。各サンプルの目的と操作方法は教材PDFの対応する章で説明しています。
+自分で変更した `main.ts` の内容は、別のサンプルで上書きする前に `workspace/` 以下へコピーして保存してください。`workspace/` のファイルは保存しただけでは実行されません。試すときは、その内容全体を `typescript-p5/src/main.ts` へコピーして保存します。実行用の `main.ts` と保存先のファイルは自動では同期されないため、修正は保存先にも反映してください。
+
+教材本体の `typescript-p5/src/` や設定ファイルは、教材や担当教員の指示がある場合にだけ変更します。ここで説明する `main.ts` の編集・コピーも、その指示の一つです。各サンプルの目的と操作方法は教材PDFの対応する章で説明しています。
 
 ## リポジトリの構成
 
@@ -45,6 +49,8 @@ npm run dev
 | `typescript-p5/src/main.ts` | 実行時に編集する中心的なTypeScriptファイル |
 | `typescript-p5/images/` | 教材で使用する画像ファイル |
 | `listings/` | 章ごとのサンプルプログラム |
+| `workspace/` | 自分で作成するTypeScriptプログラムの保存先 |
+| `workspace/exercises/` | 演習問題・課題の保存先（例: `02-01.ts`） |
 | `chapters/` | LuaLaTeXの章ファイル |
 | `figures/` | 教材の図版 |
 | `main.tex` | 教材全体を組版するLuaLaTeXの入口 |

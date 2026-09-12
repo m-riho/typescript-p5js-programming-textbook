@@ -136,6 +136,12 @@ npm run dev
 
 ブラウザで図形が表示されたら、プログラムは動いています。編集して実行される入口のファイルは、教材リポジトリのルートフォルダから見て\texttt{typescript-p5/src/main.ts}です。VS Codeのエクスプローラーで\texttt{typescript-p5}、\texttt{src}の順に開き、\texttt{main.ts}を選びます。変更したら\texttt{Command + S}で保存してください。
 
+自分で作成したプログラムは、教材リポジトリ直下の\texttt{workspace/}以下に保存します。
+演習問題・課題は\texttt{workspace/exercises/}に、章番号と問題番号をそれぞれ2桁にした名前で保存します。第2章の問題1なら\texttt{02-01.ts}です。
+別のサンプルで\texttt{main.ts}を上書きする前に、VS Codeで保存先の新しいファイルを作り、残したい内容全体をコピーして\texttt{Command + S}で保存してください。
+\texttt{workspace/}のファイルは保存しただけでは実行されません。試すときは内容全体を\texttt{main.ts}へコピーします。\texttt{main.ts}で修正した内容は保存先にも反映します。2つのファイルは自動では同期されません。
+教材本体の\texttt{src/}や設定ファイルは、ここでの\texttt{main.ts}の編集のように、教材や担当教員が指示した場合にだけ変更します。
+
 本書に掲載するサンプルは\texttt{listings/}に保存されていますが、\texttt{listings/}のファイルそのものはブラウザで実行されません。別のサンプルを試すときは、その内容を\texttt{typescript-p5/src/main.ts}へコピーします。\texttt{typescript-p5/}にいるターミナルで、第2章のサンプルを試すには次のコマンドを実行します。
 
 \begin{listing}[htbp]

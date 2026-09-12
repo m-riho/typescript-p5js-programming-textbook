@@ -231,9 +231,22 @@ Windowsでは、フォルダ名に日本語や空白が含まれていても多�
 
 \worktiming{作業を始めるたび（初回準備でも実行）}
 
-フォルダを開いたら、VS Codeの画面左側にあるエクスプローラーで\texttt{chapters/}、\texttt{listings/}、\texttt{typescript-p5/}が表示されることを確認します。プログラムを書くときは、このフォルダを開いた状態で作業します。
+フォルダを開いたら、VS Codeの画面左側にあるエクスプローラーで\texttt{chapters/}、\texttt{listings/}、\texttt{typescript-p5/}、\texttt{workspace/}が表示されることを確認します。プログラムを書くときは、このフォルダを開いた状態で作業します。
 
 初めて開くフォルダでは、ワークスペースを信頼するか尋ねる画面が表示されることがあります。授業で配布されたリポジトリを開いていることを確認してから、信頼する選択肢を選びます。統合ターミナルは、VS Codeのメニューから「ターミナル」→「新しいターミナル」を選ぶと開けます。
+
+\begin{pointbox}{自分のプログラムを保存する場所}
+授業中の練習や自由制作で作るTypeScriptファイルは、\texttt{workspace/}以下に保存します。
+このフォルダは教材リポジトリの直下にあり、\texttt{typescript-p5/}と同じ階層にあります。
+演習問題・課題のプログラムは、\texttt{workspace/exercises/}に保存してください。
+ファイル名は\texttt{章番号-問題番号.ts}とし、番号をそれぞれ2桁にそろえます。
+たとえば、第2章の問題1は\texttt{02-01.ts}、第3章の問題5は\texttt{03-05.ts}、第10章の問題3は\texttt{10-03.ts}です。
+ファイル名で並べると章・問題の順番になり、課題を見つけやすくなります。
+\end{pointbox}
+
+教材本体の\texttt{typescript-p5/src/}や設定ファイルは、教材や担当教員の指示がある場合にだけ変更します。
+この章の後半では、実行の練習として\texttt{typescript-p5/src/main.ts}の編集を指示します。
+現在の教材では、\texttt{workspace/}へ保存しただけでは実行されません。実行する内容は\texttt{main.ts}へコピーし、残したいプログラムは\texttt{workspace/}以下に保存する、と区別しましょう。
 
 \subsection{必要なライブラリをインストールする}
 
@@ -281,6 +294,7 @@ VS Codeで教材を開き、開発サーバを起動し、プログラムを編�
     \item \texttt{npm run dev}で開発サーバを起動する
     \item ブラウザで表示を確認する
     \item \texttt{src/main.ts}を編集して保存する
+    \item 自分のプログラムを\texttt{workspace/}以下にも保存する
     \item 意味のある作業の節目でGitへコミットする
     \item 作業を終えるときに\texttt{Ctrl + C}で開発サーバを止める
 \end{enumerate}
@@ -418,6 +432,15 @@ p.circle(200, 150, 120);
 \label{lst:chapter01-edit-circle}
 \end{listing}
 
+ここで変更したプログラムを残しておきましょう。VS Codeで\texttt{workspace/}を選び、\texttt{first-sketch.ts}という新しいファイルを作ります。
+\texttt{main.ts}の内容全体をコピーして新しいファイルへ貼り付け、保存してください。
+課題のプログラムを保存する場合は、同じ方法で\texttt{workspace/exercises/}に指定の名前のファイルを作ります。
+たとえば、この章の演習問題7なら\texttt{01-07.ts}です。
+
+保存したプログラムをもう一度試す場合は、その内容全体を\texttt{typescript-p5/src/main.ts}へコピーして保存します。
+その後\texttt{main.ts}を修正したときは、\texttt{workspace/}以下の保存先にも修正を反映してください。2つのファイルは自動では同期されません。
+別のプログラムを試す前に、残したい内容が保存先にそろっていることを確認します。
+
 別の章のサンプルを試すときは、VS Codeのエクスプローラーで\texttt{listings/}にある対象ファイルを開きます。開いた内容をすべて選んでコピーし、\texttt{typescript-p5/src/main.ts}を開いて内容をすべて選んで貼り付け、保存します。これにより\texttt{src/main.ts}の内容は上書きされます。
 
 PowerShellを使う場合は、\texttt{typescript-p5/}を開いているターミナルで次のコマンドを実行します。
@@ -450,17 +473,21 @@ git status
 \label{lst:chapter01-git-status}
 \end{listing}
 
-変更したファイルが表示されたら、次のように保存対象へ追加します。
+変更したファイルが表示されたら、次のように保存対象へ追加します。先ほど\texttt{workspace/}に保存した\texttt{first-sketch.ts}も、実行用の\texttt{main.ts}と一緒に記録します。
 
 \begin{listing}[htbp]
 \begin{minted}{powershell}
 git add typescript-p5/src/main.ts
+git add workspace/first-sketch.ts
 \end{minted}
 \caption{変更したファイルを保存対象へ追加するコマンド}
 \label{lst:chapter01-git-add}
 \end{listing}
 
 この節ではGitコマンドを教材リポジトリのルートフォルダで実行します。一方、\texttt{npm}のコマンドは\texttt{typescript-p5/}で実行します。コマンドごとに実行する場所を確認しましょう。
+
+課題を記録するときは、\texttt{workspace/first-sketch.ts}の部分を、実際に保存した課題ファイルのパスに置き換えます。
+たとえば、この章の演習問題7では\texttt{workspace/exercises/01-07.ts}です。\texttt{git status}で対象のファイル名を確認してから追加してください。
 
 最後に、変更内容を説明する短いメッセージを付けてコミットします。
 
@@ -507,6 +534,8 @@ VS Codeでファイルを保存することと、Gitでコミットすること�
 \section{演習問題}
 
 この章の演習では、環境構築と最初の実行を確認します。すべてを暗記する必要はありません。コマンドを見ながら、同じ操作を自分のPCで再現できることを目指しましょう。
+
+プログラムを作成・変更する問題では、内容を\texttt{workspace/exercises/}へ保存します。問題7は\texttt{01-07.ts}、問題10は\texttt{01-10.ts}とします。コマンドの確認だけの問題について、TypeScriptファイルを作る必要はありません。
 
 \begin{enumerate}
     \item \texttt{git clone}、\texttt{npm install}、\texttt{npm run dev}、\texttt{git commit}を、「原則1回」「作業開始時」「作業の節目」に分けてください。
