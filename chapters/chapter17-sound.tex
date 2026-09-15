@@ -24,12 +24,14 @@
 \end{notebox}
 
 \begin{notebox}{教材テンプレートのp5.sound補助ファイル}
-公式のp5.soundは、p5.js本体とは別のパッケージです。教材テンプレートにはp5.sound 0.3.0と、その機能を準備する\texttt{p5-sound} 補助ファイルが含まれています。各サンプルの\texttt{import "./p5-sound";}は、この補助ファイルを読み込む1行です。補助ファイルの中身を編集する必要はありません。
+公式のp5.soundは、p5.js本体とは別のパッケージです。教材テンプレートにはp5.sound 0.3.0と、その機能を準備する\texttt{p5-sound}補助ファイルが含まれています。各サンプルの\texttt{import "../../src/p5-sound";}は、この補助ファイルを読み込む1行です。サンプルのある\texttt{listings/chapter17/}から2階層上の\texttt{typescript-p5/}へ戻り、その中の\texttt{src/}を参照しています。補助ファイルの中身を編集する必要はありません。
+
+サンプルを\texttt{workspace/exercises/}に複製する場合も、このimportはそのまま使えます。\texttt{workspace/}直下に置く場合は、1階層上へ戻る\texttt{import "../src/p5-sound";}に変更します。
 \end{notebox}
 
 \section{p5.soundとブラウザの制約}
 
-p5.soundは、p5.jsで音声を扱うための公式の追加ライブラリです。p5.soundを使うと、音声ファイルを読み込んだり、音を一時停止したり、簡単な波形を作ったりできます。サンプルでは、p5.jsのimportに加えて\texttt{import "./p5-sound";}を書き、音声機能の準備が終わってからスケッチを開始します。
+p5.soundは、p5.jsで音声を扱うための公式の追加ライブラリです。p5.soundを使うと、音声ファイルを読み込んだり、音を一時停止したり、簡単な波形を作ったりできます。サンプルでは、p5.jsのimportに加えて\texttt{import "../../src/p5-sound";}を書き、音声機能の準備が終わってからスケッチを開始します。
 
 ただし、ブラウザで動くプログラムには大切な制約があります。多くのブラウザでは、ページを開いただけで自動的に音を鳴らすことが制限されています。そのため、マウスクリックやキー入力など、ユーザーの操作をきっかけに音声を開始する必要があります。
 
@@ -46,7 +48,7 @@ p5.jsでは、\texttt{p5Instance.userStartAudio()}を呼ぶことで、ブラウ
 \texttt{music = await p5Instance.loadSound(...)}と書くと、\texttt{Promise}から読み込み済みの\texttt{p5.SoundFile}を受け取れます。\texttt{Promise<void>}は、\texttt{setup}の処理があとで完了し、完了時に値を返さないことを表します。キャンバスは、音声の読み込みが終わったあとに作ります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter17/play-sound.ts}
+\inputminted{ts}{typescript-p5/listings/chapter17/play-sound.ts}
 \caption{マウスクリックで音声を再生する（\texttt{chapter17/play-sound.ts}）}
 \label{lst:chapter17-play-sound}
 \end{listing}
@@ -60,13 +62,13 @@ p5.jsでは、\texttt{p5Instance.userStartAudio()}を呼ぶことで、ブラウ
 音声を扱うときは、再生だけでなく、一時停止、停止、繰り返し再生もよく使います。ここでは、マウスクリックで先頭から再生し、キー操作で一時停止やループ再生を行うサンプルを作ります。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=33]{ts}{listings/chapter17/sound-controls.ts}
+\inputminted[firstline=1,lastline=33]{ts}{typescript-p5/listings/chapter17/sound-controls.ts}
 \caption{音声操作のための変数と画面表示（\texttt{chapter17/sound-controls.ts}）}
 \label{lst:chapter17-sound-controls-display}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=35,lastline=65]{ts}{listings/chapter17/sound-controls.ts}
+\inputminted[firstline=35,lastline=65]{ts}{typescript-p5/listings/chapter17/sound-controls.ts}
 \caption{再生、一時停止、繰り返し、停止の操作（\texttt{chapter17/sound-controls.ts}）}
 \label{lst:chapter17-sound-controls-input}
 \end{listing}
@@ -122,43 +124,43 @@ p5.jsでは、\texttt{p5Instance.userStartAudio()}を呼ぶことで、ブラウ
 音声の基本操作が分かったら、ゲームに効果音を組み込みます。ここでは、プレイヤーが星を取ったときに短い効果音を鳴らします。第15章の星集めゲームよりも少し小さいサンプルにし、音が鳴る場所を見つけやすくします。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=25]{ts}{listings/chapter17/sound-effect-game.ts}
+\inputminted[firstline=1,lastline=25]{ts}{typescript-p5/listings/chapter17/sound-effect-game.ts}
 \caption{効果音つきゲームで使う\texttt{Player}の状態（\texttt{chapter17/sound-effect-game.ts}）}
 \label{lst:chapter17-sound-game-player-state}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=27,lastline=62]{ts}{listings/chapter17/sound-effect-game.ts}
+\inputminted[firstline=27,lastline=62]{ts}{typescript-p5/listings/chapter17/sound-effect-game.ts}
 \caption{\texttt{Player}の更新と描画（\texttt{chapter17/sound-effect-game.ts}）}
 \label{lst:chapter17-sound-game-player-methods}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=64,lastline=92]{ts}{listings/chapter17/sound-effect-game.ts}
+\inputminted[firstline=64,lastline=92]{ts}{typescript-p5/listings/chapter17/sound-effect-game.ts}
 \caption{効果音つきゲームで使う\texttt{Star}の状態（\texttt{chapter17/sound-effect-game.ts}）}
 \label{lst:chapter17-sound-game-star-state}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=94,lastline=110]{ts}{listings/chapter17/sound-effect-game.ts}
+\inputminted[firstline=94,lastline=110]{ts}{typescript-p5/listings/chapter17/sound-effect-game.ts}
 \caption{\texttt{Star}の当たり判定と描画（\texttt{chapter17/sound-effect-game.ts}）}
 \label{lst:chapter17-sound-game-star-methods}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=112,lastline=134]{ts}{listings/chapter17/sound-effect-game.ts}
+\inputminted[firstline=112,lastline=134]{ts}{typescript-p5/listings/chapter17/sound-effect-game.ts}
 \caption{効果音を読み込むスケッチの準備（\texttt{chapter17/sound-effect-game.ts}）}
 \label{lst:chapter17-sound-game-sketch-setup}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=136,lastline=163]{ts}{listings/chapter17/sound-effect-game.ts}
+\inputminted[firstline=136,lastline=163]{ts}{typescript-p5/listings/chapter17/sound-effect-game.ts}
 \caption{星を取ったときに効果音を鳴らす（\texttt{chapter17/sound-effect-game.ts}）}
 \label{lst:chapter17-sound-game-sketch-sound}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=166,lastline=170]{ts}{listings/chapter17/sound-effect-game.ts}
+\inputminted[firstline=166,lastline=170]{ts}{typescript-p5/listings/chapter17/sound-effect-game.ts}
 \caption{得点を表示する関数（\texttt{chapter17/sound-effect-game.ts}）}
 \label{lst:chapter17-sound-game-score}
 \end{listing}
@@ -176,13 +178,13 @@ p5.jsでは、\texttt{p5Instance.userStartAudio()}を呼ぶことで、ブラウ
 p5.soundでは、音声ファイルを再生するだけでなく、プログラムで音を作ることもできます。ここでは、\texttt{p5.Oscillator}を使って正弦波を鳴らします。正弦波は、音の基本を学ぶときによく使われるなめらかな波形です。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=23]{ts}{listings/chapter17/oscillator.ts}
+\inputminted[firstline=1,lastline=23]{ts}{typescript-p5/listings/chapter17/oscillator.ts}
 \caption{発振器を準備する（\texttt{chapter17/oscillator.ts}）}
 \label{lst:chapter17-oscillator-setup}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=25,lastline=68]{ts}{listings/chapter17/oscillator.ts}
+\inputminted[firstline=25,lastline=68]{ts}{typescript-p5/listings/chapter17/oscillator.ts}
 \caption{マウス位置で周波数を変える（\texttt{chapter17/oscillator.ts}）}
 \label{lst:chapter17-oscillator-control}
 \end{listing}

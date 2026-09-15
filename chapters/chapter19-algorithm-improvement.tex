@@ -57,7 +57,7 @@ Life Gameは、格子状に並んだセルが、一定のルールにしたが�
 Life Gameの盤面は、第13章で学んだ2次元配列で表せます。この章では、セルが生きているかどうかを\texttt{boolean}で表します。\texttt{true}なら生きているセル、\texttt{false}なら死んでいるセルです。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=38]{ts}{listings/chapter18/basic-life-game.ts}
+\inputminted[firstline=1,lastline=38]{ts}{typescript-p5/listings/chapter18/basic-life-game.ts}
 \caption{Life Gameの盤面を2次元配列で作る（\texttt{chapter18/basic-life-game.ts}）}
 \label{lst:chapter18-basic-board}
 \end{listing}
@@ -73,7 +73,7 @@ Life Gameの盤面は、第13章で学んだ2次元配列で表せます。こ�
 最初は、すべてのセルを順番に調べる方法で次の世代を作ります。この方法は素直で分かりやすく、Life Gameのルールを確認するには最適です。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter18/life-game-rules.ts}
+\inputminted{ts}{typescript-p5/listings/chapter18/life-game-rules.ts}
 \caption{周囲の生きているセルを数え、次の状態を決める（\texttt{chapter18/life-game-rules.ts}）}
 \label{lst:chapter18-life-rules}
 \end{listing}
@@ -83,19 +83,19 @@ Life Gameの盤面は、第13章で学んだ2次元配列で表せます。こ�
 \texttt{getNextCellState}は、Life Gameのルールをそのまま関数にしたものです。今のセルが生きている場合と死んでいる場合で、次の状態の決まり方が少し変わります。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=35]{ts}{listings/chapter18/life-game-full-scan.ts}
+\inputminted[firstline=1,lastline=35]{ts}{typescript-p5/listings/chapter18/life-game-full-scan.ts}
 \caption{全探索版のスケッチ（\texttt{chapter18/life-game-full-scan.ts}）}
 \label{lst:chapter18-full-scan-sketch}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=38,lastline=61]{ts}{listings/chapter18/life-game-full-scan.ts}
+\inputminted[firstline=38,lastline=61]{ts}{typescript-p5/listings/chapter18/life-game-full-scan.ts}
 \caption{すべてのセルを調べて次の世代を作る（\texttt{chapter18/life-game-full-scan.ts}）}
 \label{lst:chapter18-full-scan-update}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=63,lastline=111]{ts}{listings/chapter18/life-game-full-scan.ts}
+\inputminted[firstline=63,lastline=111]{ts}{typescript-p5/listings/chapter18/life-game-full-scan.ts}
 \caption{全探索版で使う近傍判定（\texttt{chapter18/life-game-full-scan.ts}）}
 \label{lst:chapter18-full-scan-rules}
 \end{listing}
@@ -168,13 +168,13 @@ Life Gameでは、あるセルの次の状態は、そのセル自身と周囲8�
 次に、変化した場所をリストとして保存します。ここでは\texttt{CellPosition}という小さなクラスを作り、セルの\texttt{x}座標と\texttt{y}座標をまとめて扱います。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=46]{ts}{listings/chapter18/life-game-changed-cells.ts}
+\inputminted[firstline=1,lastline=46]{ts}{typescript-p5/listings/chapter18/life-game-changed-cells.ts}
 \caption{変化したセルの位置を記録する（\texttt{chapter18/life-game-changed-cells.ts}）}
 \label{lst:chapter18-changed-cells-position}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=60,lastline=103]{ts}{listings/chapter18/life-game-changed-cells.ts}
+\inputminted[firstline=60,lastline=103]{ts}{typescript-p5/listings/chapter18/life-game-changed-cells.ts}
 \caption{変化したセルとその周囲を候補に入れる（\texttt{chapter18/life-game-changed-cells.ts}）}
 \label{lst:chapter18-changed-cells-candidates}
 \end{listing}
@@ -188,31 +188,31 @@ Life Gameでは、あるセルの次の状態は、そのセル自身と周囲8�
 変化した場所のリストを使うと、すべてのセルを調べなくても次の世代を作れます。ただし、注意点があります。新しい世代の盤面を作るとき、調べなかったセルは前の世代と同じ状態として残す必要があります。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=36]{ts}{listings/chapter18/life-game-optimized.ts}
+\inputminted[firstline=1,lastline=36]{ts}{typescript-p5/listings/chapter18/life-game-optimized.ts}
 \caption{差分更新版で使う位置と結果のクラス（\texttt{chapter18/life-game-optimized.ts}）}
 \label{lst:chapter18-optimized-classes}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=38,lastline=83]{ts}{listings/chapter18/life-game-optimized.ts}
+\inputminted[firstline=38,lastline=83]{ts}{typescript-p5/listings/chapter18/life-game-optimized.ts}
 \caption{差分更新版で使う候補リストの補助関数（\texttt{chapter18/life-game-optimized.ts}）}
 \label{lst:chapter18-optimized-candidates}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=85,lastline=119]{ts}{listings/chapter18/life-game-optimized.ts}
+\inputminted[firstline=85,lastline=119]{ts}{typescript-p5/listings/chapter18/life-game-optimized.ts}
 \caption{変化した周囲だけを調べて次の世代を作る（\texttt{chapter18/life-game-optimized.ts}）}
 \label{lst:chapter18-optimized-update}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=121,lastline=141]{ts}{listings/chapter18/life-game-optimized.ts}
+\inputminted[firstline=121,lastline=141]{ts}{typescript-p5/listings/chapter18/life-game-optimized.ts}
 \caption{変化したセルの周囲を候補に加える（\texttt{chapter18/life-game-optimized.ts}）}
 \label{lst:chapter18-optimized-around-cells}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=251,lastline=289]{ts}{listings/chapter18/life-game-optimized.ts}
+\inputminted[firstline=251,lastline=289]{ts}{typescript-p5/listings/chapter18/life-game-optimized.ts}
 \caption{差分更新版のLife Gameを動かす（\texttt{chapter18/life-game-optimized.ts}）}
 \label{lst:chapter18-optimized-sketch}
 \end{listing}
@@ -226,31 +226,31 @@ Life Gameでは、あるセルの次の状態は、そのセル自身と周囲8�
 アルゴリズムの違いは、見た目だけでは分かりにくいことがあります。そこで、1世代を作るために調べたセル数を画面に表示します。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=36]{ts}{listings/chapter18/life-game-comparison.ts}
+\inputminted[firstline=1,lastline=36]{ts}{typescript-p5/listings/chapter18/life-game-comparison.ts}
 \caption{比較用サンプルで使う位置と結果のクラス（\texttt{chapter18/life-game-comparison.ts}）}
 \label{lst:chapter18-comparison-classes}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=38,lastline=59]{ts}{listings/chapter18/life-game-comparison.ts}
+\inputminted[firstline=38,lastline=59]{ts}{typescript-p5/listings/chapter18/life-game-comparison.ts}
 \caption{比較用サンプルの全探索版（\texttt{chapter18/life-game-comparison.ts}）}
 \label{lst:chapter18-comparison-full-scan}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=61,lastline=95]{ts}{listings/chapter18/life-game-comparison.ts}
+\inputminted[firstline=61,lastline=95]{ts}{typescript-p5/listings/chapter18/life-game-comparison.ts}
 \caption{比較用サンプルの差分更新版（\texttt{chapter18/life-game-comparison.ts}）}
 \label{lst:chapter18-comparison-changed-cells}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=261,lastline=293]{ts}{listings/chapter18/life-game-comparison.ts}
+\inputminted[firstline=261,lastline=293]{ts}{typescript-p5/listings/chapter18/life-game-comparison.ts}
 \caption{比較用サンプルの準備（\texttt{chapter18/life-game-comparison.ts}）}
 \label{lst:chapter18-comparison-setup}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=315,lastline=327]{ts}{listings/chapter18/life-game-comparison.ts}
+\inputminted[firstline=315,lastline=327]{ts}{typescript-p5/listings/chapter18/life-game-comparison.ts}
 \caption{比較結果を画面に表示して世代を進める（\texttt{chapter18/life-game-comparison.ts}）}
 \label{lst:chapter18-comparison-sketch}
 \end{listing}

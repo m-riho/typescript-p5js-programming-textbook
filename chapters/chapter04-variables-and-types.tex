@@ -26,7 +26,7 @@
 図形を描くプログラムでは、同じ意味を持つ数値が何度も出てくることがあります。たとえば、3つの円を同じ高さに並べる場合、円の中心の $y$ 座標や直径は同じ値になります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter04/constants-for-circles.ts}
+\inputminted{ts}{typescript-p5/listings/chapter04/constants-for-circles.ts}
 \caption{変わらない値に名前を付けて使う（\texttt{chapter04/constants-for-circles.ts}）}
 \label{lst:chapter04-constants-for-circles}
 \end{listing}
@@ -82,7 +82,7 @@ TypeScriptは、\texttt{const circleDiameter = 80;}のように書いても、�
 \texttt{let}で作った変数には、同じ型の別の値を代入できます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter04/let-reassignment.ts}
+\inputminted{ts}{typescript-p5/listings/chapter04/let-reassignment.ts}
 \caption{letで値を変えながら円を描く（\texttt{chapter04/let-reassignment.ts}）}
 \label{lst:chapter04-let-reassignment}
 \end{listing}
@@ -241,7 +241,7 @@ circleX = 240;
 変数には、数値を直接入れるだけでなく、計算式の結果を使うこともできます。同じ間隔で図形を並べたいときには、計算式を使うと位置関係が分かりやすくなります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter04/calculated-position.ts}
+\inputminted{ts}{typescript-p5/listings/chapter04/calculated-position.ts}
 \caption{変数と計算式で円を並べる（\texttt{chapter04/calculated-position.ts}）}
 \label{lst:chapter04-calculated-position}
 \end{listing}
@@ -267,7 +267,7 @@ circleX = 240;
 TypeScriptでは、整数も小数も同じ\texttt{number}型で扱います。たとえば、\texttt{2}と\texttt{0.5}はどちらも\texttt{number}型の値です。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter04/number-variables.ts}
+\inputminted{ts}{typescript-p5/listings/chapter04/number-variables.ts}
 \caption{小数を含むnumber型の値を使う（\texttt{chapter04/number-variables.ts}）}
 \label{lst:chapter04-number-variables}
 \end{listing}
@@ -280,7 +280,7 @@ p5.jsには、キャンバスの幅や高さを表す値が用意されていま
 instance modeでは、キャンバスの幅を\texttt{p.width}、高さを\texttt{p.height}として読み取ります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter04/width-height-center.ts}
+\inputminted{ts}{typescript-p5/listings/chapter04/width-height-center.ts}
 \caption{widthとheightを使って中央に円を描く（\texttt{chapter04/width-height-center.ts}）}
 \label{lst:chapter04-width-height-center}
 \end{listing}
@@ -297,7 +297,7 @@ instance modeでは、キャンバスの幅を\texttt{p.width}、高さを\textt
 ブラウザで動くTypeScriptでは、\texttt{console.log}を使うと開発者ツールのコンソールに値を表示できます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter04/console-value.ts}
+\inputminted{ts}{typescript-p5/listings/chapter04/console-value.ts}
 \caption{console.logで変数の値を確認する（\texttt{chapter04/console-value.ts}）}
 \label{lst:chapter04-console-value}
 \end{listing}
@@ -320,7 +320,7 @@ instance modeでは、キャンバスの幅を\texttt{p.width}、高さを\textt
 ここでは詳しい角度の計算には踏み込まず、口が開いた円のような形を描くための命令として使ってみます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter04/arc-pacman.ts}
+\inputminted{ts}{typescript-p5/listings/chapter04/arc-pacman.ts}
 \caption{arcで口が開いた円を描く（\texttt{chapter04/arc-pacman.ts}）}
 \label{lst:chapter04-arc-pacman}
 \end{listing}

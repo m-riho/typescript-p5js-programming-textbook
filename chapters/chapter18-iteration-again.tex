@@ -27,7 +27,7 @@
 配列の中身をすべて使いたいとき、これまでは\texttt{for}文と添字を組み合わせていました。\texttt{for...of}を使うと、添字を自分で管理しなくても、配列の値を先頭から順番に取り出せます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter18-iteration/for-of-colors.ts}
+\inputminted{ts}{typescript-p5/listings/chapter18-iteration/for-of-colors.ts}
 \caption{\texttt{for...of}で色のリストを順番に使う（\texttt{chapter18-iteration/for-of-colors.ts}）}
 \label{lst:chapter18-iteration-for-of-colors}
 \end{listing}
@@ -78,7 +78,7 @@
 \end{figure}
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter18-iteration/push-pop-stack.ts}
+\inputminted{ts}{typescript-p5/listings/chapter18-iteration/push-pop-stack.ts}
 \caption{\texttt{push}と\texttt{pop}で操作履歴を扱う（\texttt{chapter18-iteration/push-pop-stack.ts}）}
 \label{lst:chapter18-iteration-push-pop-stack}
 \end{listing}
@@ -110,7 +110,7 @@
 \end{figure}
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter18-iteration/shift-unshift-queue.ts}
+\inputminted{ts}{typescript-p5/listings/chapter18-iteration/shift-unshift-queue.ts}
 \caption{\texttt{shift}と\texttt{push}でメッセージを古い順に処理する（\texttt{chapter18-iteration/shift-unshift-queue.ts}）}
 \label{lst:chapter18-iteration-shift-unshift-queue}
 \end{listing}
@@ -126,13 +126,13 @@
 最後に、p5.jsの作品らしいサンプルとして、クリックした場所に小さな光を追加し、古い光から消していくプログラムを作ります。クリックするたびに配列へ追加し、数が多くなったら先頭から削除します。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=35]{ts}{listings/chapter18-iteration/click-sparkles.ts}
+\inputminted[firstline=1,lastline=35]{ts}{typescript-p5/listings/chapter18-iteration/click-sparkles.ts}
 \caption{クリックで追加される光のクラス（\texttt{chapter18-iteration/click-sparkles.ts}）}
 \label{lst:chapter18-iteration-sparkle-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=37,lastline=73]{ts}{listings/chapter18-iteration/click-sparkles.ts}
+\inputminted[firstline=37,lastline=73]{ts}{typescript-p5/listings/chapter18-iteration/click-sparkles.ts}
 \caption{\texttt{push}と\texttt{shift}で光のリストを管理する（\texttt{chapter18-iteration/click-sparkles.ts}）}
 \label{lst:chapter18-iteration-sparkle-sketch}
 \end{listing}
@@ -146,7 +146,7 @@
 \texttt{for...in}は、配列やオブジェクトの「キー」を順番に取り出します。ここまでに扱った\texttt{for...of}は値を順番に取り出す構文でした。それに対して、\texttt{for...in}は値そのものではなく、値を取り出すための番号や名前を取り出します。少し考え方が違うため、この章では最後に紹介します。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter18-iteration/for-in-array.ts}
+\inputminted{ts}{typescript-p5/listings/chapter18-iteration/for-in-array.ts}
 \caption{\texttt{for...in}で配列の番号を取り出す（\texttt{chapter18-iteration/for-in-array.ts}）}
 \label{lst:chapter18-iteration-for-in-array}
 \end{listing}
@@ -154,7 +154,7 @@
 \texttt{for...in}で取り出した\texttt{indexText}は文字列です。数値として使いたいときは、\texttt{Number(indexText)}で数値に変換します。この変換が必要になるため、配列の中身を読むだけなら\texttt{for...of}の方が書きやすいことが多いです。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter18-iteration/for-in-object.ts}
+\inputminted{ts}{typescript-p5/listings/chapter18-iteration/for-in-object.ts}
 \caption{\texttt{for...in}で得点表の名前を取り出す（\texttt{chapter18-iteration/for-in-object.ts}）}
 \label{lst:chapter18-iteration-for-in-object}
 \end{listing}

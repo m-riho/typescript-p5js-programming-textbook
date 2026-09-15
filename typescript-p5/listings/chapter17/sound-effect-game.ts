@@ -1,7 +1,7 @@
 // p5.jsの機能を取り込む
 import p5 from "p5";
 // p5.soundの機能を取り込む
-import "./p5-sound";
+import "../../src/p5-sound";
 
 class Player {
     // プレイヤーの中心のx座標

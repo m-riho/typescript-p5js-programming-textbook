@@ -26,7 +26,7 @@
             & TypeScript、p5.js、Node.js、Gitの役割
             & 最初に読み、必要なときに見返す \\
         準備編
-            & インストール、教材の取得、\texttt{npm install}
+            & インストール、CLI操作の練習、教材の取得、\texttt{npm install}
             & PC・教材ごとに原則1回 \\
         プログラムを動かす編
             & 開発サーバ、編集、実行、Gitのコミット
@@ -196,6 +196,163 @@ git config --global user.email "taro@example.com"
 \label{lst:chapter01-git-identity}
 \end{listing}
 
+\subsection{ファイルとフォルダをCLIで操作してみよう}
+\label{sec:chapter01-cli-files}
+
+教材を取得する前に、ターミナルでファイルやフォルダを操作する練習をします。
+文字で命令を入力してコンピュータを操作する方法を、\textbf{CLI（Command Line Interface）}と呼びます。
+入力する命令が\textbf{コマンド}で、その入力や結果の表示に使う画面がターミナルです。
+この節では、VS Codeの統合ターミナルでPowerShellを使います。
+
+\worktiming{最初に練習し、操作を忘れたときに見返す}
+
+最も大切なのは、\textbf{現在どのフォルダにいるのかを意識すること}です。
+コマンドは、特に場所を指定しなければ、現在のフォルダを基準にファイルを探したり作ったりします。
+現在のフォルダは「カレントディレクトリ」とも呼びます。「ディレクトリ」と「フォルダ」は、ここではほぼ同じ意味です。
+
+マウスでアイコンやメニューを選ぶ操作方法はGUIと呼びます。
+VS CodeやWindowsのエクスプローラーでも、ファイルのコピーや名前変更はできます。
+GUIを使ってはいけないわけではありません。Git、Node.js、npmを使うときにはターミナルを利用する機会が多いため、基本的なCLI操作にも慣れておきましょう。
+
+\subsubsection*{練習する場所とターミナルを用意する}
+
+まず、Windowsのエクスプローラーでドキュメントフォルダを開き、授業用の\texttt{work-textbook}フォルダを作ります。
+すでに同名の授業用フォルダがある場合は、そのフォルダを使います。
+VS Codeの「ファイル」→「フォルダーを開く」で、この\texttt{work-textbook}を開いてください。
+信頼を確認する画面が出た場合は、自分で用意した授業用フォルダであることを確認してから信頼します。
+
+続いて「ターミナル」→「新しいターミナル」を選びます。
+PowerShell以外が開いた場合は、ターミナル上部の「+」の横のメニューから「PowerShell」を選び、新しく開きます。
+この節のコマンドは、そのPowerShellに一行ずつ入力し、\texttt{Enter}で実行してください。
+画面の\texttt{PS C:\ldots>}のような入力待ちの表示や、掲載例の行番号は入力しません。
+
+\begin{listing}[H]
+\begin{minted}{powershell}
+pwd
+ls
+\end{minted}
+\caption{現在のフォルダと、その中のファイルを確認する}
+\label{lst:chapter01-cli-location}
+\end{listing}
+
+\texttt{pwd}には現在のフォルダの場所が表示されます。末尾が\texttt{work-textbook}であることを確認します。
+\texttt{ls}には、その中にあるファイルやフォルダの一覧が表示されます。
+作ったばかりの空のフォルダなら、\texttt{ls}を実行しても一覧は表示されません。
+違う場所が表示された場合は、\texttt{work-textbook}をVS Codeで開き直し、新しいターミナルで確認してください。
+
+\begin{pointbox}{分からなくなったら現在地を確認する}
+操作の途中で迷ったら、まず\texttt{pwd}で現在地を確認し、\texttt{ls}で周囲のファイルやフォルダを確認します。
+VS Codeで開いているフォルダと、ターミナルで現在いるフォルダは、移動の操作によって異なる場合があります。
+コマンドはすべて暗記する必要はありません。表を見ながら、この確認を習慣にしましょう。
+\end{pointbox}
+
+\begin{table}[htbp]
+    \centering
+    \caption{この節で使うPowerShellの基本操作}
+    \label{tab:chapter01-cli-commands}
+    \begin{tabular}{p{0.30\linewidth}p{0.60\linewidth}}
+        \toprule
+        コマンドの例 & 意味 \\
+        \midrule
+        \texttt{pwd} & 現在いるフォルダを確認する \\
+        \texttt{ls} & 現在のフォルダの内容を表示する \\
+        \texttt{cd practice} & 現在のフォルダ内にある\texttt{practice}へ移動する \\
+        \texttt{cd ..} & 1つ上のフォルダへ移動する \\
+        \texttt{mkdir practice} & \texttt{practice}フォルダを新しく作る \\
+        \texttt{cp memo.txt test.txt} & 元を残して\texttt{test.txt}へコピーする \\
+        \texttt{mv test.txt my-test.txt} & \texttt{test.txt}の名前を\texttt{my-test.txt}へ変更する \\
+        \texttt{rm my-test.txt} & \texttt{my-test.txt}を削除する \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+表の\texttt{practice}や\texttt{memo.txt}は、操作するフォルダ名やファイル名です。
+名前はコマンドの後に半角の空白を入れて指定します。名前や場所に空白が含まれる場合は、\texttt{cd "My Folder"}のように引用符で囲みます。
+以下では入力しやすい英数字の名前で練習します。
+
+\subsubsection*{フォルダを作り、その中へ移動する}
+
+\texttt{work-textbook}の中に、練習専用の\texttt{practice}を作って移動します。
+すでに練習用の\texttt{practice}がある場合は、\texttt{mkdir practice}は繰り返さず、\texttt{cd practice}から始めてください。
+
+\begin{listing}[H]
+\begin{minted}{powershell}
+mkdir practice
+cd practice
+pwd
+ls
+\end{minted}
+\caption{練習用フォルダを作り、その中へ移動する}
+\label{lst:chapter01-cli-practice}
+\end{listing}
+
+\texttt{mkdir}はフォルダを作るだけで、その中へ移動するわけではありません。
+\texttt{cd practice}で移動してから\texttt{pwd}を実行すると、場所の末尾が\texttt{work-textbook\textbackslash practice}になります。
+\texttt{ls}で練習用フォルダの内容を確認しましょう。
+
+\subsubsection*{ファイルをコピーし、名前を変更する}
+
+教材はまだ取得していないので、ここでは自分で短い練習用ファイルを用意します。
+VS Codeのエクスプローラーで\texttt{practice}を選び、その中に\texttt{memo.txt}を作ります。
+「CLIの練習」のような一行を書き、\texttt{Ctrl + S}で保存してください。
+ターミナルに戻り、\texttt{pwd}と\texttt{ls}で\texttt{practice}の中に\texttt{memo.txt}があることを確認します。
+
+\begin{listing}[H]
+\begin{minted}{powershell}
+cp memo.txt test.txt
+ls
+mv test.txt my-test.txt
+ls
+\end{minted}
+\caption{練習用ファイルをコピーし、コピーの名前を変更する}
+\label{lst:chapter01-cli-copy-rename}
+\end{listing}
+
+\texttt{cp}では、先にコピー元、次にコピー先を指定します。
+最初の\texttt{ls}で、元の\texttt{memo.txt}とコピーの\texttt{test.txt}の両方があることを確認してください。
+次の\texttt{mv}では、現在の名前と変更後の名前を指定しています。
+最後の\texttt{ls}では\texttt{test.txt}がなくなり、\texttt{memo.txt}と\texttt{my-test.txt}が表示されます。
+繰り返し練習する場合は、同名のコピー先が残っていないかを先に確認し、残っている場合は別の名前を使ってください。
+
+\texttt{mv}には、名前変更のほか、ファイルを別のフォルダへ移動する使い方もあります。
+移動先に既存のフォルダを指定すると、その中へファイルが移ります。
+\texttt{cp}と違い、移動後は元の場所に同じファイルは残りません。
+
+\subsubsection*{コピーだけを削除し、元のフォルダへ戻る}
+
+最後に、練習で作ったコピーの\texttt{my-test.txt}だけを削除します。
+元の\texttt{memo.txt}や、ほかのファイルは削除しません。
+
+\begin{notebox}{\texttt{rm}はファイルを削除するコマンド}
+\texttt{rm}で削除したファイルは、Windowsのエクスプローラーでの操作と違って、ごみ箱には入らず削除されます。
+ごみ箱から戻せるとは考えないでください。
+削除前には必ず\texttt{pwd}で現在地を、\texttt{ls}で対象のファイルを確認します。
+次の例では\texttt{practice}の中にいて、削除する名前が練習用の\texttt{my-test.txt}であることを確かめてから実行してください。
+\end{notebox}
+
+\begin{listing}[H]
+\begin{minted}{powershell}
+pwd
+ls
+rm my-test.txt
+ls
+cd ..
+pwd
+ls
+\end{minted}
+\caption{練習用のコピーを削除し、1つ上のフォルダへ戻る}
+\label{lst:chapter01-cli-delete-return}
+\end{listing}
+
+削除後の\texttt{ls}で、\texttt{memo.txt}は残り、\texttt{my-test.txt}だけがなくなったことを確認します。
+\texttt{cd ..}の\texttt{..}は「1つ上のフォルダ」を表します。
+戻った後の\texttt{pwd}では\texttt{work-textbook}、\texttt{ls}では\texttt{practice}が確認できます。
+\texttt{practice}と\texttt{memo.txt}は、次回の練習用に残しておきましょう。
+
+この後は、\texttt{work-textbook}で教材を取得し、取得した教材の中へ移動します。
+\texttt{npm install}や\texttt{npm run dev}では、さらに\texttt{package.json}がある\texttt{typescript-p5}へ移動して実行します。
+コマンドの前に現在地を確認することが、これらの作業でも役に立ちます。
+
 \subsection{教材をGitHubから取得する}
 
 教材のファイルはGitHubから取得します。GitHubは、プログラムや教材ファイルを保存・共有するためのサービスです。
@@ -203,23 +360,25 @@ git config --global user.email "taro@example.com"
 
 \worktiming{教材をこのPCへ取得するときに原則1回}
 
-まず、教材を保存したいフォルダを決めます。たとえば、ドキュメントフォルダの中に授業用のフォルダを作っておくと管理しやすくなります。PowerShellでは、次のように現在のフォルダを移動してから\texttt{git clone}を実行します。
+前節で用意した\texttt{work-textbook}に教材を取得します。
+\texttt{pwd}で現在地が\texttt{work-textbook}であることを、\texttt{ls}でその内容を確認してから\texttt{git clone}を実行してください。
+別の場所にいる場合は、VS Codeで\texttt{work-textbook}を開き、新しいPowerShellターミナルで確認します。
 
 \begin{listing}[htbp]
 \begin{minted}{powershell}
-Set-Location ([Environment]::GetFolderPath("MyDocuments"))
-Get-Location
-mkdir work-textbook
-cd work-textbook
+pwd
+ls
 git clone https://github.com/m-riho/typescript-p5js-programming-textbook.git
+ls
 \end{minted}
-\caption{教材を保存するフォルダを作成してリポジトリを取得するコマンド}
+\caption{現在地を確認し、教材のリポジトリを取得するコマンド}
 \label{lst:chapter01-git-clone}
 \end{listing}
 
-\texttt{Set-Location}は、Windowsに登録されているドキュメントフォルダへ移動します。ドキュメントフォルダの名前や保存場所がPCごとに異なっても、\texttt{GetFolderPath("MyDocuments")}が実際の場所を調べます。続く\texttt{Get-Location}には現在いる場所が表示されるので、エクスプローラーのドキュメントフォルダと同じ場所か確認してください。
-
-上のURLは、この教材の学生向け公開リポジトリの正式なURLです。\texttt{git clone}は通常、最初に教材を取得するときに一度だけ実行します。実行が終わると、\texttt{work-textbook}の中に\texttt{typescript-p5js-programming-textbook}フォルダが作られます。
+上のURLは、この教材の学生向け公開リポジトリの正式なURLです。\texttt{git clone}は通常、最初に教材を取得するときに一度だけ実行します。
+実行が終わると、最後の\texttt{ls}に、練習用の\texttt{practice}と取得した\texttt{typescript-p5js-programming-textbook}が表示されます。
+\texttt{git clone}は教材フォルダを作りますが、その中へは移動しません。次の節で、取得した教材フォルダをVS Codeで開きます。
+すでに教材フォルダがある場合は、\texttt{git clone}を繰り返さず、次の節へ進んでください。
 
 \begin{notebox}{フォルダ名に注意する}
 Windowsでは、フォルダ名に日本語や空白が含まれていても多くの場合は動作します。ただし、コマンド入力に慣れるまでは、\texttt{work-textbook}のような英数字だけのフォルダ名にしておくとトラブルを減らせます。
@@ -231,13 +390,13 @@ Windowsでは、フォルダ名に日本語や空白が含まれていても多�
 
 \worktiming{作業を始めるたび（初回準備でも実行）}
 
-フォルダを開いたら、VS Codeの画面左側にあるエクスプローラーで\texttt{chapters/}、\texttt{listings/}、\texttt{typescript-p5/}、\texttt{workspace/}が表示されることを確認します。プログラムを書くときは、このフォルダを開いた状態で作業します。
+フォルダを開いたら、VS Codeの画面左側にあるエクスプローラーで\texttt{chapters/}と\texttt{typescript-p5/}が表示されることを確認します。\texttt{typescript-p5/}を展開すると、\texttt{listings/}、\texttt{workspace/}、\texttt{src/}などが見つかります。プログラムを書くときは、この教材フォルダを開いた状態で作業します。
 
 初めて開くフォルダでは、ワークスペースを信頼するか尋ねる画面が表示されることがあります。授業で配布されたリポジトリを開いていることを確認してから、信頼する選択肢を選びます。統合ターミナルは、VS Codeのメニューから「ターミナル」→「新しいターミナル」を選ぶと開けます。
 
 \begin{pointbox}{自分のプログラムを保存する場所}
-授業中の練習や自由制作で作るTypeScriptファイルは、\texttt{workspace/}以下に保存します。
-このフォルダは教材リポジトリの直下にあり、\texttt{typescript-p5/}と同じ階層にあります。
+授業中の練習や自由制作で作るTypeScriptファイルは、\texttt{typescript-p5/}の中の\texttt{workspace/}以下に保存します。
+この章で\texttt{workspace/}と書く場合は、この作業用フォルダを指します。\texttt{listings/}には、変更せずに残しておく教材のサンプルがあります。
 演習問題・課題のプログラムは、\texttt{workspace/exercises/}に保存してください。
 ファイル名は\texttt{章番号-問題番号.ts}とし、番号をそれぞれ2桁にそろえます。
 たとえば、第2章の問題1は\texttt{02-01.ts}、第3章の問題5は\texttt{03-05.ts}、第10章の問題3は\texttt{10-03.ts}です。
@@ -245,8 +404,8 @@ Windowsでは、フォルダ名に日本語や空白が含まれていても多�
 \end{pointbox}
 
 教材本体の\texttt{typescript-p5/src/}や設定ファイルは、教材や担当教員の指示がある場合にだけ変更します。
-この章の後半では、実行の練習として\texttt{typescript-p5/src/main.ts}の編集を指示します。
-現在の教材では、\texttt{workspace/}へ保存しただけでは実行されません。実行する内容は\texttt{main.ts}へコピーし、残したいプログラムは\texttt{workspace/}以下に保存する、と区別しましょう。
+この章の後半では、\texttt{typescript-p5/index.html}の実行先を変更する操作を説明します。
+\texttt{workspace/}へ保存しただけでは、実行するファイルとして選択されません。\texttt{index.html}でそのファイルを指定すると、保存したプログラムを直接実行できます。\texttt{src/main.ts}へ内容をコピーする必要はありません。
 
 \subsection{必要なライブラリをインストールする}
 
@@ -259,15 +418,17 @@ VS Codeで教材リポジトリのルートフォルダを開いた状態で、�
 \begin{listing}[htbp]
 \begin{minted}{powershell}
 cd typescript-p5
-Get-Location
-Get-ChildItem package.json
+pwd
+ls package.json
 npm install
 \end{minted}
 \caption{実行用プロジェクトで必要なライブラリをインストールするコマンド}
 \label{lst:chapter01-npm-install}
 \end{listing}
 
-\texttt{package.json}は\texttt{typescript-p5/}の中にあります。\texttt{Get-Location}で現在の場所を確かめ、\texttt{Get-ChildItem package.json}でファイルが表示されることを確認してから、必ず\texttt{typescript-p5/}で\texttt{npm install}を実行します。\texttt{npm install}は、教材プロジェクトに必要なライブラリをまとめてインストールするコマンドです。完了まで少し時間がかかることがあります。
+\texttt{package.json}は\texttt{typescript-p5/}の中にあります。\texttt{pwd}で現在の場所を確かめ、\texttt{ls package.json}でファイルが表示されることを確認してから、必ず\texttt{typescript-p5/}で\texttt{npm install}を実行します。
+\texttt{ls}の後にファイル名を指定すると、そのファイルに絞って確認できます。
+\texttt{npm install}は、教材プロジェクトに必要なライブラリをまとめてインストールするコマンドです。完了まで少し時間がかかることがあります。
 
 実行すると\texttt{node\_modules/}フォルダが自動的に作られます。また、\texttt{package-lock.json}には、インストールしたライブラリのバージョンが記録されます。表示に警告行が含まれていても、その内容を確認してください。一方、出力の終わり近くに\texttt{npm error}を含む行がないか確認し、その前後に表示されたメッセージを読んで、インストールが成功していない場合の原因を確認します。
 
@@ -290,11 +451,11 @@ VS Codeで教材を開き、開発サーバを起動し、プログラムを編�
 \begin{pointbox}{毎回の作業早見表}
 \begin{enumerate}
     \item VS Codeで教材フォルダを開く
-    \item ターミナルで\texttt{typescript-p5/}へ移動する
+    \item ターミナルで\texttt{typescript-p5/}へ移動し、\texttt{pwd}と\texttt{ls package.json}で確認する
     \item \texttt{npm run dev}で開発サーバを起動する
     \item ブラウザで表示を確認する
-    \item \texttt{src/main.ts}を編集して保存する
-    \item 自分のプログラムを\texttt{workspace/}以下にも保存する
+    \item \texttt{index.html}で実行するファイルを選ぶ
+    \item 自分のプログラムを\texttt{workspace/}以下に作り、直接編集して保存する
     \item 意味のある作業の節目でGitへコミットする
     \item 作業を終えるときに\texttt{Ctrl + C}で開発サーバを止める
 \end{enumerate}
@@ -306,7 +467,8 @@ VS Codeで教材を開き、開発サーバを起動し、プログラムを編�
 
 \worktiming{作業を始めるたび}
 
-\texttt{typescript-p5/}を開いているVS Codeのターミナルで、次のコマンドを実行します。
+VS Codeのターミナルで、\texttt{pwd}と\texttt{ls package.json}を使って現在地を確認します。
+\texttt{typescript-p5/}にいて、\texttt{package.json}が表示されたら、次のコマンドを実行します。
 
 \begin{listing}[htbp]
 \begin{minted}{powershell}
@@ -326,17 +488,18 @@ npm run dev
 \begin{minted}{html}
 <body>
   <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
+    <script type="module"
+            src="/listings/chapter01/first-sketch.ts"></script>
 </body>
 \end{minted}
-\caption{\texttt{index.html}から\texttt{src/main.ts}を読み込む部分}
+\caption{\texttt{index.html}から最初のサンプルを読み込む部分}
 \label{lst:chapter01-index-html-main-ts}
 \end{listing}
 
 このHTMLでは、\texttt{div}要素でページ内に場所を用意し、\texttt{script}要素でTypeScriptの入口になるファイルを読み込んでいます。
-読み込む先として指定されているのが\texttt{/src/main.ts}です。
-つまり、ブラウザでページを開くと、まず\texttt{typescript-p5/index.html}が読み込まれ、その中から\texttt{typescript-p5/src/main.ts}が読み込まれます。ファイルのつながりは、\texttt{typescript-p5/index.html} $\rightarrow$ \texttt{typescript-p5/src/main.ts}です。
-\texttt{typescript-p5/src/main.ts}の中でp5.jsを読み込み、スケッチを作成することで、画面に図形が表示されます。
+読み込む先として指定されているのが、\texttt{/listings/chapter01/first-sketch.ts}です。
+先頭の\texttt{/}は、Viteが公開するフォルダ\texttt{typescript-p5/}を表します。実際のファイルは、この中の\texttt{listings/chapter01/first-sketch.ts}です。\texttt{src}属性に\texttt{/typescript-p5/}と書き足す必要はありません。
+ブラウザでページを開くと、まず\texttt{index.html}が読み込まれ、そこに指定したTypeScriptファイルが読み込まれます。そのファイルの中でp5.jsを取り込み、スケッチを開始すると、画面に図形が表示されます。
 
 \begin{pointbox}{localhostとは}
 \texttt{localhost}は、自分のPC自身を表す名前です。インターネット上に公開しているわけではなく、自分のPCの中で動いている開発用のページを見ています。
@@ -350,12 +513,12 @@ npm run dev
 
 \subsection{プログラムを実行してみよう}
 
-ブラウザで開いたページに図形が表示されれば、TypeScript + p5.jsのプログラムが動いています。実際に編集して実行される入口のファイルは、\texttt{typescript-p5/src/main.ts}です。ここでは、最初のスケッチの形だけを見ておきます。
+ブラウザで開いたページに図形が表示されれば、TypeScript + p5.jsのプログラムが動いています。配布時に選択されているファイルは、\texttt{typescript-p5/}の中の\texttt{listings/chapter01/first-sketch.ts}です。ここでは、最初のスケッチの形だけを見ておきます。
 
 \worktiming{開発サーバを起動したあとに確認}
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter01/first-sketch.ts}
+\inputminted{ts}{typescript-p5/listings/chapter01/first-sketch.ts}
 \caption{最初のp5.jsスケッチ（\texttt{chapter01/first-sketch.ts}）}
 \label{lst:chapter01-first-sketch}
 \end{listing}
@@ -409,17 +572,38 @@ p5.jsの機能は、スケッチを表す変数を通して呼び出します。
 慣習的に\texttt{p}という名前を使うのが慣習のようですので、この資料では\texttt{p}を使うことにします。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter01/first-sketch-myP5.ts}
+\inputminted{ts}{typescript-p5/listings/chapter01/first-sketch-myP5.ts}
 \caption{最初のp5.jsスケッチの\texttt{p}を\texttt{myP5}に変更した例（\texttt{chapter01/first-sketch-myP5.ts}）}
 \label{lst:chapter01-first-sketch-myP5}
 \end{listing}
 
+Listing~\ref{lst:chapter01-first-sketch-myP5}を試すには、\texttt{typescript-p5/index.html}を開き、既存の\texttt{script}要素の\texttt{src}属性を次のように変更して保存します。\texttt{script}要素を追加するのではなく、実行先の1か所を書き換えます。
+
+\begin{listing}[htbp]
+\begin{minted}{html}
+<script type="module"
+        src="/listings/chapter01/first-sketch-myP5.ts"></script>
+\end{minted}
+\caption{\texttt{myP5}を使ったサンプルに実行先を切り替える}
+\label{lst:chapter01-select-myP5}
+\end{listing}
+
 \subsection{プログラムを書き換えてみよう}
 
-プログラムが動いたら、少しだけ書き換えてみます。最初は、円の大きさ、円の位置、背景の色を変えるだけで十分です。この教材プロジェクトで最初に編集するファイルは、\texttt{typescript-p5/src/main.ts}です。
+プログラムが動いたら、自分の作業用ファイルを作って少しだけ書き換えてみます。最初は、円の大きさ、円の位置、背景の色を変えるだけで十分です。元のサンプルは残し、自分のファイルを編集します。
 
 \worktiming{作業中}
-VS Codeのエクスプローラーで\texttt{typescript-p5}、\texttt{src}の順に開き、\texttt{main.ts}を選びます。そこで少しだけ数値を変えてみましょう。
+VS Codeのエクスプローラーで\texttt{typescript-p5/}の中の\texttt{workspace/}を選び、\texttt{first-sketch.ts}という新しいファイルを作ります。\texttt{listings/chapter01/first-sketch.ts}の内容全体を新しいファイルへコピーして保存してください。ここでは\texttt{myP5}の例ではなく、\texttt{p}を使う最初のサンプルをもとにします。
+
+続いて\texttt{index.html}の実行先を、Listing~\ref{lst:chapter01-select-workspace}のように変更して保存します。それ以降は\texttt{workspace/first-sketch.ts}だけを編集します。変更したら\texttt{Ctrl + S}で保存し、ブラウザで結果を確認しましょう。
+
+\begin{listing}[htbp]
+\begin{minted}{html}
+<script type="module" src="/workspace/first-sketch.ts"></script>
+\end{minted}
+\caption{自分の作業用ファイルを直接実行する}
+\label{lst:chapter01-select-workspace}
+\end{listing}
 
 たとえば、\texttt{p.circle(200, 150, 80)}の最後の数値を\texttt{120}に変えると、円が大きくなります。また、\texttt{p.background(240)}の数値を変えると、背景の明るさが変わります。
 
@@ -432,30 +616,28 @@ p.circle(200, 150, 120);
 \label{lst:chapter01-edit-circle}
 \end{listing}
 
-ここで変更したプログラムを残しておきましょう。VS Codeで\texttt{workspace/}を選び、\texttt{first-sketch.ts}という新しいファイルを作ります。
-\texttt{main.ts}の内容全体をコピーして新しいファイルへ貼り付け、保存してください。
-課題のプログラムを保存する場合は、同じ方法で\texttt{workspace/exercises/}に指定の名前のファイルを作ります。
-たとえば、この章の演習問題7なら\texttt{01-07.ts}です。
+課題を作る場合も、\texttt{workspace/exercises/}に指定の名前のファイルを作ります。たとえば、この章の演習問題7なら\texttt{01-07.ts}とし、\texttt{index.html}の実行先を\texttt{/workspace/exercises/01-07.ts}にします。次回も同じファイルを指定すれば、保存したプログラムをそのまま実行できます。\texttt{src/main.ts}へコピーしたり、2つのファイルの内容をそろえたりする作業は不要です。
 
-保存したプログラムをもう一度試す場合は、その内容全体を\texttt{typescript-p5/src/main.ts}へコピーして保存します。
-その後\texttt{main.ts}を修正したときは、\texttt{workspace/}以下の保存先にも修正を反映してください。2つのファイルは自動では同期されません。
-別のプログラムを試す前に、残したい内容が保存先にそろっていることを確認します。
-
-別の章のサンプルを試すときは、VS Codeのエクスプローラーで\texttt{listings/}にある対象ファイルを開きます。開いた内容をすべて選んでコピーし、\texttt{typescript-p5/src/main.ts}を開いて内容をすべて選んで貼り付け、保存します。これにより\texttt{src/main.ts}の内容は上書きされます。
-
-PowerShellを使う場合は、\texttt{typescript-p5/}を開いているターミナルで次のコマンドを実行します。
+別の章のサンプルを試す場合は、キャプションにあるディレクトリ名とファイル名を確認し、\texttt{index.html}の実行先を変更します。第2章の点と線の例は、Listing~\ref{lst:chapter01-copy-sample}のように指定します。
 
 \begin{listing}[htbp]
-\begin{minted}{powershell}
-Copy-Item ..\listings\chapter02\points-and-lines.ts .\src\main.ts
+\begin{minted}{html}
+<script type="module"
+        src="/listings/chapter02/points-and-lines.ts"></script>
 \end{minted}
-\caption{第2章のサンプルで\texttt{main.ts}を上書きするコマンド}
+\caption{第2章のサンプルを直接実行する指定}
 \label{lst:chapter01-copy-sample}
 \end{listing}
 
-\texttt{listings/}にあるファイルそのものは実行されません。コピーした\texttt{src/main.ts}が実行されます。保存またはコピーの後は、通常はViteを再起動しなくてもブラウザの表示が更新されます。画像、JSON、音を使うサンプルでは、それぞれの章で説明する素材ファイルも必要です。
+指定したファイルそのものが実行されます。保存した後は、通常はViteを再起動しなくてもブラウザの表示が更新されます。画像、JSON、音を使うサンプルでは、それぞれの章で説明する素材ファイルも必要です。
+
+\begin{notebox}{単独実行用のサンプルと説明用のコード片}
+後半の章には、関数やクラスの一部分だけを示すファイルもあります。すべての\texttt{.ts}ファイルが単独で動くわけではありません。\texttt{typescript-p5/listings/README.md}に、単独では実行しないファイルと、コンソールにだけ結果を表示するファイルをまとめています。まずは、この章で指定したサンプルで操作を確かめてください。
+\end{notebox}
 
 書き換えたあとに期待どおりに動かないときは、まずVS Codeの赤い波線を確認します。次にターミナルの表示を確認し、最後にブラウザの表示を確認します。
+
+型の間違いを調べるときは、\texttt{typescript-p5/}にいる別のターミナルで\texttt{npm run check}を実行します。\texttt{workspace/}内のファイルも検査されます。別の未完成の課題にエラーがある場合も表示されるため、メッセージ中のファイル名を確認しましょう。\texttt{npm run dev}は表示を試すための処理で、型チェックとは別です。
 
 \subsection{Gitで保存してみよう}
 
@@ -473,12 +655,12 @@ git status
 \label{lst:chapter01-git-status}
 \end{listing}
 
-変更したファイルが表示されたら、次のように保存対象へ追加します。先ほど\texttt{workspace/}に保存した\texttt{first-sketch.ts}も、実行用の\texttt{main.ts}と一緒に記録します。
+変更したファイルが表示されたら、次のように保存対象へ追加します。先ほど作成した\texttt{workspace/first-sketch.ts}と、実行先を記載した\texttt{index.html}を一緒に記録します。
 
 \begin{listing}[htbp]
 \begin{minted}{powershell}
-git add typescript-p5/src/main.ts
-git add workspace/first-sketch.ts
+git add typescript-p5/index.html
+git add typescript-p5/workspace/first-sketch.ts
 \end{minted}
 \caption{変更したファイルを保存対象へ追加するコマンド}
 \label{lst:chapter01-git-add}
@@ -486,8 +668,8 @@ git add workspace/first-sketch.ts
 
 この節ではGitコマンドを教材リポジトリのルートフォルダで実行します。一方、\texttt{npm}のコマンドは\texttt{typescript-p5/}で実行します。コマンドごとに実行する場所を確認しましょう。
 
-課題を記録するときは、\texttt{workspace/first-sketch.ts}の部分を、実際に保存した課題ファイルのパスに置き換えます。
-たとえば、この章の演習問題7では\texttt{workspace/exercises/01-07.ts}です。\texttt{git status}で対象のファイル名を確認してから追加してください。
+課題を記録するときは、2行目のパスを実際に保存した課題ファイルのパスに置き換えます。Gitはリポジトリのルートで操作するので、\texttt{typescript-p5/}から書きます。
+たとえば、この章の演習問題7では\texttt{typescript-p5/workspace/exercises/01-07.ts}です。\texttt{git status}で対象のファイル名を確認してから追加してください。
 
 最後に、変更内容を説明する短いメッセージを付けてコミットします。
 
@@ -512,7 +694,8 @@ git commit -m "最初のスケッチを変更"
 \end{mistakebox}
 
 \begin{mistakebox}{コマンドを実行する場所が違う}
-\texttt{npm install}や\texttt{npm run dev}は、教材プロジェクトのフォルダで実行します。\texttt{package.json}があるフォルダをVS Codeで開いているか確認してください。
+\texttt{npm install}や\texttt{npm run dev}は、\texttt{package.json}がある\texttt{typescript-p5/}で実行します。
+VS Codeで教材全体を開いていても、ターミナルの現在地が同じとは限りません。\texttt{pwd}と\texttt{ls package.json}で、コマンドを実行する場所を確認してください。
 \end{mistakebox}
 
 \begin{mistakebox}{開発サーバを止めてしまう}
@@ -529,7 +712,10 @@ VS Codeでファイルを保存することと、Gitでコミットすること�
 
 この章は、はじめに編、準備編、プログラムを動かす編の3つに分かれています。はじめに編は最初に読んで必要なときに見返し、準備編はPCや教材ごとに原則1回行います。
 
-プログラムを動かす編は、授業や制作のたびに使います。\texttt{npm run dev}で開発サーバを起動し、表示を確認して\texttt{src/main.ts}を編集します。\texttt{git clone}や\texttt{npm install}は毎回繰り返さず、Gitのコミットは意味のある作業の節目で行いましょう。次章からは、p5.jsを使って図形を描く方法を少しずつ学んでいきます。
+CLI操作では、\texttt{pwd}で現在地を確認し、\texttt{ls}で内容を見て、\texttt{cd}で移動することを基本にします。
+コマンドをすべて暗記するよりも、どのフォルダの何を操作するのかを確かめる習慣を身につけましょう。
+
+プログラムを動かす編は、授業や制作のたびに使います。\texttt{npm run dev}で開発サーバを起動し、\texttt{index.html}で実行先を選び、自分の\texttt{workspace/}内のファイルを編集します。\texttt{git clone}や\texttt{npm install}は毎回繰り返さず、Gitのコミットは意味のある作業の節目で行いましょう。次章からは、p5.jsを使って図形を描く方法を少しずつ学んでいきます。
 
 \section{演習問題}
 
@@ -540,12 +726,16 @@ VS Codeでファイルを保存することと、Gitでコミットすること�
 \begin{enumerate}
     \item \texttt{git clone}、\texttt{npm install}、\texttt{npm run dev}、\texttt{git commit}を、「原則1回」「作業開始時」「作業の節目」に分けてください。
     \item VS Codeを起動し、教材フォルダを開いてください。
-    \item VS Codeで新しいターミナルを開き、現在のフォルダが教材フォルダであることを確認してください。
+    \item VS CodeでPowerShellのターミナルを開き、\texttt{pwd}と\texttt{ls}で現在地と内容を確認してください。
+    続いて\ref{sec:chapter01-cli-files}節を見ながら、授業用の\texttt{work-textbook}で\texttt{practice}の作成・移動、\texttt{memo.txt}のコピー・名前変更・コピーの削除を練習してください。
+    すでにある練習用フォルダや元ファイルはそのまま使い、削除前には対象を確認します。
+    練習後は、教材リポジトリのフォルダをVS Codeで開き直し、新しいターミナルで現在地を確認してください。
     \item \texttt{node -v}と\texttt{npm -v}を実行し、バージョン番号が表示されることを確認してください。
-    \item \texttt{typescript-p5/}に\texttt{node\_modules/}がなければ、\texttt{npm install}を実行してください。すでにある場合は、再実行する必要はありません。
+    \item ターミナルで\texttt{typescript-p5/}へ移動し、\texttt{pwd}と\texttt{ls package.json}で現在地を確認してください。
+    その中に\texttt{node\_modules/}がなければ、\texttt{npm install}を実行してください。すでにある場合は、再実行する必要はありません。
     \item \texttt{npm run dev}を実行し、ブラウザで教材ページを開いてください。
     \item 最初のスケッチで、円の大きさと背景の明るさを変更してください。
     \item \texttt{git status}で変更を確認し、\texttt{git add}と\texttt{git commit}で作業の節目を記録してください。
-    \item \texttt{listings/chapter01/first-ballon-game.ts}を\texttt{typescript-p5/src/main.ts}へコピーして実行し、表示された風船をクリックしてみてください。このプログラムでは、本書の後半までに学ぶ画像の読み込み、配列、繰り返し、関数、クラスなどを使っています。現時点でプログラムの内容を理解する必要はありません。風船が動き、クリックで消せることを確認できれば十分です。
+    \item \texttt{index.html}の実行先を\texttt{/listings/chapter01/first-ballon-game.ts}にして、表示された風船をクリックしてみてください。このプログラムでは、本書の後半までに学ぶ画像の読み込み、配列、繰り返し、関数、クラスなどを使っています。現時点でプログラムの内容を理解する必要はありません。風船が動き、クリックで消せることを確認できれば十分です。
     \item 挑戦問題として、最初のスケッチの円の位置、大きさ、背景色をすべて変更し、自分なりの最初の画面を作ってください。
 \end{enumerate}

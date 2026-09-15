@@ -8,11 +8,11 @@
 
 1. **教材PDF**: [GitHub Releases](https://github.com/m-riho/typescript-p5js-programming-textbook/releases/latest)
 2. **プログラムを実行するプロジェクト**: [`typescript-p5/`](typescript-p5/)
-3. **章ごとのサンプルプログラム**: [`listings/`](listings/)
+3. **章ごとのサンプルプログラム**: [`typescript-p5/listings/`](typescript-p5/listings/)
 
 環境構築と最初の実行手順は、教材PDFの第1章で詳しく説明しています。
 
-自分で作成するTypeScriptファイルは [`workspace/`](workspace/) に、演習問題・課題のファイルは [`workspace/exercises/`](workspace/exercises/) に保存します。課題のファイル名は `02-01.ts` のように、章番号と問題番号をそれぞれ2桁にします。
+自分で作成するTypeScriptファイルは [`typescript-p5/workspace/`](typescript-p5/workspace/) に、演習問題・課題のファイルは [`typescript-p5/workspace/exercises/`](typescript-p5/workspace/exercises/) に保存します。課題のファイル名は `02-01.ts` のように、章番号と問題番号をそれぞれ2桁にします。
 
 ## Windowsで始める最短手順
 
@@ -31,26 +31,34 @@ npm install
 npm run dev
 ```
 
-ターミナルに表示されたURLをWebブラウザで開くと、プログラムを確認できます。最初に編集するファイルは [`typescript-p5/src/main.ts`](typescript-p5/src/main.ts) です。
+ターミナルに表示されたURLをWebブラウザで開くと、プログラムを確認できます。配布時は `typescript-p5/listings/chapter01/first-sketch.ts` が実行されます。
 
 ## サンプルプログラムを試す
 
-`listings/chapter02/`のように、章ごとのフォルダへサンプルプログラムを収録しています。試したい `.ts` ファイルの内容を `typescript-p5/src/main.ts` へコピーして保存すると、開発サーバを動かしたまま結果を確認できます。
+`typescript-p5/index.html` の、次の行の `src` を試したいファイルに変更して保存します。`script` 要素は増やさず、既存の1行を書き換えてください。
 
-自分で変更した `main.ts` の内容は、別のサンプルで上書きする前に `workspace/` 以下へコピーして保存してください。`workspace/` のファイルは保存しただけでは実行されません。試すときは、その内容全体を `typescript-p5/src/main.ts` へコピーして保存します。実行用の `main.ts` と保存先のファイルは自動では同期されないため、修正は保存先にも反映してください。
+```html
+<script type="module" src="/listings/chapter02/points-and-lines.ts"></script>
+```
 
-教材本体の `typescript-p5/src/` や設定ファイルは、教材や担当教員の指示がある場合にだけ変更します。ここで説明する `main.ts` の編集・コピーも、その指示の一つです。各サンプルの目的と操作方法は教材PDFの対応する章で説明しています。
+先頭の `/` はViteの公開ルート `typescript-p5/` を表します。ここに `typescript-p5/` を重ねて書く必要はありません。通常はサーバを再起動せずに表示が更新されます。画像・JSON・音声の素材も、各章で指定された場所に用意してください。
+
+自分で変更するときは、元のサンプルを一度 `typescript-p5/workspace/` 以下へ複製します。たとえば課題ファイルを `typescript-p5/workspace/exercises/02-01.ts` に作ったら、`src` を `/workspace/exercises/02-01.ts` にします。以降はその課題ファイルを直接編集して保存します。`src/main.ts` へのコピーや同期は不要です。
+
+`typescript-p5/` で `npm run check` を実行すると、型の間違いを確認できます。開発サーバはTypeScriptを変換して実行しますが、型チェックは別の処理です。`npm run build` も型チェックを行ってからビルドします。未完成の課題にエラーがあるとチェックは止まりますが、`npm run dev` による実行は別に行えます。
+
+一部の掲載ファイルは説明途中のコード片で、単独では実行できません。コンソールにだけ結果を表示する例もあります。[サンプル一覧の注意事項](typescript-p5/listings/README.md)を確認してください。教材本体の `src/` や設定ファイルは、教材・担当教員の指示がある場合にだけ変更します。`index.html` の実行先を変更する操作は、このREADMEで指示する操作です。
 
 ## リポジトリの構成
 
 | パス | 内容 |
 |---|---|
 | `typescript-p5/` | TypeScript + p5.jsを実行するViteプロジェクト |
-| `typescript-p5/src/main.ts` | 実行時に編集する中心的なTypeScriptファイル |
+| `typescript-p5/src/main.ts` | 以前の実行用ファイル。`/src/main.ts` を指定すれば実行可能 |
 | `typescript-p5/images/` | 教材で使用する画像ファイル |
-| `listings/` | 章ごとのサンプルプログラム |
-| `workspace/` | 自分で作成するTypeScriptプログラムの保存先 |
-| `workspace/exercises/` | 演習問題・課題の保存先（例: `02-01.ts`） |
+| `typescript-p5/listings/` | 章ごとのサンプルプログラム |
+| `typescript-p5/workspace/` | 自分で作成するTypeScriptプログラムの保存先 |
+| `typescript-p5/workspace/exercises/` | 演習問題・課題の保存先（例: `02-01.ts`） |
 | `chapters/` | LuaLaTeXの章ファイル |
 | `figures/` | 教材の図版 |
 | `main.tex` | 教材全体を組版するLuaLaTeXの入口 |
@@ -65,7 +73,7 @@ latexmk -lualatex -shell-escape main.tex
 
 ## ライセンス
 
-- `listings/`と`typescript-p5/`のサンプルプログラム: [MIT License](LICENSE-CODE)
+- `typescript-p5/`内のサンプルプログラム: [MIT License](LICENSE-CODE)
 - 上記以外の本文、図版、文書、LuaLaTeXソース: [CC BY-NC-SA 4.0](LICENSE)
 
 教材内の作者提供イラストも、教材資料の一部としてCC BY-NC-SA 4.0の対象です。

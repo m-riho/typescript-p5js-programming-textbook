@@ -23,7 +23,7 @@
 TypeScriptでは、文字列の型を\texttt{string}と書きます。画面に文字を表示するときは、p5.jsの\texttt{text}を使います。文字の色は\texttt{fill}で指定し、文字の大きさは\texttt{textSize}で指定します。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter12/basic-text.ts}
+\inputminted{ts}{typescript-p5/listings/chapter12/basic-text.ts}
 \caption{文字列を画面に表示する（\texttt{chapter12/basic-text.ts}）}
 \label{lst:chapter12-basic-text}
 \end{listing}
@@ -39,7 +39,7 @@ TypeScriptでは、文字列の型を\texttt{string}と書きます。画面に�
 \texttt{text}に4つの数値を渡すと、文字を表示する長方形の領域を指定できます。その領域の中で文字をどのように揃えるかは、\texttt{textAlign}で指定します。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter12/text-align-box.ts}
+\inputminted{ts}{typescript-p5/listings/chapter12/text-align-box.ts}
 \caption{長方形の領域に文字を中央揃えで表示する（\texttt{chapter12/text-align-box.ts}）}
 \label{lst:chapter12-text-align-box}
 \end{listing}
@@ -69,7 +69,7 @@ TypeScriptでは、文字列の型を\texttt{string}と書きます。画面に�
 文字列も、円や四角形と同じように座標を変えれば動かせます。ここでは、文字列が画面の右から左へ流れる例を見ます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter12/moving-text.ts}
+\inputminted{ts}{typescript-p5/listings/chapter12/moving-text.ts}
 \caption{\texttt{textWidth}を使って文字列を画面外で戻す（\texttt{chapter12/moving-text.ts}）}
 \label{lst:chapter12-moving-text}
 \end{listing}
@@ -93,7 +93,7 @@ TypeScriptでは、文字列の型を\texttt{string}と書きます。画面に�
 \end{pointbox}
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter12/load-image-basic.ts}
+\inputminted{ts}{typescript-p5/listings/chapter12/load-image-basic.ts}
 \caption{\texttt{loadImage}関数で画像を読み込んで表示する（\texttt{chapter12/load-image-basic.ts}）}
 \label{lst:chapter12-load-image-basic}
 \end{listing}
@@ -113,7 +113,7 @@ TypeScriptでは、文字列の型を\texttt{string}と書きます。画面に�
 具体例は、サンプル\ref{lst:chapter12-image-size-and-mode}を見てください。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter12/image-size-and-mode.ts}
+\inputminted{ts}{typescript-p5/listings/chapter12/image-size-and-mode.ts}
 \caption{\texttt{imageMode}と表示サイズを指定する（\texttt{chapter12/image-size-and-mode.ts}）}
 \label{lst:chapter12-image-size-and-mode}
 \end{listing}
@@ -151,7 +151,7 @@ TypeScriptでは、文字列の型を\texttt{string}と書きます。画面に�
 画像も、図形と同じように座標を変えることで動かせます。次のサンプルでは、画像をマウスの位置に表示し、マウスボタンを押している間だけ大きく表示します。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter12/image-follow-mouse.ts}
+\inputminted{ts}{typescript-p5/listings/chapter12/image-follow-mouse.ts}
 \caption{マウスの位置に画像を表示する（\texttt{chapter12/image-follow-mouse.ts}）}
 \label{lst:chapter12-image-follow-mouse}
 \end{listing}
@@ -196,7 +196,7 @@ TypeScriptでは、文字列の型を\texttt{string}と書きます。画面に�
 画像だけでなく、画像の上や下に文字を重ねると、カード、タイトル画面、ゲームの説明表示のようなものを作れます。描画順序はこれまでと同じで、後に描いたものほど手前に表示されます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter12/image-caption-card.ts}
+\inputminted{ts}{typescript-p5/listings/chapter12/image-caption-card.ts}
 \caption{画像に説明文を重ねる（\texttt{chapter12/image-caption-card.ts}）}
 \label{lst:chapter12-image-caption-card}
 \end{listing}

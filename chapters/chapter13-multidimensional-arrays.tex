@@ -58,7 +58,7 @@ TypeScriptでは、数値の2次元配列を\texttt{number[][]}と書きます�
 まずは、数値を2次元配列に保存し、表のように表示するプログラムを見てみます。行と列を使って、どのマスにどの値を表示するかを決めます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter13/grid-numbers.ts}
+\inputminted{ts}{typescript-p5/listings/chapter13/grid-numbers.ts}
 \caption{2次元配列の数値を表のように表示する（\texttt{chapter13/grid-numbers.ts}）}
 \label{lst:chapter13-grid-numbers}
 \end{listing}
@@ -123,7 +123,7 @@ TypeScriptでは、数値の2次元配列を\texttt{number[][]}と書きます�
 2次元配列では、\texttt{values.length}で行数を調べられます。ある行の列数は、\texttt{values[row].length}で調べます。これは、2次元配列が「配列の中に配列が入っている形」だからです。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter13/sum-grid.ts}
+\inputminted{ts}{typescript-p5/listings/chapter13/sum-grid.ts}
 \caption{\texttt{length}を使って2次元配列の合計を求める（\texttt{chapter13/sum-grid.ts}）}
 \label{lst:chapter13-sum-grid}
 \end{listing}
@@ -135,7 +135,7 @@ TypeScriptでは、数値の2次元配列を\texttt{number[][]}と書きます�
 p5.jsでは色を\texttt{p5.Color}型で扱います。\texttt{p5.Color[][]}は色の2次元配列で、格子の各マスの色を保存できます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter13/random-color-grid.ts}
+\inputminted{ts}{typescript-p5/listings/chapter13/random-color-grid.ts}
 \caption{\texttt{p5.Color[][]}で色の格子を作る（\texttt{chapter13/random-color-grid.ts}）}
 \label{lst:chapter13-random-color-grid}
 \end{listing}
@@ -151,7 +151,7 @@ p5.jsでは色を\texttt{p5.Color}型で扱います。\texttt{p5.Color[][]}は�
 2次元配列は、マスごとの状態を覚える用途にも向いています。たとえば、「そのマスが塗られているかどうか」は\texttt{boolean}型で表せます。これを格子全体に広げると\texttt{boolean[][]}になります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter13/click-toggle-grid.ts}
+\inputminted{ts}{typescript-p5/listings/chapter13/click-toggle-grid.ts}
 \caption{\texttt{boolean[][]}でクリックしたマスを切り替える（\texttt{chapter13/click-toggle-grid.ts}）}
 \label{lst:chapter13-click-toggle-grid}
 \end{listing}
@@ -241,13 +241,13 @@ TypeScriptの\texttt{number}型では、整数と小数を分けません。配�
 2次元配列は、ボードゲームの盤面を表すときにもよく使われます。ここでは、オセロのルールをすべて作るのではなく、「4行4列の小さな盤面に黒と白の石を置く」という部分だけを作ります。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=45]{ts}{listings/chapter13/simple-board.ts}
+\inputminted[firstline=1,lastline=45]{ts}{typescript-p5/listings/chapter13/simple-board.ts}
 \caption{\texttt{number[][]}で簡単な盤面を表す前半（\texttt{chapter13/simple-board.ts}）}
 \label{lst:chapter13-simple-board-draw}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=47,lastline=67]{ts}{listings/chapter13/simple-board.ts}
+\inputminted[firstline=47,lastline=67]{ts}{typescript-p5/listings/chapter13/simple-board.ts}
 \caption{\texttt{number[][]}で簡単な盤面を表す後半（\texttt{chapter13/simple-board.ts}）}
 \label{lst:chapter13-simple-board-click}
 \end{listing}

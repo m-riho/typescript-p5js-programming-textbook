@@ -95,7 +95,7 @@ JSONはTypeScriptのオブジェクトに似ていますが、同じものでは
 それでは、実際にゲームの設定をJSONファイルに書いてみます。ここでは、キャンバスの大きさ、プレイヤーの速さ、敵の速さ、星を取ったときの得点、開始時のライフを設定として外に出します。
 
 \begin{listing}[htbp]
-\inputminted{json}{listings/chapter16/game-settings.json}
+\inputminted{json}{typescript-p5/listings/chapter16/game-settings.json}
 \caption{ゲームの初期設定を書くJSONファイル}
 \label{lst:chapter16-game-settings-json}
 \end{listing}
@@ -113,13 +113,13 @@ p5.js 2の\texttt{p.loadJSON}は、読み込みの完了をあとから知らせ
 \texttt{async}は、関数の中で\texttt{await}を使えるようにする指定です。\texttt{await}は、\texttt{Promise}が完了して読み込んだ値を受け取るまで、次の行へ進まないようにします。\texttt{p.setup = async (): Promise<void> => \{ ... \};}の\texttt{Promise<void>}は、「処理はあとで完了し、完了時に値を返さない」という戻り値の型です。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=39]{ts}{listings/chapter16/load-settings.ts}
+\inputminted[firstline=1,lastline=39]{ts}{typescript-p5/listings/chapter16/load-settings.ts}
 \caption{設定値をまとめる\texttt{GameSettings}クラス（\texttt{chapter16/load-settings.ts}）}
 \label{lst:chapter16-game-settings-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=41,lastline=79]{ts}{listings/chapter16/load-settings.ts}
+\inputminted[firstline=41,lastline=79]{ts}{typescript-p5/listings/chapter16/load-settings.ts}
 \caption{\texttt{async setup}でJSON設定を読み込む（\texttt{chapter16/load-settings.ts}）}
 \label{lst:chapter16-load-settings}
 \end{listing}
@@ -168,13 +168,13 @@ p5.js 2の\texttt{p.loadJSON}は、読み込みの完了をあとから知らせ
 ゲームでは、プレイが終わったあとも最高得点を残しておきたいことがあります。ブラウザ版のp5.jsでは、\texttt{storeItem}と\texttt{getItem}を使うと、ブラウザの保存領域に小さな値を保存できます。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=27]{ts}{listings/chapter16/save-score.ts}
+\inputminted[firstline=1,lastline=27]{ts}{typescript-p5/listings/chapter16/save-score.ts}
 \caption{保存してある最高得点を読み込む（\texttt{chapter16/save-score.ts}）}
 \label{lst:chapter16-load-high-score}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=29,lastline=57]{ts}{listings/chapter16/save-score.ts}
+\inputminted[firstline=29,lastline=57]{ts}{typescript-p5/listings/chapter16/save-score.ts}
 \caption{最高得点を保存・リセットする（\texttt{chapter16/save-score.ts}）}
 \label{lst:chapter16-save-high-score}
 \end{listing}
@@ -219,7 +219,7 @@ p5.js 2の\texttt{p.loadJSON}は、読み込みの完了をあとから知らせ
 ここまでの内容を組み合わせると、ゲームの初期設定をJSONから読み込み、ゲームオーバー時に最高得点を保存する小さなゲームを作れます。第15章の星集めゲームを少し簡単にし、ファイル入出力の役割が見えやすい形にします。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=39]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=1,lastline=39]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{完成版で使う\texttt{GameSettings}（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-configurable-settings}
 \end{listing}
@@ -229,49 +229,49 @@ p5.js 2の\texttt{p.loadJSON}は、読み込みの完了をあとから知らせ
     firstline=41,
     lastline=92,
     baselinestretch=0.95
-]{ts}{listings/chapter16/configurable-star-game.ts}
+]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{設定された速度で動く\texttt{Player}（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-player-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=94,lastline=133]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=94,lastline=133]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{得点の対象になる\texttt{Star}（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-star-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=135,lastline=179]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=135,lastline=179]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{敵のクラス（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-enemy}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=181,lastline=204]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=181,lastline=204]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{ゲーム全体で使う変数（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-game-state}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=206,lastline=250]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=206,lastline=250]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{設定を読み込む\texttt{setup}とゲームの進行（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-setup-draw-key}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=252,lastline=274]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=252,lastline=274]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{設定を使ってゲームを更新する（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-update-game}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=276,lastline=295]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=276,lastline=295]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{ゲーム画面とゲームオーバー表示（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-display-game}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=297,lastline=315]{ts}{listings/chapter16/configurable-star-game.ts}
+\inputminted[firstline=297,lastline=315]{ts}{typescript-p5/listings/chapter16/configurable-star-game.ts}
 \caption{再スタートと最高得点の保存（\texttt{chapter16/configurable-star-game.ts}）}
 \label{lst:chapter16-reset-and-save}
 \end{listing}

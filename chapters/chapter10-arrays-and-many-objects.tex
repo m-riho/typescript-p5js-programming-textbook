@@ -25,7 +25,7 @@
 まず、1つの円が上から下へ落ちるプログラムを考えます。円の中心座標、落ちる速さ、半径を変数で持ち、画面の下まで到達したら上に戻します。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter10/single-falling-circle.ts}
+\inputminted{ts}{typescript-p5/listings/chapter10/single-falling-circle.ts}
 \caption{1つの円を上から下へ動かす（\texttt{chapter10/single-falling-circle.ts}）}
 \label{lst:chapter10-single-falling-circle}
 \end{listing}
@@ -41,7 +41,7 @@
 円を2つに増やすだけなら、変数名の最後に番号を付ける方法でも書けます。たとえば、1つ目を\texttt{circleX0}、2つ目を\texttt{circleX1}のように分けます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter10/two-circles-without-array.ts}
+\inputminted{ts}{typescript-p5/listings/chapter10/two-circles-without-array.ts}
 \caption{配列を使わずに2つの円を動かす（\texttt{chapter10/two-circles-without-array.ts}）}
 \label{lst:chapter10-two-circles-without-array}
 \end{listing}
@@ -105,7 +105,7 @@ TypeScriptの書き方 & 意味 & 例 \\
 配列は、繰り返し処理と組み合わせると力を発揮します。カウンタ変数\texttt{index}を使うと、\texttt{circleX[index]}、\texttt{circleY[index]}、\texttt{circleSpeed[index]}のように、同じ番号のデータをまとめて扱えます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter10/falling-circles-arrays.ts}
+\inputminted{ts}{typescript-p5/listings/chapter10/falling-circles-arrays.ts}
 \caption{配列とfor文で複数の円を動かす（\texttt{chapter10/falling-circles-arrays.ts}）}
 \label{lst:chapter10-falling-circles-arrays}
 \end{listing}
@@ -248,7 +248,7 @@ TypeScriptとJavaScriptでは、関数を呼び出すと、実引数の値が仮
 円の数が増えると、位置だけでなく、色や大きさも円ごとに変えたくなります。その場合も、同じ添え字番号が同じ円を表すという考え方は変わりません。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter10/colored-circles-arrays.ts}
+\inputminted{ts}{typescript-p5/listings/chapter10/colored-circles-arrays.ts}
 \caption{色と半径も配列で管理する（\texttt{chapter10/colored-circles-arrays.ts}）}
 \label{lst:chapter10-colored-circles-arrays}
 \end{listing}
@@ -266,7 +266,7 @@ TypeScriptとJavaScriptでは、関数を呼び出すと、実引数の値が仮
 配列は、図形をたくさん動かすだけでなく、たくさんの値を調べるときにも使います。ここでは、複数の棒の長さの中から一番大きいものを探し、その棒だけ色を変える例を見ます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter10/max-value-bars.ts}
+\inputminted{ts}{typescript-p5/listings/chapter10/max-value-bars.ts}
 \caption{配列から最大値の位置を探す（\texttt{chapter10/max-value-bars.ts}）}
 \label{lst:chapter10-max-value-bars}
 \end{listing}

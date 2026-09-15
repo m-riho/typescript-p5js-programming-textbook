@@ -76,7 +76,7 @@ instance modeでは、\texttt{p.setup = (): void => \{ ... \};}と\texttt{p.draw
 \end{figure}
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter05/setup-draw-basic.ts}
+\inputminted{ts}{typescript-p5/listings/chapter05/setup-draw-basic.ts}
 \caption{setupとdrawを使った基本形（\texttt{chapter05/setup-draw-basic.ts}）}
 \label{lst:chapter05-setup-draw-basic}
 \end{listing}
@@ -88,7 +88,7 @@ instance modeでは、\texttt{p.setup = (): void => \{ ... \};}と\texttt{p.draw
 図形を動かすには、位置を表す変数を用意し、\texttt{draw}が実行されるたびにその値を少しずつ変えます。右に動かしたい場合は、$x$ 座標を少しずつ大きくします。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter05/moving-circle.ts}
+\inputminted{ts}{typescript-p5/listings/chapter05/moving-circle.ts}
 \caption{x座標を変えて円を動かす（\texttt{chapter05/moving-circle.ts}）}
 \label{lst:chapter05-moving-circle}
 \end{listing}
@@ -139,7 +139,7 @@ instance modeでは、\texttt{p.setup = (): void => \{ ... \};}と\texttt{p.draw
 速度の値を小さくすると、動きはゆっくりになります。TypeScriptの\texttt{number}型には\texttt{2}と\texttt{0.5}のどちらも保存できるため、\texttt{0.8}のような値を速度として使うことができます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter05/fractional-speed.ts}
+\inputminted{ts}{typescript-p5/listings/chapter05/fractional-speed.ts}
 \caption{小数の速度で円をゆっくり動かす（\texttt{chapter05/fractional-speed.ts}）}
 \label{lst:chapter05-fractional-speed}
 \end{listing}
@@ -151,7 +151,7 @@ instance modeでは、\texttt{p.setup = (): void => \{ ... \};}と\texttt{p.draw
 アニメーションでは、前のフレームに描いた図形を消してから、新しい位置に図形を描くことがよくあります。そのためには、\texttt{background}関数を\texttt{draw}関数の中に書きます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter05/background-in-draw.ts}
+\inputminted{ts}{typescript-p5/listings/chapter05/background-in-draw.ts}
 \caption{drawの中で背景を塗り直す（\texttt{chapter05/background-in-draw.ts}）}
 \label{lst:chapter05-background-in-draw}
 \end{listing}
@@ -163,7 +163,7 @@ instance modeでは、\texttt{p.setup = (): void => \{ ... \};}と\texttt{p.draw
 \texttt{background}関数を\texttt{setup}関数にだけ書くと、背景は最初に一度だけ塗られます。その後の\texttt{draw}では前の図形が消されないため、動いた跡が残ります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter05/background-in-setup.ts}
+\inputminted{ts}{typescript-p5/listings/chapter05/background-in-setup.ts}
 \caption{setupだけで背景を塗る（\texttt{chapter05/background-in-setup.ts}）}
 \label{lst:chapter05-background-in-setup}
 \end{listing}
@@ -211,7 +211,7 @@ p5.jsには、システム変数\texttt{frameCount}が用意されています�
 コード上では、\texttt{p.frameCount}のように、スケッチを表す変数を通して使います。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter05/frame-count.ts}
+\inputminted{ts}{typescript-p5/listings/chapter05/frame-count.ts}
 \caption{frameCountで大きさを変える（\texttt{chapter05/frame-count.ts}）}
 \label{lst:chapter05-frame-count}
 \end{listing}
@@ -228,7 +228,7 @@ p5.jsには、システム変数\texttt{frameCount}が用意されています�
 同じ考え方で、\texttt{arc}の中心座標を少しずつ変えると、パックマン風のキャラクターが移動しているように見せることができます。
 
 \begin{listing}[htbp]
-\inputminted[fontsize=\small]{ts}{listings/chapter05/moving-pacman.ts}
+\inputminted[fontsize=\small]{ts}{typescript-p5/listings/chapter05/moving-pacman.ts}
 \caption{arcで描いたキャラクターを動かす（\texttt{chapter05/moving-pacman.ts}）}
 \label{lst:chapter05-moving-pacman}
 \end{listing}

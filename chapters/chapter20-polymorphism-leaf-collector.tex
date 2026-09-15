@@ -29,19 +29,19 @@
 最初に、クラスを使わずに1枚の落ち葉を動かします。落ち葉は下へ落ちながら、左右に少し揺れるようにします。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=26]{ts}{listings/chapter19/single-leaf.ts}
+\inputminted[firstline=1,lastline=26]{ts}{typescript-p5/listings/chapter19/single-leaf.ts}
 \caption{1枚の落ち葉を動かすスケッチ（\texttt{chapter19/single-leaf.ts}）}
 \label{lst:chapter19-single-leaf-sketch}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=28,lastline=36]{ts}{listings/chapter19/single-leaf.ts}
+\inputminted[firstline=28,lastline=36]{ts}{typescript-p5/listings/chapter19/single-leaf.ts}
 \caption{落ち葉の位置を更新する関数（\texttt{chapter19/single-leaf.ts}）}
 \label{lst:chapter19-single-leaf-update}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=38,lastline=55]{ts}{listings/chapter19/single-leaf.ts}
+\inputminted[firstline=38,lastline=55]{ts}{typescript-p5/listings/chapter19/single-leaf.ts}
 \caption{落ち葉を揺らしながら描く関数（\texttt{chapter19/single-leaf.ts}）}
 \label{lst:chapter19-single-leaf-display}
 \end{listing}
@@ -57,19 +57,19 @@
 次に、落ち葉を\texttt{FallingLeaf}クラスとして表します。位置、速さ、色、揺れ方をフィールドにし、動かす処理を\texttt{update}、描く処理を\texttt{display}にまとめます。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=30]{ts}{listings/chapter19/leaf-class.ts}
+\inputminted[firstline=1,lastline=30]{ts}{typescript-p5/listings/chapter19/leaf-class.ts}
 \caption{\texttt{FallingLeaf}クラスのフィールドとコンストラクタ（\texttt{chapter19/leaf-class.ts}）}
 \label{lst:chapter19-leaf-class-constructor}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=32,lastline=57]{ts}{listings/chapter19/leaf-class.ts}
+\inputminted[firstline=32,lastline=57]{ts}{typescript-p5/listings/chapter19/leaf-class.ts}
 \caption{\texttt{FallingLeaf}の更新と描画（\texttt{chapter19/leaf-class.ts}）}
 \label{lst:chapter19-leaf-class-methods}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=60,lastline=73]{ts}{listings/chapter19/leaf-class.ts}
+\inputminted[firstline=60,lastline=73]{ts}{typescript-p5/listings/chapter19/leaf-class.ts}
 \caption{\texttt{FallingLeaf}を使うスケッチ（\texttt{chapter19/leaf-class.ts}）}
 \label{lst:chapter19-leaf-class-sketch}
 \end{listing}
@@ -83,7 +83,7 @@
 \texttt{interface}は、クラスがどのようなメソッドを持つべきかを表す約束です。ここでは、拾えるものを\texttt{CollectibleItem}という\texttt{interface}で表します。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=8]{ts}{listings/chapter19/collectible-interface.ts}
+\inputminted[firstline=1,lastline=8]{ts}{typescript-p5/listings/chapter19/collectible-interface.ts}
 \caption{拾えるものに必要なメソッドを表す\texttt{interface}（\texttt{chapter19/collectible-interface.ts}）}
 \label{lst:chapter19-collectible-interface}
 \end{listing}
@@ -113,13 +113,13 @@
 クラスが\texttt{interface}の約束を満たすことを、\texttt{implements}で表します。次の例では、\texttt{ScoreLeaf}が\texttt{CollectibleItem}を実装しています。
 
 \begin{listing}[htbp]
-\inputminted[firstline=10,lastline=35]{ts}{listings/chapter19/collectible-interface.ts}
+\inputminted[firstline=10,lastline=35]{ts}{typescript-p5/listings/chapter19/collectible-interface.ts}
 \caption{プレイヤーを表す\texttt{Player}クラス（\texttt{chapter19/collectible-interface.ts}）}
 \label{lst:chapter19-player-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=37,lastline=80]{ts}{listings/chapter19/collectible-interface.ts}
+\inputminted[firstline=37,lastline=80]{ts}{typescript-p5/listings/chapter19/collectible-interface.ts}
 \caption{\texttt{CollectibleItem}を実装する落ち葉（\texttt{chapter19/collectible-interface.ts}）}
 \label{lst:chapter19-score-leaf}
 \end{listing}
@@ -135,13 +135,13 @@
 距離の計算は、クラスごとに何度も書くと読みにくくなります。ここでは、プレイヤーとアイテムが近いかどうかを調べる\texttt{isNear}関数を用意します。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=23]{ts}{listings/chapter19/interface-without-vector.ts}
+\inputminted[firstline=1,lastline=23]{ts}{typescript-p5/listings/chapter19/interface-without-vector.ts}
 \caption{距離判定を関数に分ける（\texttt{chapter19/interface-without-vector.ts}）}
 \label{lst:chapter19-interface-helper}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=25,lastline=61]{ts}{listings/chapter19/interface-without-vector.ts}
+\inputminted[firstline=25,lastline=61]{ts}{typescript-p5/listings/chapter19/interface-without-vector.ts}
 \caption{距離判定の関数を使う落ち葉（\texttt{chapter19/interface-without-vector.ts}）}
 \label{lst:chapter19-interface-leaf-with-helper}
 \end{listing}
@@ -153,25 +153,25 @@
 ポリモーフィズムは、同じ型として扱っているものが、実際にはそれぞれ違う動きをすることです。次のサンプルでは、普通の落ち葉と金色の落ち葉をどちらも\texttt{CollectibleItem}として扱います。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=49]{ts}{listings/chapter19/polymorphism-items.ts}
+\inputminted[firstline=1,lastline=49]{ts}{typescript-p5/listings/chapter19/polymorphism-items.ts}
 \caption{ポリモーフィズムで使う共通部分（\texttt{chapter19/polymorphism-items.ts}）}
 \label{lst:chapter19-polymorphism-base}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=51,lastline=87]{ts}{listings/chapter19/polymorphism-items.ts}
+\inputminted[firstline=51,lastline=87]{ts}{typescript-p5/listings/chapter19/polymorphism-items.ts}
 \caption{普通の落ち葉を表す\texttt{LeafItem}（\texttt{chapter19/polymorphism-items.ts}）}
 \label{lst:chapter19-polymorphism-leaf}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=89,lastline=127]{ts}{listings/chapter19/polymorphism-items.ts}
+\inputminted[firstline=89,lastline=127]{ts}{typescript-p5/listings/chapter19/polymorphism-items.ts}
 \caption{得点の高い\texttt{GoldenLeafItem}（\texttt{chapter19/polymorphism-items.ts}）}
 \label{lst:chapter19-polymorphism-golden-leaf}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=4,lastline=49]{ts}{listings/chapter19/polymorphism-sketch.ts}
+\inputminted[firstline=4,lastline=49]{ts}{typescript-p5/listings/chapter19/polymorphism-sketch.ts}
 \caption{\texttt{CollectibleItem[]}でまとめて動かす（\texttt{chapter19/polymorphism-sketch.ts}）}
 \label{lst:chapter19-polymorphism-sketch}
 \end{listing}
@@ -187,7 +187,7 @@
 \texttt{interface}で設計しておくと、新しい種類のアイテムを追加しやすくなります。次の例では、拾うと点数が下がる石を追加します。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter19/harmful-item.ts}
+\inputminted{ts}{typescript-p5/listings/chapter19/harmful-item.ts}
 \caption{減点される石とランダムなアイテム追加（\texttt{chapter19/harmful-item.ts}）}
 \label{lst:chapter19-harmful-item}
 \end{listing}
@@ -294,7 +294,7 @@
 最後に、アイテムをランダムに追加する形へ近づけます。この例では、前のサンプルで定義した\texttt{Player}、\texttt{CollectibleItem}、\texttt{LeafItem}、\texttt{GoldenLeafItem}、\texttt{StoneItem}、\texttt{addRandomItem}を使う想定です。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter19/complete-leaf-game.ts}
+\inputminted{ts}{typescript-p5/listings/chapter19/complete-leaf-game.ts}
 \caption{落ち葉拾いゲームの全体の流れ（\texttt{chapter19/complete-leaf-game.ts}）}
 \label{lst:chapter19-complete-leaf-game}
 \end{listing}

@@ -18,7 +18,7 @@ LinuxにはUbuntu以外にもさまざまなディストリビューションが
     \item 教材をGitHubから取得する
     \item 必要なライブラリを\texttt{npm}でインストールする
     \item Viteの開発サーバを起動する
-    \item \texttt{typescript-p5/src/main.ts}を編集し、サンプルを入れ替える
+    \item \texttt{index.html}で実行先を選び、\texttt{workspace/}内の作品を編集する
 \end{itemize}
 
 \section{VS Codeをインストールする}
@@ -119,7 +119,7 @@ git clone https://github.com/m-riho/typescript-p5js-programming-textbook.git
 
 \texttt{xdg-user-dir DOCUMENTS}は、Ubuntuに登録されたドキュメントフォルダを調べるので、表示言語や設定が違っても正しい場所へ移動できます。\texttt{pwd}に表示された場所が、「ファイル」アプリのドキュメントフォルダと同じか確認してください。\texttt{https://github.com/m-riho/typescript-p5js-programming-textbook.git}は、学生向け公開リポジトリの公式URLです。\texttt{mkdir -p}は、すでに\texttt{work-textbook}フォルダがあってもエラーにせず進める書き方です。\texttt{git clone}が終わると、その中に\texttt{typescript-p5js-programming-textbook}フォルダが作られます。\texttt{git clone}は、通常は教材を最初に取得するときに一度だけ実行します。
 
-次にVS Codeへ戻り、「File」→「Open Folder...」から、今作成された教材リポジトリのルートフォルダを開きます。\texttt{work-textbook}フォルダそのものではなく、その中に作られた教材リポジトリのフォルダを選びます。画面左側のエクスプローラーに\texttt{chapters/}、\texttt{listings/}、\texttt{typescript-p5/}が表示されることを確認しましょう。
+次にVS Codeへ戻り、「File」→「Open Folder...」から、今作成された教材リポジトリのルートフォルダを開きます。\texttt{work-textbook}フォルダそのものではなく、その中に作られた教材リポジトリのフォルダを選びます。画面左側のエクスプローラーに\texttt{chapters/}と\texttt{typescript-p5/}が表示され、\texttt{typescript-p5/}の中に\texttt{listings/}と\texttt{workspace/}があることを確認しましょう。
 
 \section{必要なライブラリをインストールする}
 
@@ -162,31 +162,32 @@ npm run dev
 
 実行すると、ターミナルに\texttt{http://localhost:5173/}のようなLocal URLが表示されます。表示されたURLをControlキーを押しながらクリックするか、ブラウザにコピーして開いてください。5173番がすでに使われている場合は、別の番号になることがありますが、正常な動作です。
 
-\texttt{npm run dev}を実行しているターミナルは、作業中は開いたままにします。止めるときは、そのターミナルを選んで\texttt{Ctrl + C}を押します。サーバを動かしたまま\texttt{typescript-p5/src/main.ts}を保存すると、Viteが変更を検出し、通常はブラウザの表示を自動で更新します。
+\texttt{npm run dev}を実行しているターミナルは、作業中は開いたままにします。止めるときは、そのターミナルを選んで\texttt{Ctrl + C}を押します。実行中のファイルを編集して保存すると、Viteが変更を検出し、通常はブラウザの表示を自動で更新します。
 
 \section{プログラムを編集してサンプルを入れ替える}
 
-ブラウザで図形が表示されたら、プログラムは動いています。実行の入口は\texttt{typescript-p5/index.html}で、ここから\texttt{src/main.ts}が読み込まれます。したがって、編集して実行されるファイルは、教材リポジトリのルートフォルダから見て\texttt{typescript-p5/src/main.ts}です。VS Codeのエクスプローラーで\texttt{typescript-p5}、\texttt{src}の順に開き、\texttt{main.ts}を選びます。変更したら\texttt{Ctrl + S}で保存してください。
+ブラウザで図形が表示されたら、プログラムは動いています。実行先は\texttt{typescript-p5/index.html}にある\texttt{script}要素の\texttt{src}属性で指定します。配布時は\texttt{listings/chapter01/first-sketch.ts}が選択されています。
 
-自分で作成したプログラムは、教材リポジトリ直下の\texttt{workspace/}以下に保存します。
-演習問題・課題は\texttt{workspace/exercises/}に、章番号と問題番号をそれぞれ2桁にした名前で保存します。第2章の問題1なら\texttt{02-01.ts}です。
-別のサンプルで\texttt{main.ts}を上書きする前に、VS Codeで保存先の新しいファイルを作り、残したい内容全体をコピーして\texttt{Ctrl + S}で保存してください。
-\texttt{workspace/}のファイルは保存しただけでは実行されません。試すときは内容全体を\texttt{main.ts}へコピーします。\texttt{main.ts}で修正した内容は保存先にも反映します。2つのファイルは自動では同期されません。
-教材本体の\texttt{src/}や設定ファイルは、ここでの\texttt{main.ts}の編集のように、教材や担当教員が指示した場合にだけ変更します。
-
-本書に掲載するサンプルは\texttt{listings/}に保存されていますが、\texttt{listings/}のファイルそのものはブラウザで実行されません。別のサンプルを試すときは、その内容を\texttt{typescript-p5/src/main.ts}へコピーします。ターミナルが\texttt{typescript-p5/}にいる状態で、第2章のサンプルを試すには次のコマンドを実行します。
+第2章のサンプルを試す場合は、VS Codeで\texttt{index.html}を開き、既存の\texttt{script}要素を次のように変更して\texttt{Ctrl + S}で保存します。要素を追加するのではなく、実行先を書き換えます。
 
 \begin{listing}[htbp]
-\begin{minted}{bash}
-cp ../listings/chapter02/points-and-lines.ts src/main.ts
+\begin{minted}{html}
+<script type="module"
+        src="/listings/chapter02/points-and-lines.ts"></script>
 \end{minted}
-\caption{第2章のサンプルで\texttt{main.ts}を上書きするコマンド}
+\caption{第2章のサンプルを直接実行する指定}
 \label{lst:appendix-ubuntu-copy-sample}
 \end{listing}
 
 Ubuntuでは、ファイル名とフォルダ名の大文字・小文字を区別します。たとえば\texttt{typescript-p5}と\texttt{TypeScript-P5}、\texttt{main.ts}と\texttt{Main.ts}は別の名前です。教材に書かれたパスと同じ大文字・小文字で入力してください。
 
-このコピーは、\texttt{src/main.ts}の内容を上書きします。コピーの後も、通常はViteを起動し直す必要はありません。画像、JSON、音を使うサンプルでは、コードだけではなく、各章で説明する素材ファイルの配置も必要です。
+先頭の\texttt{/}はViteの公開ルート\texttt{typescript-p5/}を表します。実際のファイルは、その中の\texttt{listings/chapter02/}にある\texttt{points-and-lines.ts}です。\texttt{src}属性に\texttt{/typescript-p5/}は付けません。
+
+自分で変更するときは、\texttt{typescript-p5/workspace/}内に新しいファイルを作り、元のサンプルの内容全体を一度コピーします。課題なら\texttt{workspace/exercises/}に、章番号と問題番号をそれぞれ2桁にした名前で保存します。第2章の問題1なら\texttt{02-01.ts}です。\texttt{index.html}の実行先を\texttt{/workspace/exercises/02-01.ts}にして保存すると、その課題ファイルを直接実行できます。それ以降は課題ファイルを編集して\texttt{Ctrl + S}で保存します。\texttt{src/main.ts}へのコピーや同期は不要です。
+
+通常は実行先を変更してもViteの再起動は不要です。教材の\texttt{src/}や設定ファイルは、担当教員や教材で指示された場合にだけ変更します。ここで説明する\texttt{index.html}の実行先の変更は、その指示の一つです。画像、JSON、音を使うサンプルでは、各章で説明する素材ファイルも必要です。
+
+\texttt{typescript-p5/}で\texttt{npm run check}を実行すると、型の間違いを検査できます。別の未完成の課題のエラーも表示されるので、メッセージのファイル名を確認します。説明用のコード片など、単独実行しないファイルは\texttt{typescript-p5/listings/README.md}で確認できます。
 
 \section{よくある問題}
 

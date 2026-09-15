@@ -24,7 +24,7 @@
 同じような図形を複数描くとき、これまでの知識だけでもプログラムを書くことはできます。ただし、似た命令が何度も出てくると、どこを変更すればよいのか分かりにくくなります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter08/repeated-cars-without-function.ts}
+\inputminted{ts}{typescript-p5/listings/chapter08/repeated-cars-without-function.ts}
 \caption{関数を使わずに2台の車を描く（\texttt{chapter08/repeated-cars-without-function.ts}）}
 \label{lst:chapter08-repeated-cars-without-function}
 \end{listing}
@@ -42,7 +42,7 @@ TypeScriptでは、\texttt{function}を使って関数を定義できます。�
 \texttt{drawCar}の最初の仮引数\texttt{p: p5}は、スケッチを表す値を受け取るためのものです。関数の中で\texttt{p.rect}や\texttt{p.dist}のようなp5.jsの機能を使うときは、呼び出す側から\texttt{p}を渡します。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter08/draw-car-function.ts}
+\inputminted{ts}{typescript-p5/listings/chapter08/draw-car-function.ts}
 \caption{車を描く処理を関数にまとめる（\texttt{chapter08/draw-car-function.ts}）}
 \label{lst:chapter08-draw-car-function}
 \end{listing}
@@ -251,7 +251,7 @@ TypeScriptでは、\texttt{function}を使って関数を定義できます。�
 仮引数の名前は、関数の中で使うための名前です。呼び出し側と同じ名前にする必要はありません。むしろ、関数の中で何を表す値なのかが分かる名前にすることが大切です。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter08/moving-cars-function.ts}
+\inputminted{ts}{typescript-p5/listings/chapter08/moving-cars-function.ts}
 \caption{実引数を変えて同じ関数を使う（\texttt{chapter08/moving-cars-function.ts}）}
 \label{lst:chapter08-moving-cars-function}
 \end{listing}
@@ -314,7 +314,7 @@ TypeScriptでは、\texttt{function}を使って関数を定義できます。�
 関数は、同じ図形を何度も描くためだけの仕組みではありません。1つの\texttt{draw}の中に多くの処理が入ってきたとき、処理に名前を付けて分けるためにも使えます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter08/bouncing-ball-functions.ts}
+\inputminted{ts}{typescript-p5/listings/chapter08/bouncing-ball-functions.ts}
 \caption{移動、反射、表示を関数に分ける（\texttt{chapter08/bouncing-ball-functions.ts}）}
 \label{lst:chapter08-bouncing-ball-functions}
 \end{listing}
@@ -332,7 +332,7 @@ TypeScriptでは、\texttt{function}を使って関数を定義できます。�
 関数から値を返すには、関数本体の中に\texttt{return 値;}と書きます。\texttt{return}が実行されると、その値が関数を呼び出した場所へ戻ります。呼び出し側では、関数呼び出しの部分を返された値として扱えるため、変数へ代入したり、式や条件の中で利用したりできます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter08/point-in-circle-function.ts}
+\inputminted{ts}{typescript-p5/listings/chapter08/point-in-circle-function.ts}
 \caption{点が円の中にあるかを返す関数（\texttt{chapter08/point-in-circle-function.ts}）}
 \label{lst:chapter08-point-in-circle-function}
 \end{listing}
@@ -445,55 +445,55 @@ JSDocはコメントの書き方の名前であると同時に、コメントか
 最後に、この節で説明したJSDoc形式のコメントを使ったサンプルプログラム全体を示します。1つのプログラムを関数単位に分けて掲載していますが、すべて\texttt{comment-sample.ts}に書かれた一続きのプログラムです。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=40]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=1,lastline=40]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{JSDoc形式のコメントを付けた\texttt{drawEye}（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-draw-eye}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=41,lastline=88]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=41,lastline=88]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{JSDoc形式のコメントを付けた\texttt{drawMouth}（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-draw-mouth}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=89,lastline=126]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=89,lastline=126]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{JSDoc形式のコメントを付けた\texttt{drawMark}（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-draw-mark}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=127,lastline=154]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=127,lastline=154]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{顔全体を描く\texttt{drawKyubeyFace}（1）（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-draw-face-start}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=155,lastline=179]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=155,lastline=179]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{顔全体を描く\texttt{drawKyubeyFace}（2）（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-draw-face-middle}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=180,lastline=205]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=180,lastline=205]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{顔全体を描く\texttt{drawKyubeyFace}（3）（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-draw-face-end}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=206,lastline=237]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=206,lastline=237]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{口の範囲内にあるかを調べる\texttt{isMouseOverMouth}（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-mouth-hit}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=238,lastline=264]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=238,lastline=264]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{顔の位置と大きさを用意する\texttt{sketch}（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-sketch-setup}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=265,lastline=307]{ts}{listings/chapter08/comment-sample.ts}
+\inputminted[firstline=265,lastline=307]{ts}{typescript-p5/listings/chapter08/comment-sample.ts}
 \caption{口の位置を調べて文字を表示する\texttt{draw}（\texttt{chapter08/comment-sample.ts}）}
 \label{lst:chapter08-comment-sample-sketch-draw}
 \end{listing}

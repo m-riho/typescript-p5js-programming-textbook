@@ -25,7 +25,7 @@
 同じような線を何本も描きたい場合、これまでの知識だけでもプログラムを書くことはできます。ただし、線の本数が増えるほど、同じような命令を何度も書くことになります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/repeated-lines-without-loop.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/repeated-lines-without-loop.ts}
 \caption{繰り返し処理を使わずに線を並べる（\texttt{chapter07/repeated-lines-without-loop.ts}）}
 \label{lst:chapter07-repeated-lines-without-loop}
 \end{listing}
@@ -41,7 +41,7 @@
 回数が分かっている繰り返しでは、\texttt{for}文をよく使います。次のサンプルは、先ほどの線を\texttt{for}文で書き直したものです。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/for-lines.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/for-lines.ts}
 \caption{for文で線を並べる（\texttt{chapter07/for-lines.ts}）}
 \label{lst:chapter07-for-lines}
 \end{listing}
@@ -165,7 +165,7 @@
 繰り返し処理では、カウンタ変数を使って図形の位置を計算できます。たとえば、\texttt{count}が0、1、2と増えるなら、\texttt{startX + lineSpacing * count}も少しずつ大きくなります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/counter-rectangles.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/counter-rectangles.ts}
 \caption{カウンタ変数で位置と明るさを変える（\texttt{chapter07/counter-rectangles.ts}）}
 \label{lst:chapter07-counter-rectangles}
 \end{listing}
@@ -181,7 +181,7 @@
 p5.jsでは、\texttt{p.random}を使うと、実行するたびに変わる数値を作れます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/random-circles.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/random-circles.ts}
 \caption{for文でランダムな位置に円を描く（\texttt{chapter07/random-circles.ts}）}
 \label{lst:chapter07-random-circles}
 \end{listing}
@@ -197,7 +197,7 @@ p5.jsでは、\texttt{p.random}を使うと、実行するたびに変わる数�
 繰り返し処理の中に、さらに繰り返し処理を書くこともできます。これを繰り返し処理の入れ子と呼びます。格子状に図形を並べたいときに便利です。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/grid-circles.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/grid-circles.ts}
 \caption{for文の入れ子で円を格子状に並べる（\texttt{chapter07/grid-circles.ts}）}
 \label{lst:chapter07-grid-circles}
 \end{listing}
@@ -215,7 +215,7 @@ p5.jsでは、\texttt{p.random}を使うと、実行するたびに変わる数�
 まずは、縦線を左から右へ並べる短い例で考えます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/while-lines.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/while-lines.ts}
 \caption{while文で線を並べる（\texttt{chapter07/while-lines.ts}）}
 \label{lst:chapter07-while-lines}
 \end{listing}
@@ -284,7 +284,7 @@ p5.jsでは、\texttt{p.random}を使うと、実行するたびに変わる数�
 \texttt{while}文は、位置だけでなく、大きさを条件にして使うこともできます。次の例では、円の直径を少しずつ大きくしながら、条件を満たす間だけ円を描きます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/while-growing-circles.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/while-growing-circles.ts}
 \caption{while文で直径を変えながら円を描く（\texttt{chapter07/while-growing-circles.ts}）}
 \label{lst:chapter07-while-growing-circles}
 \end{listing}
@@ -300,7 +300,7 @@ p5.jsでは、\texttt{p.random}を使うと、実行するたびに変わる数�
 ここまでの例では、終わりの値を数値で決めていました。次の例では、マウスの位置から画面の下端まで、正方形を並べて描きます。画面の高さを条件に使うため、キャンバスの大きさに合わせて繰り返しが止まります。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/while-stacked-squares.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/while-stacked-squares.ts}
 \caption{while文で画面の下まで正方形を並べる（\texttt{chapter07/while-stacked-squares.ts}）}
 \label{lst:chapter07-while-stacked-squares}
 \end{listing}
@@ -345,7 +345,7 @@ p5.jsでは、\texttt{p.random}を使うと、実行するたびに変わる数�
 \texttt{for}文の更新部分は、必ず\texttt{count++}でなければならないわけではありません。線と線の間隔のように、別の値だけ増やすこともできます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter07/for-with-step.ts}
+\inputminted{ts}{typescript-p5/listings/chapter07/for-with-step.ts}
 \caption{for文の更新量を変える（\texttt{chapter07/for-with-step.ts}）}
 \label{lst:chapter07-for-with-step}
 \end{listing}

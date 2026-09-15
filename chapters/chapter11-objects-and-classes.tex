@@ -59,7 +59,7 @@
 オブジェクトを使うと、1つの円に関する情報を1つの値としてまとめられます。TypeScriptでは、\texttt{\{ centerX: 100, centerY: 50 \}}のように、名前と値の組を並べてオブジェクトを作れます。
 
 \begin{listing}[htbp]
-\inputminted{ts}{listings/chapter11/ball-object-literal.ts}
+\inputminted{ts}{typescript-p5/listings/chapter11/ball-object-literal.ts}
 \caption{オブジェクトで1つの円の情報をまとめる（\texttt{chapter11/ball-object-literal.ts}）}
 \label{lst:chapter11-ball-object-literal}
 \end{listing}
@@ -96,13 +96,13 @@
 オブジェクトは、数値や配列と同じように関数の引数として渡せます。第8章で関数を使って処理を整理したように、円を動かす処理と表示する処理を関数に分けてみます。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=43]{ts}{listings/chapter11/ball-object-functions.ts}
+\inputminted[firstline=1,lastline=43]{ts}{typescript-p5/listings/chapter11/ball-object-functions.ts}
 \caption{オブジェクトを作り、関数を呼び出す（\texttt{chapter11/ball-object-functions.ts}）}
 \label{lst:chapter11-ball-object-functions-main}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=45,lastline=77]{ts}{listings/chapter11/ball-object-functions.ts}
+\inputminted[firstline=45,lastline=77]{ts}{typescript-p5/listings/chapter11/ball-object-functions.ts}
 \caption{オブジェクトを受け取って更新と描画を行う関数（\texttt{chapter11/ball-object-functions.ts}）}
 \label{lst:chapter11-ball-object-functions-helpers}
 \end{listing}
@@ -274,13 +274,13 @@ TypeScriptとJavaScriptでは、オブジェクトを関数へ渡すと、オブ
 まず、1つの円を\texttt{Ball}クラスで表してみます。クラスの中には、データを保存するフィールドと、処理をまとめるメソッドを書きます。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=36]{ts}{listings/chapter11/ball-class-single.ts}
+\inputminted[firstline=1,lastline=36]{ts}{typescript-p5/listings/chapter11/ball-class-single.ts}
 \caption{Ballクラスの定義（\texttt{chapter11/ball-class-single.ts}）}
 \label{lst:chapter11-ball-class-single-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=38,lastline=55]{ts}{listings/chapter11/ball-class-single.ts}
+\inputminted[firstline=38,lastline=55]{ts}{typescript-p5/listings/chapter11/ball-class-single.ts}
 \caption{Ballクラスを使って1つの円を動かす（\texttt{chapter11/ball-class-single.ts}）}
 \label{lst:chapter11-ball-class-single-sketch}
 \end{listing}
@@ -339,13 +339,13 @@ TypeScriptとJavaScriptでは、オブジェクトを関数へ渡すと、オブ
 クラスが便利になるのは、同じ種類のものを複数作るときです。\texttt{Ball[]}は、\texttt{Ball}インスタンスを入れる配列です。第10章で\texttt{number[]}を使ったのと同じように、クラスも配列にできます。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=36]{ts}{listings/chapter11/ball-class-array.ts}
+\inputminted[firstline=1,lastline=36]{ts}{typescript-p5/listings/chapter11/ball-class-array.ts}
 \caption{複数の円で使うBallクラス（\texttt{chapter11/ball-class-array.ts}）}
 \label{lst:chapter11-ball-class-array-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=38,lastline=63]{ts}{listings/chapter11/ball-class-array.ts}
+\inputminted[firstline=38,lastline=63]{ts}{typescript-p5/listings/chapter11/ball-class-array.ts}
 \caption{Ballクラスの配列で複数の円を動かす（\texttt{chapter11/ball-class-array.ts}）}
 \label{lst:chapter11-ball-class-array-sketch}
 \end{listing}
@@ -374,13 +374,13 @@ TypeScriptとJavaScriptでは、オブジェクトを関数へ渡すと、オブ
 クラスから作ったインスタンスは、普通の値と同じように関数の引数として渡せます。数値なら\texttt{x: number}、文字列なら\texttt{message: string}と書いたように、\texttt{Ball}インスタンスを受け取る仮引数は\texttt{ball: Ball}と書きます。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=26]{ts}{listings/chapter11/ball-instance-as-argument.ts}
+\inputminted[firstline=1,lastline=26]{ts}{typescript-p5/listings/chapter11/ball-instance-as-argument.ts}
 \caption{関数に渡すBallクラス（\texttt{chapter11/ball-instance-as-argument.ts}）}
 \label{lst:chapter11-ball-instance-as-argument-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=28,lastline=65]{ts}{listings/chapter11/ball-instance-as-argument.ts}
+\inputminted[firstline=28,lastline=65]{ts}{typescript-p5/listings/chapter11/ball-instance-as-argument.ts}
 \caption{Ballインスタンスを関数の引数として渡す（\texttt{chapter11/ball-instance-as-argument.ts}）}
 \label{lst:chapter11-ball-instance-as-argument-functions}
 \end{listing}
@@ -433,13 +433,13 @@ TypeScriptとJavaScriptでは、オブジェクトを関数へ渡すと、オブ
 コンストラクタには、初期値を実引数として渡すこともできます。すべてを乱数で決めるだけでなく、「このx座標に置きたい」「この大きさにしたい」「この色にしたい」という値を外から指定できます。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=39]{ts}{listings/chapter11/ball-class-constructor-arguments.ts}
+\inputminted[firstline=1,lastline=39]{ts}{typescript-p5/listings/chapter11/ball-class-constructor-arguments.ts}
 \caption{実引数を受け取るBallクラス（\texttt{chapter11/ball-class-constructor-arguments.ts}）}
 \label{lst:chapter11-ball-class-constructor-arguments-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=41,lastline=64]{ts}{listings/chapter11/ball-class-constructor-arguments.ts}
+\inputminted[firstline=41,lastline=64]{ts}{typescript-p5/listings/chapter11/ball-class-constructor-arguments.ts}
 \caption{コンストラクタに実引数を渡して円を作る（\texttt{chapter11/ball-class-constructor-arguments.ts}）}
 \label{lst:chapter11-ball-class-constructor-arguments-sketch}
 \end{listing}
@@ -453,13 +453,13 @@ TypeScriptとJavaScriptでは、オブジェクトを関数へ渡すと、オブ
 ここでは、継承はまだ使わず、\texttt{Ball}と同じ考え方で正方形を落とす別のクラスを自分で作る練習をします。
 
 \begin{listing}[htbp]
-\inputminted[firstline=1,lastline=37]{ts}{listings/chapter11/square-class-array.ts}
+\inputminted[firstline=1,lastline=37]{ts}{typescript-p5/listings/chapter11/square-class-array.ts}
 \caption{FallingSquareクラスの定義（\texttt{chapter11/square-class-array.ts}）}
 \label{lst:chapter11-square-class-array-class}
 \end{listing}
 
 \begin{listing}[htbp]
-\inputminted[firstline=39,lastline=64]{ts}{listings/chapter11/square-class-array.ts}
+\inputminted[firstline=39,lastline=64]{ts}{typescript-p5/listings/chapter11/square-class-array.ts}
 \caption{FallingSquareクラスで複数の正方形を動かす（\texttt{chapter11/square-class-array.ts}）}
 \label{lst:chapter11-square-class-array-sketch}
 \end{listing}

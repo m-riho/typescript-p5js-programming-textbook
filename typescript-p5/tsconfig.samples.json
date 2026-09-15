@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["listings", "src/p5-sound-module.d.ts"],
+  "exclude": [
+    "listings/chapter18/life-game-rules.ts",
+    "listings/chapter18/life-game-changed-cells.ts",
+    "listings/chapter19/collectible-interface.ts",
+    "listings/chapter19/interface-without-vector.ts",
+    "listings/chapter19/polymorphism-items.ts",
+    "listings/chapter19/polymorphism-sketch.ts",
+    "listings/chapter19/harmful-item.ts",
+    "listings/chapter19/complete-leaf-game.ts"
+  ]
+}
