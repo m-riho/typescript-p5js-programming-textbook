@@ -133,11 +133,40 @@ VS Codeは、プログラムを書くためのエディタです。TypeScriptの
 
 \worktiming{PCごとに原則1回}
 
-Webブラウザで\href{https://code.visualstudio.com/}{Visual Studio Codeの公式サイト}を開き、Windows用のインストーラをダウンロードします。インストーラを起動したら、画面の指示に従ってインストールしてください。
+Webブラウザで\href{https://code.visualstudio.com/}{Visual Studio Codeの公式サイト}を開き、Windows用のインストーラをダウンロードします。図\ref{fig:chapter01-vscode-website}の「Download for Windows」が、そのためのボタンです。
+この章の画面写真は操作の一例です。バージョン番号、表示言語、ボタンの位置などは、利用する時期やPCによって異なることがあります。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/chapter01/vcode-oficial.png}
+    \caption{VS Codeの公式サイトからWindows用のインストーラをダウンロードする}
+    \label{fig:chapter01-vscode-website}
+\end{figure}
+
+ダウンロードが終わったら、Windowsのエクスプローラーで「ダウンロード」フォルダを開きます。
+図\ref{fig:chapter01-vscode-installer}のように、\texttt{VSCodeUserSetup}で始まるインストーラをダブルクリックし、画面の指示に従ってインストールしてください。
+ファイル名に含まれるバージョン番号は、画面写真と同じでなくても構いません。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/chapter01/vscode-installer.png}
+    \caption{ダウンロードしたVS Codeのインストーラを起動する}
+    \label{fig:chapter01-vscode-installer}
+\end{figure}
 
 \begin{notebox}{インストール時の注意}
 インストール中に「PATHに追加する」や「Codeで開く」という項目が表示された場合は、有効にしておくと便利です。授業中に設定が異なっていても大きな問題にはなりませんが、フォルダを右クリックしてVS Codeで開けるようになります。
 \end{notebox}
+
+インストール後は、Windowsの検索欄に\texttt{vscode}と入力し、「Visual Studio Code」を選ぶと起動できます（図\ref{fig:chapter01-start-vscode}）。
+検索結果にインストーラも表示される場合がありますが、普段の作業で使うのはインストール済みの「Visual Studio Code」です。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.8\linewidth,height=.4\textheight,keepaspectratio]{figures/chapter01/start-vscode.png}
+    \caption{Windowsの検索欄からVS Codeを起動する}
+    \label{fig:chapter01-start-vscode}
+\end{figure}
 
 \subsection{Node.jsをインストールする}
 
@@ -145,12 +174,55 @@ Node.jsは、TypeScriptやp5.jsを使った教材プロジェクトを動かす�
 
 \worktiming{PCごとに原則1回}
 
-Webブラウザで\href{https://nodejs.org/}{Node.jsの公式サイト}を開き、LTSのWindows Installer（\texttt{.msi}）をダウンロードします。LTS版は、長く安定して使うための版です。教材で使うVite 8は、Node.js 20系では20.19.0以上、22系では22.12.0以上が必要です。
+Webブラウザで\href{https://nodejs.org/}{Node.jsの公式サイト}を開き、図\ref{fig:chapter01-node-website}の「Node.jsを入手」を選びます。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/chapter01/node-oficial.png}
+    \caption{Node.jsの公式サイトからダウンロードページを開く}
+    \label{fig:chapter01-node-website}
+\end{figure}
+
+ダウンロードページでは、Windows用で「LTS」と表示された版を選びます。LTS版は、長く安定して使うための版です。
+図\ref{fig:chapter01-node-download}のように下へスクロールし、Windows Installer（\texttt{.msi}）をダウンロードします。
+ページ上部にはDocker用のコマンドも表示されていますが、この教材では使いません。図の下部にあるインストーラのボタンを選んでください。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.9\linewidth,height=.52\textheight,keepaspectratio]{figures/chapter01/node-download.png}
+    \caption{LTS版のWindowsインストーラ（\texttt{.msi}）を選ぶ}
+    \label{fig:chapter01-node-download}
+\end{figure}
+
+教材で使うVite 8は、Node.js 20系では20.19.0以上、22系では22.12.0以上が必要です。
 Node.js公式サイトの現在のLTS版インストーラはこの条件を満たします。
 すでに古いNode.jsがインストールされている場合は、LTS版に更新してから使ってください。
 インストーラでは標準設定のまま進め、インストールを最後まで完了してください。
 
-インストールが終わったら、開いているVS CodeとPowerShellをいったん閉じてから、もう一度開きます。新しく開いたターミナルで、次のコマンドを一行ずつ実行し、Node.jsとnpmが使えるか確認します。
+インストールが終わったら、開いているVS CodeとPowerShellをいったん閉じてから、もう一度VS Codeを開きます。
+コマンドを入力するには、VS Codeの「ターミナル」→「新しいターミナル」を選びます。
+図\ref{fig:chapter01-open-terminal}のように「表示」→「ターミナル」から開くこともできます。英語表示の場合は「View」→「Terminal」です。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/chapter01/start-termnial-on-vscode.png}
+    \caption{VS Codeのメニューからターミナルを開く（英語表示の例）}
+    \label{fig:chapter01-open-terminal}
+\end{figure}
+
+図\ref{fig:chapter01-powershell-terminal}では、画面下部にPowerShellのターミナルが開いています。
+右上に\texttt{powershell}と表示されていることを確認します。別のものが開いた場合は、「+」の横のメニューから「PowerShell」を選んでください。
+\texttt{PS C:\ldots>}の右側にコマンドを入力し、\texttt{Enter}で実行します。
+この\texttt{PS C:\ldots>}や、サンプルの行番号は入力しません。ユーザー名やフォルダの場所は、自分のPCのものが表示されます。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.95\linewidth]{figures/chapter01/terninal-on-vsocde.png}
+    \caption{画面下部に開いたPowerShellでコマンドを入力する}
+    \label{fig:chapter01-powershell-terminal}
+\end{figure}
+
+新しく開いたターミナルで、次のコマンドを一行ずつ実行し、Node.jsとnpmが使えるか確認します。
 
 \begin{listing}[htbp]
 \begin{minted}{powershell}
@@ -173,11 +245,14 @@ Gitは、プログラムの変更を記録するための道具です。この�
 
 \worktiming{PCごとに原則1回}
 
-Webブラウザで\href{https://gitforwindows.org/}{Git for Windowsの公式サイト}を開き、Windows用のインストーラをダウンロードします。インストール項目はたくさんありますが、最初は基本的に標準設定のままで構いません。
+Webブラウザで\href{https://git-scm.com/}{Gitの公式サイト}を開き、「Install for Windows」からWindows用のインストーラをダウンロードします。
+図\ref{fig:chapter01-git-install}は、x64版のインストーラを選び、「ダウンロード」フォルダから起動するまでの流れです。
+ARM版のWindowsを使っている場合は、ARM64版を選びます。どちらか分からない場合は、担当者に確認してください。
+インストール項目はたくさんありますが、最初は基本的に標準設定のままで構いません。
 
 インストールが終わったら、VS Codeのターミナルで次のコマンドを実行して、Gitが使えることを確認します。この章では、コマンドをPowerShellで実行する手順に統一します。
 
-\begin{listing}[htbp]
+\begin{listing}[H]
 \begin{minted}{powershell}
 git --version
 \end{minted}
@@ -187,7 +262,7 @@ git --version
 
 続いて、Gitに記録する名前とメールアドレスを設定します。次の\texttt{Taro Student}と\texttt{taro@example.com}は自分の情報に置き換えてください。メールアドレスには、授業の作業に使うことを許可されているものを指定します。
 
-\begin{listing}[htbp]
+\begin{listing}[H]
 \begin{minted}{powershell}
 git config --global user.name "Taro Student"
 git config --global user.email "taro@example.com"
@@ -195,6 +270,13 @@ git config --global user.email "taro@example.com"
 \caption{Gitに名前とメールアドレスを設定するコマンド}
 \label{lst:chapter01-git-identity}
 \end{listing}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.95\linewidth,height=.86\textheight,keepaspectratio]{figures/chapter01/git-install.png}
+    \caption{Gitの公式サイトでWindows用のインストーラを選び、起動する}
+    \label{fig:chapter01-git-install}
+\end{figure}
 
 \subsection{ファイルとフォルダをCLIで操作してみよう}
 \label{sec:chapter01-cli-files}
@@ -221,7 +303,7 @@ GUIを使ってはいけないわけではありません。Git、Node.js、npm�
 VS Codeの「ファイル」→「フォルダーを開く」で、この\texttt{work-textbook}を開いてください。
 信頼を確認する画面が出た場合は、自分で用意した授業用フォルダであることを確認してから信頼します。
 
-続いて「ターミナル」→「新しいターミナル」を選びます。
+続いて「ターミナル」→「新しいターミナル」を選びます。ターミナルの開き方と画面の見方は、図\ref{fig:chapter01-open-terminal}と図\ref{fig:chapter01-powershell-terminal}でも確認できます。
 PowerShell以外が開いた場合は、ターミナル上部の「+」の横のメニューから「PowerShell」を選び、新しく開きます。
 この節のコマンドは、そのPowerShellに一行ずつ入力し、\texttt{Enter}で実行してください。
 画面の\texttt{PS C:\ldots>}のような入力待ちの表示や、掲載例の行番号は入力しません。
@@ -379,6 +461,18 @@ ls
 実行が終わると、最後の\texttt{ls}に、練習用の\texttt{practice}と取得した\texttt{typescript-p5js-programming-textbook}が表示されます。
 \texttt{git clone}は教材フォルダを作りますが、その中へは移動しません。次の節で、取得した教材フォルダをVS Codeで開きます。
 すでに教材フォルダがある場合は、\texttt{git clone}を繰り返さず、次の節へ進んでください。
+
+図\ref{fig:chapter01-get-material}は、コマンドの入力と、取得した教材フォルダをエクスプローラーで確認する様子です。
+画像中の\texttt{git clone}の入力例は\texttt{Documents}で実行していますが、\textbf{本書の手順では、先に\texttt{work-textbook}へ移動してから実行します}。
+\texttt{mkdir work-textbook}だけでは、その中へ移動しないことにも注意してください。
+操作には画像中のコマンドではなく、サンプル\ref{lst:chapter01-git-clone}を使います。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth,height=.72\textheight,keepaspectratio]{figures/chapter01/get-material-from-git.png}
+    \caption{教材取得の操作画面の例（実行場所は本文の手順に合わせる）}
+    \label{fig:chapter01-get-material}
+\end{figure}
 
 \begin{notebox}{フォルダ名に注意する}
 Windowsでは、フォルダ名に日本語や空白が含まれていても多くの場合は動作します。ただし、コマンド入力に慣れるまでは、\texttt{work-textbook}のような英数字だけのフォルダ名にしておくとトラブルを減らせます。
