@@ -2,6 +2,8 @@
 
 このリポジトリは、大学などの初学者向けに作成した、TypeScriptとp5.jsによるプログラミング入門教材です。Windowsでの利用を基本とし、macOSとUbuntuでの準備方法も付録に収録しています。
 
+学生が使うサンプルプログラムと実行環境を配付しています。教材PDFはReleaseから取得します。LaTeXソースなどの編集用資料は、[教員向けリポジトリ](https://github.com/m-riho/typescript-p5js-programming-textbook-dev)で公開しています。
+
 ## 学生のみなさんへ
 
 最初に使う場所は次の3つです。
@@ -59,22 +61,19 @@ npm run dev
 | `typescript-p5/listings/` | 章ごとのサンプルプログラム |
 | `typescript-p5/workspace/` | 自分で作成するTypeScriptプログラムの保存先 |
 | `typescript-p5/workspace/exercises/` | 演習問題・課題の保存先（例: `02-01.ts`） |
-| `chapters/` | LuaLaTeXの章ファイル |
-| `figures/` | 教材の図版 |
-| `main.tex` | 教材全体を組版するLuaLaTeXの入口 |
 
-## 教材PDFを組版する
+## 以前の版を利用している方へ
 
-PDFの利用だけであれば、GitHub Releasesから取得するのが簡単です。LuaLaTeXソースから組版する場合は、LuaLaTeX、latexmk、mintedが動作する環境で、リポジトリのルートから次を実行します。
+v1.1.006から、学生向けリポジトリの最新ファイル一覧にはLaTeXソースや本文用図版を含めません。`typescript-p5/` 内の構成と実行方法は変わりません。旧版の履歴・タグ・Releaseは残しているため、過去の版を参照すると編集用資料が含まれます。
 
-```console
-latexmk -lualatex -shell-escape main.tex
-```
+すでに教材を取得済みの場合、自分の課題や `index.html` の変更を退避・記録してから更新してください。更新時に競合が出た場合は、強制的なリセットやファイル削除をせず担当者へ相談します。別のフォルダに新しく取得し、自分の `workspace/` を確認しながら引き継ぐ方法もあります。
+
+教材の本文やサンプルへの修正提案は、[教員向けリポジトリ](https://github.com/m-riho/typescript-p5js-programming-textbook-dev)へお願いします。この学生向けリポジトリは、確認済みの教材から配付用ファイルを生成して更新します。
 
 ## ライセンス
 
 - `typescript-p5/`内のサンプルプログラム: [MIT License](LICENSE-CODE)
-- 上記以外の本文、図版、文書、LuaLaTeXソース: [CC BY-NC-SA 4.0](LICENSE)
+- 教材PDF、図版、READMEなどの文書: [CC BY-NC-SA 4.0](LICENSE)
 
 教材内の作者提供イラストも、教材資料の一部としてCC BY-NC-SA 4.0の対象です。
 
